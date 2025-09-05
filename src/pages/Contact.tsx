@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-// import emailjs from '@emailjs/browser';
+import emailjs from '@emailjs/browser';
 
 const Contact = () => {
   const { toast } = useToast();
@@ -76,14 +76,11 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // TODO: Configure EmailJS with your credentials
-      // Replace these with your actual EmailJS service ID, template ID, and public key
+      // TODO: Replace these with your actual EmailJS credentials
       const SERVICE_ID = 'your_service_id'; // Replace with your EmailJS service ID
       const TEMPLATE_ID = 'your_template_id'; // Replace with your EmailJS template ID
       const PUBLIC_KEY = 'your_public_key'; // Replace with your EmailJS public key
 
-      // Uncomment and configure when EmailJS is set up
-      /*
       await emailjs.send(
         SERVICE_ID,
         TEMPLATE_ID,
@@ -95,10 +92,6 @@ const Contact = () => {
         },
         PUBLIC_KEY
       );
-      */
-
-      // For now, just show success message (remove this when EmailJS is configured)
-      console.log('Form submission:', formData);
       
       toast({
         title: "Message sent successfully!",
