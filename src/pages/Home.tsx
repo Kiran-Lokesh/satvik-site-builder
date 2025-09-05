@@ -1,10 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Leaf, Heart, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import satvikLogo from '@/assets/satvik-logo.png';
 
 const Home = () => {
+  const navigate = useNavigate();
+  
   const features = [
     {
       icon: <Leaf className="h-8 w-8 text-brand-green" />,
@@ -23,9 +25,8 @@ const Home = () => {
     }
   ];
 
-  const scrollToProducts = () => {
-    // Navigate to products page
-    window.location.href = '/products';
+  const navigateToProducts = () => {
+    navigate('/products');
   };
 
   return (
@@ -58,7 +59,7 @@ const Home = () => {
               <Button 
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg shadow-warm"
-                onClick={scrollToProducts}
+                onClick={navigateToProducts}
               >
                 View Our Products
                 <ArrowRight className="ml-2 h-5 w-5" />
