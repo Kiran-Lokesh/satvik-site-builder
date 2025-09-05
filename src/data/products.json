@@ -1,0 +1,88 @@
+{
+  "categories": [
+    {
+      "id": "chutney-powders",
+      "name": "Chutney Powders",
+      "description": "Traditional South Indian chutney powders made with authentic spices and natural ingredients",
+      "products": [
+        {
+          "id": "flax-seed-chutney",
+          "name": "Flax Seed Chutney Powder",
+          "description": "Rich in omega-3 fatty acids, made with roasted flax seeds and traditional spices. Perfect with rice or rotis.",
+          "image": "flax-seed-chutney.png",
+          "features": ["Natural Ingredients", "Omega-3 Rich", "Traditionally Stone Ground"]
+        },
+        {
+          "id": "peanut-chutney",
+          "name": "Peanut Chutney Powder",
+          "description": "Aromatic blend of roasted peanuts and spices. A protein-rich accompaniment for your meals.",
+          "image": "peanut-chutney.png",
+          "features": ["High Protein", "Natural Ingredients", "Traditionally Made"]
+        },
+        {
+          "id": "niger-chutney",
+          "name": "Niger Chutney Powder",
+          "description": "Made from premium niger seeds with authentic North Karnataka spices. Rich in nutrients and flavor.",
+          "image": "niger-chutney.png",
+          "features": ["Nutrient Dense", "Traditional Recipe", "Natural Ingredients"]
+        }
+      ]
+    },
+    {
+      "id": "rotis",
+      "name": "Traditional Rotis",
+      "description": "Healthy, gluten-free millet rotis made from farm-fresh ingredients using traditional methods",
+      "products": [
+        {
+          "id": "jawar-rotti",
+          "name": "Sorghum Millet Roti",
+          "description": "Nutritious gluten-free rotis made from pure sorghum millet. Ready to eat, traditionally made.",
+          "image": "jawar-rotti.png",
+          "features": ["100% Gluten Free", "Farm Fresh", "Ready to Eat", "10 Pieces"]
+        },
+        {
+          "id": "pearl-millet-rotti",
+          "name": "Pearl Millet Roti",
+          "description": "Wholesome bajra rotis packed with nutrients. Perfect for a healthy lifestyle.",
+          "image": "pearl-millet-rotti.png",
+          "features": ["100% Gluten Free", "Traditionally Made", "Farm Fresh", "10 Pieces"]
+        },
+        {
+          "id": "millets-rotti",
+          "name": "Mixed Millets Roti with Masala",
+          "description": "Innovative blend of multiple millets with aromatic masala spices. A new taste to traditional roti.",
+          "image": "millets-rotti.png",
+          "features": ["Multi-Grain", "With Masala", "100% Gluten Free", "10 Pieces"]
+        }
+      ]
+    },
+    {
+      "id": "spices-drinks",
+      "name": "Spices & Health Drinks",
+      "description": "Premium quality spices and nutritious health drink mixes for your daily wellness",
+      "products": [
+        {
+          "id": "turmeric-powder",
+          "name": "Traditional Turmeric Powder",
+          "description": "Pure, traditionally pounded turmeric powder with high curcumin content. Perfect for cooking and health benefits.",
+          "image": "turmeric-powder.png",
+          "features": ["Traditionally Pounded", "High Curcumin", "Pure & Natural"]
+        },
+        {
+          "id": "red-chilli-powder",
+          "name": "Red Chilli Powder",
+          "description": "Premium quality red chilli powder made from sun-dried chilies. Adds perfect heat and flavor to your dishes.",
+          "image": "red-chilli-powder.png",
+          "features": ["Sun Dried", "Premium Quality", "Traditional Process"]
+        },
+        {
+          "id": "energy-drink",
+          "name": "Millets Turmeric Energy Drink",
+          "description": "Lakadong turmeric with dry nuts and millets. A traditional latte drink mix for energy and wellness.",
+          "image": "energy-drink.png",
+          "features": ["Lakadong Turmeric", "With Dry Nuts", "Energy Boosting", "Traditional Recipe"]
+        }
+      ]
+    }
+  ]
+}

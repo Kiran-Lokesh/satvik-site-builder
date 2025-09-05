@@ -1,73 +1,224 @@
-# Welcome to your Lovable project
+# Satvik Foods - Professional Food Distribution Website
 
-## Project info
+A modern, responsive website for Satvik Foods, featuring authentic North Karnataka food products. Built with React, TypeScript, and Tailwind CSS.
 
-**URL**: https://lovable.dev/projects/8eeb7891-19a8-40c2-9788-0a9792f6faf0
+## 🌟 Features
 
-## How can I edit this code?
+- **Responsive Design**: Mobile-first, fully responsive across all devices
+- **JSON-Driven Products**: Easy to update product catalog through JSON file
+- **Modern UI**: Beautiful, professional design with warm, food-industry colors
+- **SEO Optimized**: Proper meta tags, semantic HTML, and structured content
+- **Contact Form**: EmailJS integration for direct email communication
+- **Performance**: Optimized images and smooth animations
+- **Accessibility**: WCAG compliant with proper semantic markup
 
-There are several ways of editing your application.
+## 🏗️ Tech Stack
 
-**Use Lovable**
+- **React 18** with TypeScript
+- **Tailwind CSS** for styling
+- **Vite** for build tooling
+- **shadcn/ui** for UI components
+- **React Router** for navigation
+- **EmailJS** for contact form
+- **Lucide React** for icons
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8eeb7891-19a8-40c2-9788-0a9792f6faf0) and start prompting.
+## 🚀 Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js 18+ 
+- npm or yarn
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd satvik-foods-website
+   ```
 
-Follow these steps:
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. **Open your browser**
+   Navigate to `http://localhost:8080`
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📧 EmailJS Setup
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+To enable the contact form, configure EmailJS:
+
+1. **Create EmailJS Account**
+   - Go to [EmailJS](https://www.emailjs.com/)
+   - Create a free account
+
+2. **Setup Email Service**
+   - Add your email service (Gmail, Outlook, etc.)
+   - Note your Service ID
+
+3. **Create Email Template**
+   - Create a template with variables: `{{from_name}}`, `{{from_email}}`, `{{message}}`
+   - Note your Template ID
+
+4. **Get Public Key**
+   - Find your Public Key in account settings
+
+5. **Update Contact Page**
+   In `src/pages/Contact.tsx`, replace the placeholder values:
+   ```typescript
+   const SERVICE_ID = 'your_actual_service_id';
+   const TEMPLATE_ID = 'your_actual_template_id';
+   const PUBLIC_KEY = 'your_actual_public_key';
+   ```
+
+6. **Uncomment EmailJS Code**
+   Uncomment the emailjs.send() function in the handleSubmit method.
+
+## 📦 Product Management
+
+### Adding New Products
+
+1. **Add Product Images**
+   - Place product images in `src/assets/products/`
+   - Use descriptive filenames (e.g., `turmeric-powder.png`)
+
+2. **Update Products JSON**
+   Edit `src/data/products.json`:
+   ```json
+   {
+     "categories": [
+       {
+         "id": "new-category",
+         "name": "New Category",
+         "description": "Category description",
+         "products": [
+           {
+             "id": "new-product",
+             "name": "Product Name",
+             "description": "Product description",
+             "image": "product-image.png",
+             "features": ["Feature 1", "Feature 2"]
+           }
+         ]
+       }
+     ]
+   }
+   ```
+
+3. **The website will automatically update** to show new categories and products!
+
+### Product JSON Structure
+
+```json
+{
+  "categories": [
+    {
+      "id": "unique-category-id",
+      "name": "Display Name", 
+      "description": "Category description",
+      "products": [
+        {
+          "id": "unique-product-id",
+          "name": "Product Display Name",
+          "description": "Product description text",
+          "image": "filename.png",
+          "features": ["Feature 1", "Feature 2", "Feature 3"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## 🎨 Customization
+
+### Colors & Branding
+
+The design system is defined in `src/index.css`:
+
+```css
+:root {
+  --brand-green: 140 45% 35%;    /* Primary green */
+  --brand-gold: 45 85% 65%;      /* Golden accent */
+  --brand-orange: 25 85% 70%;    /* Orange accent */
+  --brand-cream: 48 56% 97%;     /* Light background */
+  --brand-earth: 25 35% 25%;     /* Dark earth tone */
+}
+```
+
+### Typography
+
+Update font families in `tailwind.config.ts` if needed.
+
+### Component Variants
+
+Customize button and card variants in the shadcn components located in `src/components/ui/`.
+
+## 📱 Pages Structure
+
+- **Home (`/`)**: Hero section, company intro, features
+- **Products (`/products`)**: JSON-driven product catalog
+- **About (`/about`)**: Company story, mission, values
+- **Contact (`/contact`)**: Contact form and business info
+
+## 🔧 Build & Deployment
+
+### Development Build
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Production Build
+```bash
+npm run build
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Preview Production Build
+```bash
+npm run preview
+```
 
-**Use GitHub Codespaces**
+### Deploy to Vercel/Netlify
+1. Build the project: `npm run build`
+2. Deploy the `dist` folder to your hosting platform
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📊 SEO Features
 
-## What technologies are used for this project?
+- ✅ Semantic HTML structure
+- ✅ Meta descriptions and keywords
+- ✅ Open Graph tags
+- ✅ Twitter Cards
+- ✅ Canonical URLs
+- ✅ Alt text for all images
+- ✅ Structured content hierarchy
+- ✅ Mobile-friendly viewport
 
-This project is built with:
+## 🎯 Performance Features
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- ✅ Lazy loading images
+- ✅ Optimized animations
+- ✅ Minimal bundle size
+- ✅ Modern build tooling (Vite)
+- ✅ Tree-shaking
+- ✅ Code splitting
 
-## How can I deploy this project?
+## 📞 Support
 
-Simply open [Lovable](https://lovable.dev/projects/8eeb7891-19a8-40c2-9788-0a9792f6faf0) and click on Share -> Publish.
+For questions or support:
+- Email: [Add your support email]
+- Documentation: This README
+- Issues: Create GitHub issues for bugs
 
-## Can I connect a custom domain to my Lovable project?
+## 📝 License
 
-Yes, you can!
+[Add your license information]
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+**Built with ❤️ for Satvik Foods - Bringing tradition to your table**
