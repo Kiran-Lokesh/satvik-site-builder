@@ -10,7 +10,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build && touch dist/.nojekyll",
+    "predeploy": "npm run build && touch dist/.nojekyll && cp CNAME dist/",
     "deploy": "gh-pages -d dist -r https://github.com/Kiran-Lokesh/satvik-site-builder.git"
   },
   "dependencies": {
