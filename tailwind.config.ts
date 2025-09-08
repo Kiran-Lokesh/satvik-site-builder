@@ -54,11 +54,24 @@ export default {
 				},
 				// Brand colors for Satvik Foods
 				brand: {
+					DEFAULT: 'hsl(var(--brand))',
+					dark: 'hsl(var(--brand-dark))',
 					green: 'hsl(var(--brand-green))',
 					gold: 'hsl(var(--brand-gold))',
 					orange: 'hsl(var(--brand-orange))',
 					cream: 'hsl(var(--brand-cream))',
 					earth: 'hsl(var(--brand-earth))'
+				},
+				accent: {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))'
+				},
+				terracotta: 'hsl(var(--terracotta))',
+				surface: 'hsl(var(--surface))',
+				brandText: 'hsl(var(--brand-text))',
+				muted: {
+					DEFAULT: 'hsl(var(--muted))',
+					foreground: 'hsl(var(--muted-foreground))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

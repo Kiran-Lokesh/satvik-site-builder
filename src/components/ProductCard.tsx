@@ -23,7 +23,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <Card className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 border-border/50 bg-card">
+    <Card className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 border-[rgba(0,77,61,0.08)] bg-card">
       <CardContent className="p-0">
         <div className="relative overflow-hidden rounded-t-lg bg-gradient-hero">
           <img
@@ -35,10 +35,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         <div className="p-6 space-y-4">
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-card-foreground group-hover:text-primary transition-colors">
+            <h3 className="text-lg font-semibold text-brandText group-hover:text-brand transition-colors">
               {product.name}
             </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted leading-relaxed">
               {product.description}
             </p>
           </div>
@@ -48,7 +48,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               <Badge 
                 key={index} 
                 variant="secondary" 
-                className="text-xs bg-brand-green/10 text-brand-green border-brand-green/20 hover:bg-brand-green/20"
+                className="text-xs bg-brand/10 text-brand border-brand/20 hover:bg-brand/20"
               >
                 {feature}
               </Badge>

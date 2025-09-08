@@ -1,9 +1,9 @@
 import { Mail, Phone, MapPin } from 'lucide-react';
-import satvikLogo from '@/assets/satvik-logo.png';
+import satvikLogo from '@/assets/satvik-logo.svg';
 
 const Footer = () => {
   return (
-    <footer className="bg-primary text-primary-foreground mt-20">
+    <footer className="bg-brand text-white mt-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
@@ -12,9 +12,9 @@ const Footer = () => {
             <img 
               src={satvikLogo} 
               alt="Satvik Foods" 
-              className="h-12 w-auto object-contain brightness-0 invert"
+              className="h-14 sm:h-16 md:h-18 w-auto object-contain brightness-0 invert"
             />
-            <p className="text-sm text-primary-foreground/80 leading-relaxed">
+            <p className="text-sm text-white/80 leading-relaxed">
               Authentic North Karnataka Foods – bringing traditional, healthy, and wholesome products 
               from our farms to your table.
             </p>

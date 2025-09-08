@@ -41,11 +41,20 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Custom design tokens for food brand */
-    --brand-green: 140 45% 35%;
-    --brand-gold: 45 85% 65%;
-    --brand-orange: 25 85% 70%;
-    --brand-cream: 48 56% 97%;
+    /* New brand color palette */
+    --brand: 160 100% 15%; /* #004d3d */
+    --brand-dark: 160 100% 10%; /* #00342b */
+    --accent: 45 90% 65%; /* #F4C84A */
+    --terracotta: 15 70% 60%; /* #D9734A */
+    --surface: 48 56% 98%; /* #FAF9F6 */
+    --brand-text: 220 13% 18%; /* #1F2937 */
+    --muted: 220 9% 46%; /* #6B7280 */
+    
+    /* Legacy brand colors for backward compatibility */
+    --brand-green: 160 100% 15%;
+    --brand-gold: 45 90% 65%;
+    --brand-orange: 15 70% 60%;
+    --brand-cream: 48 56% 98%;
     --brand-earth: 25 35% 25%;
 
     /* Gradients */
@@ -124,6 +133,6 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-surface text-brandText;
   }
 }
