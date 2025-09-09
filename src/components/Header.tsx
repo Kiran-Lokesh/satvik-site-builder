@@ -20,7 +20,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-surface backdrop-blur-sm border-b border-brand/20 shadow-soft">
+    <header className="sticky top-0 z-50 bg-accent backdrop-blur-sm border-b border-brand/20 shadow-soft">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-22 md:h-24 lg:h-26">
           {/* Logo */}
@@ -63,7 +63,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-brand/20 bg-surface">
+          <div className="md:hidden border-t border-brand/20 bg-accent">
             <nav className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => (
                 <Link

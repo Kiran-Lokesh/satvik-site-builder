@@ -1,0 +1,176 @@
+{
+    "brands": [
+        {
+            "name": "Jawari",
+            "categories": [
+                {
+                    "name": "Chutney Powders",
+                    "products": [
+                        {
+                            "id": "jawari-cp-001",
+                            "name": "Flax Seed Chutney Powder",
+                            "description": "A rich source of omega-3 fatty acids, flaxseed promotes heart's health and lowers the risk of stroke. It is a rich source of lignans, has powerful antioxidants, and estrogen properties and helps to prevent cancer. Among its other benefits are that it is a good source of fiber, improves digestion and lowers cholesterol. Flaxseed is also a source of plant-based protein, a substitute for those who do not eat meat.",
+                            "image": "flax_seed_chutney_powder.jpg"
+                        },
+                        {
+                            "id": "jawari-cp-002",
+                            "name": "Peanut Chutney Powder",
+                            "description": "Peanuts are an excellent source of plant-based protein, offering 25.8g per 100g of peanuts, or around half of a person's daily protein needs. Fatty acids are an essential part of every diet. Most of the fats in peanuts are monounsaturated and polyunsaturated fatty acids, a healthy type of fat. They are also a good source of dietary fibre. With 8.5gm per 100gm, peanuts are an excellent food for people with diabetes or a risk of diabetes.",
+                            "image": "peanut_chutney_powder.jpg"
+                        },
+                        {
+                            "id": "jawari-cp-003",
+                            "name": "Niger Seed Chutney Powder",
+                            "description": "Niger seeds are an excellent source of protein for energy, good for overall growth and hemoglobin production, and for osteoporosis and rheumatism. They help in the formation of healthy bones and teeth, prevent the formation of fat in the liver and protect against cancer. The seeds contribute to healthy skin and hair and are good for the heart and for diabetes.",
+                            "image": "niger_chutney_powder.jpg"
+                        }
+                    ]
+                },
+                {
+                    "name": "Chilly & Turmeric Powder",
+                    "products": [
+                        {
+                            "id": "jawari-ctp-001",
+                            "name": "Red Chilli Powder",
+                            "description": "Red chillies are good for digestive health as they help to improve the secretion of digestive juices which prevent issues such as constipation and gas. Red chillies help reduce inflammation and act as a natural remedy for pain relief by binding with pain-sensitive nerve endings. The production of haemoglobin can be increased because of the iron present in red chilli powder.",
+                            "image": "red_chiili_powder.jpg"
+                        },
+                        {
+                            "id": "jawari-ctp-002",
+                            "name": "Turmeric Powder",
+                            "description": "Turmeric has powerful anti-inflammatory effects and is a very strong antioxidant. It has a range of health benefits. Antioxidants have the potential to prevent heart disease, eye conditions and Alzheimer's. Its anti-inflammatory properties can help people with arthritis. Turmeric may even reduce the risk or spread of cancer.",
+                            "image": "turmeric_powder.jpg"
+                        }
+                    ]
+                },
+                {
+                    "name": "Healthy Drinks",
+                    "products": [
+                        {
+                            "id": "jawari-hd-002",
+                            "name": "Millets Turmeric Drink With Nuts",
+                            "description": "This instant drink-mix powder is part of Jawari's offering of an age-old and proven food combinations. It incorporates millet together with LAKADONG TURMERIC which offers authentic health benefits to all ages in all climatic conditions. With dry nuts which promotes strength & energy. It can be consumed instantly by mixing it in cold or hot milk, or in water.",
+                            "image": "millets_energy_drink.jpg"
+                        }
+                    ]
+                },
+                {
+                    "name": "Roti",
+                    "products": [
+                        {
+                            "id": "jawari-r-002",
+                            "name": "Millets Rotti",
+                            "description": "Millets are healthy food from the olden days. We now introduce them in the form of rottis. These rottis are made using traditional process. You can enjoy the millets rotti with any kind of bhajis, gravies, vegetables and chutneys. Millets are excellent sources of carbohydrate, protein, fiber, calcium and iron and are gluten-free. They are nutritious food suitable for all ages and for all climatic conditions.",
+                            "image": "millets_rotti.jpg"
+                        },
+                        {
+                            "id": "jawari-r-003",
+                            "name": "Jawar Rotti",
+                            "description": "Among many health benefits of Jawar are that it improves digestion. Jawar also has a lot of fibers (around 48 per cent of what is required by our body on daily basis). It fights free radicals, boosts immunity, improves heart health and is gluten-free, rich in protein and controls blood-sugar levels.",
+                            "image": "jawar_rotti.jpg"
+                        },
+                        {
+                            "id": "jawari-r-004",
+                            "name": "Sajje Rotti",
+                            "description": "Sajje (Pearl Millet) is rich in protein, fiber, and essential minerals. It helps in maintaining healthy blood sugar levels and provides sustained energy. Sajje rotti is a traditional North Karnataka staple that's both nutritious and delicious.",
+                            "image": "sajje_rotti.jpg"
+                        }
+                    ]
+                },
+                {
+                    "name": "Sweets",
+                    "products": [
+                        {
+                            "id": "jawari-s-001",
+                            "name": "Belgaum Special Kunda",
+                            "description": "Thickened milk or khova and sugar are the main ingredients of Belgaum Kunda. To make it, milk is boiled extensively until it loses most of its water content and becomes a concentrate. Sugar is then added and the mixture is stirred well Cardamom powder and dry fruits are added in the final stage.",
+                            "image": "kunda.jpg"
+                        },
+                        {
+                            "id": "jawari-s-002",
+                            "name": "Karadantu",
+                            "description": "Karandantu is one of the special traditional sweets of North Karnataka. It is made with dry fruits which are a rich source of calcium, copper, iron, magnesium, potassium, phosphorus, protein, riboflavin, vitamin A-C-E-K-B6 and zinc, promoting healthy bones, muscles, nerves, teeth and skin. They also offer protection from anaemia, heart disease and high cholesterol, and strengthen the immune system.",
+                            "image": "kardantu.jpg"
+                        },
+                        {
+                            "id": "jawari-s-003",
+                            "name": "Supreme Dink Ladu",
+                            "description": "Laddu made with dry fruits such as almonds, cashew nuts and raisins are considered a powerhouse of nutrients. Almonds being naturally high in monounsaturated fatty acids and vitamin E, help in maintaining healthy cholesterol levels. The presence of magnesium and potassium helps maintain normal blood pressure and heart function, makes one feel fuller and thus helps avoid overeating.",
+                            "image": "supreme_dink_laddu.jpg"
+                        }
+                    ]
+                },
+                {
+                    "name": "Roasted Makhana",
+                    "products": [
+                        {
+                            "id": "jawari-rm-001",
+                            "name": "Makhana (FOX NUTS) Peri Peri",
+                            "description": "It's rich in antioxidants. It's rich in micronutrients. Help slow signs of aging and support heart health",
+                            "image": "makhana_peri_peri.jpg"
+                        },
+                        {
+                            "id": "jawari-rm-002",
+                            "name": "Roasted Makhana (FOX NUTS) Cream & Onion",
+                            "description": "It's rich in antioxidants. It's rich in micronutrients. Help slow signs of aging and support heart health. Blood sugar management, and weight loss",
+                            "image": "makhana_cream_onion.jpg"
+                        },
+                        {
+                            "id": "jawari-rm-003",
+                            "name": "Roasted Makhana (FOX NUTS) Tangy Cheese",
+                            "description": "It's rich in antioxidants. It's rich in micronutrients. Help slow signs of aging and support heart health. Blood sugar management, and weight loss",
+                            "image": "makhana_tangy_cheese.jpg"
+                        }
+                    ]
+                },
+                {
+                    "name": "Millet Dishes",
+                    "products": [
+                        {
+                            "id": "jawari-md-001",
+                            "name": "Millet Biryani",
+                            "description": "A healthy twist on traditional biryani made with nutritious millets. Rich in fiber, protein, and essential minerals, this dish offers all the flavor of traditional biryani with added health benefits.",
+                            "image": "millet_biryani.jpg"
+                        },
+                        {
+                            "id": "jawari-md-002",
+                            "name": "Millet Bisi Bele Bath",
+                            "description": "A traditional Karnataka dish made with millets, lentils, and vegetables. This wholesome meal is rich in protein, fiber, and essential nutrients, perfect for a healthy lifestyle.",
+                            "image": "millet_bisi_bele_bath.jpg"
+                        },
+                        {
+                            "id": "jawari-md-003",
+                            "name": "Millet Dosa",
+                            "description": "A nutritious alternative to traditional dosa made with millet flour. Rich in fiber and protein, this dosa is perfect for those looking for healthier breakfast options.",
+                            "image": "millet_dosa.jpg"
+                        },
+                        {
+                            "id": "jawari-md-004",
+                            "name": "Millet Idly",
+                            "description": "Soft and fluffy idlies made with millet flour. These idlies are rich in protein, fiber, and essential minerals, making them a perfect healthy breakfast choice.",
+                            "image": "millet_idly.jpg"
+                        },
+                        {
+                            "id": "jawari-md-005",
+                            "name": "Millet Kheer",
+                            "description": "A delicious and nutritious dessert made with millets and milk. Rich in calcium, protein, and essential vitamins, this kheer is a healthy way to satisfy your sweet tooth.",
+                            "image": "millet_kheer.jpg"
+                        },
+                        {
+                            "id": "jawari-md-006",
+                            "name": "Millet Khichdi",
+                            "description": "A comforting one-pot meal made with millets, lentils, and vegetables. This khichdi is rich in protein, fiber, and essential nutrients, perfect for a wholesome meal.",
+                            "image": "millet_khichdi.jpg"
+                        },
+                        {
+                            "id": "jawari-md-007",
+                            "name": "Millet Upma",
+                            "description": "A healthy and delicious breakfast dish made with millet semolina. Rich in fiber and protein, this upma is perfect for starting your day with nutrition.",
+                            "image": "millet_upma.jpg"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

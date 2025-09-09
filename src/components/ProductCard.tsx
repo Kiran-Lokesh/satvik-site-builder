@@ -7,14 +7,15 @@ interface ProductCardProps {
     name: string;
     description: string;
     image: string;
-    features: string[];
   };
+  onClick?: (product: ProductCardProps['product']) => void;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, onClick }: ProductCardProps) => {
   // Dynamic import function for product images
   const getProductImage = (imageName: string) => {
     try {
+      // Try to load the image directly
       return new URL(`../assets/products/${imageName}`, import.meta.url).href;
     } catch {
       // Fallback if image doesn't exist
@@ -23,7 +24,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <Card className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 border-[rgba(0,77,61,0.08)] bg-card">
+    <Card 
+      className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 border-[rgba(0,77,61,0.08)] bg-card cursor-pointer"
+      onClick={() => onClick?.(product)}
+    >
       <CardContent className="p-0">
         <div className="relative overflow-hidden rounded-t-lg bg-gradient-hero">
           <img
@@ -43,16 +47,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </p>
           </div>
           
-          <div className="flex flex-wrap gap-2">
-            {product.features.map((feature, index) => (
-              <Badge 
-                key={index} 
-                variant="secondary" 
-                className="text-xs bg-brand/10 text-brand border-brand/20 hover:bg-brand/20"
-              >
-                {feature}
-              </Badge>
-            ))}
+          <div className="flex justify-end">
+            <Badge 
+              variant="secondary" 
+              className="text-xs bg-brand/10 text-brand border-brand/20 hover:bg-brand/20"
+            >
+              Premium Quality
+            </Badge>
           </div>
         </div>
       </CardContent>
