@@ -2,14 +2,24 @@ import { useEffect, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
 import ProductDetail from '@/components/ProductDetail';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search } from 'lucide-react';
 import jawariProductsData from '@/data/jawari_products.json';
+
+interface ProductVariant {
+  id: string;
+  name: string;
+  price?: string;
+  inStock?: boolean;
+}
 
 interface Product {
   id: string;
   name: string;
   description: string;
   image: string;
+  variants?: ProductVariant[];
 }
 
 interface Category {
@@ -26,6 +36,7 @@ const Products = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
@@ -61,15 +72,29 @@ const Products = () => {
   // Filter categories within each brand
   const getFilteredCategories = (brand: Brand) => {
     return brand.categories.filter(category => {
-      if (selectedCategory === 'all') return true;
-      return category.name === selectedCategory;
+      // First filter by selected category
+      const categoryMatches = selectedCategory === 'all' || category.name === selectedCategory;
+      if (!categoryMatches) return false;
+      
+      // Then check if category has products after search filtering
+      const filteredProducts = getFilteredProducts(category.products);
+      return filteredProducts.length > 0;
     });
+  };
+
+  // Filter products by search query
+  const getFilteredProducts = (products: Product[]) => {
+    if (!searchQuery.trim()) return products;
+    return products.filter(product => 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   };
 
   // Clear all filters
   const clearFilters = () => {
     setSelectedBrand('all');
     setSelectedCategory('all');
+    setSearchQuery('');
   };
 
   // Handle product card click
@@ -115,6 +140,20 @@ const Products = () => {
           <p className="text-sm text-muted">
             {getTotalProductCount()} products across {brands.length} brands and {getAllCategories().length} categories
           </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="max-w-2xl mx-auto">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search products by name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-3 text-base border-brand/20 focus:border-brand focus:ring-brand/20"
+            />
+          </div>
         </div>
 
         {/* Filter Controls */}
@@ -196,13 +235,6 @@ const Products = () => {
           
           return (
             <section key={brand.name} className="space-y-12">
-              {/* Brand Header */}
-              <div className="text-center space-y-4">
-                <h2 className="text-3xl lg:text-4xl font-bold text-brand">
-                  {brand.name}
-                </h2>
-              </div>
-
               {/* Categories within Brand */}
               {filteredCategories.map((category, categoryIndex) => (
                 <div key={`${brand.name}-${category.name}`} className="space-y-8">
@@ -214,21 +246,15 @@ const Products = () => {
                   </div>
 
                   {/* Products Grid */}
-                  {category.products.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {category.products.map((product) => (
-                        <ProductCard 
-                          key={product.id} 
-                          product={product} 
-                          onClick={handleProductClick}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-muted text-lg">Products coming soon...</p>
-                    </div>
-                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {getFilteredProducts(category.products).map((product) => (
+                      <ProductCard 
+                        key={product.id} 
+                        product={product} 
+                        onClick={handleProductClick}
+                      />
+                    ))}
+                  </div>
 
                   {/* Divider between categories (except for last category in brand) */}
                   {categoryIndex < filteredCategories.length - 1 && (

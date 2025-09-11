@@ -2,11 +2,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
+interface ProductVariant {
+  id: string;
+  name: string;
+  price?: string;
+  inStock?: boolean;
+}
+
 interface Product {
   id: string;
   name: string;
   description: string;
   image: string;
+  variants?: ProductVariant[];
 }
 
 interface ProductDetailProps {
@@ -96,6 +104,46 @@ const ProductDetail = ({ product, isOpen, onClose }: ProductDetailProps) => {
                 </div>
               </div>
             </div>
+
+            {/* Product Variants */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-brandText">
+                  Available Sizes
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {product.variants.map((variant) => (
+                    <div 
+                      key={variant.id}
+                      className={`p-4 rounded-lg border-2 transition-colors ${
+                        variant.inStock !== false 
+                          ? 'border-brand/20 bg-brand/5 hover:bg-brand/10' 
+                          : 'border-gray-200 bg-gray-50 opacity-60'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-medium text-brandText">
+                            {variant.name}
+                          </h4>
+                          {variant.price && (
+                            <p className="text-sm text-brand font-semibold">
+                              {variant.price}
+                            </p>
+                          )}
+                        </div>
+                        <Badge 
+                          variant={variant.inStock !== false ? "default" : "secondary"}
+                          className={variant.inStock !== false ? "bg-brand text-white" : "bg-gray-400"}
+                        >
+                          {variant.inStock !== false ? "In Stock" : "Out of Stock"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Call to Action */}
             <div className="pt-6 border-t border-brand/10">

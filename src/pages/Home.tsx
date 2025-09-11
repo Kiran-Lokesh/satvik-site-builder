@@ -53,7 +53,7 @@ const Home = () => {
               <Link to="/products">
                 <Button 
                   size="lg" 
-                  className="bg-accent hover:bg-brand-dark text-black px-8 py-6 text-lg shadow-warm"
+                  className="bg-accent hover:bg-brand-dark text-black hover:text-white px-8 py-6 text-lg shadow-warm"
                 >
                   View Our Products
                   <ArrowRight className="ml-2 h-5 w-5" />

@@ -10,13 +10,47 @@
                             "id": "jawari-cp-001",
                             "name": "Flax Seed Chutney Powder",
                             "description": "A rich source of omega-3 fatty acids, flaxseed promotes heart's health and lowers the risk of stroke. It is a rich source of lignans, has powerful antioxidants, and estrogen properties and helps to prevent cancer. Among its other benefits are that it is a good source of fiber, improves digestion and lowers cholesterol. Flaxseed is also a source of plant-based protein, a substitute for those who do not eat meat.",
-                            "image": "flax_seed_chutney_powder.jpg"
+                            "image": "flax_seed_chutney_powder.jpg",
+                            "variants": [
+                                {
+                                    "id": "flax-200g",
+                                    "name": "200g Pack",
+                                    "price": "$8.99",
+                                    "inStock": true
+                                },
+                                {
+                                    "id": "flax-500g",
+                                    "name": "500g Pack",
+                                    "price": "$19.99",
+                                    "inStock": true
+                                },
+                                {
+                                    "id": "flax-1kg",
+                                    "name": "1kg Pack",
+                                    "price": "$34.99",
+                                    "inStock": false
+                                }
+                            ]
                         },
                         {
                             "id": "jawari-cp-002",
                             "name": "Peanut Chutney Powder",
                             "description": "Peanuts are an excellent source of plant-based protein, offering 25.8g per 100g of peanuts, or around half of a person's daily protein needs. Fatty acids are an essential part of every diet. Most of the fats in peanuts are monounsaturated and polyunsaturated fatty acids, a healthy type of fat. They are also a good source of dietary fibre. With 8.5gm per 100gm, peanuts are an excellent food for people with diabetes or a risk of diabetes.",
-                            "image": "peanut_chutney_powder.jpg"
+                            "image": "peanut_chutney_powder.jpg",
+                            "variants": [
+                                {
+                                    "id": "peanut-150g",
+                                    "name": "150g Pack",
+                                    "price": "$6.99",
+                                    "inStock": true
+                                },
+                                {
+                                    "id": "peanut-300g",
+                                    "name": "300g Pack",
+                                    "price": "$12.99",
+                                    "inStock": true
+                                }
+                            ]
                         },
                         {
                             "id": "jawari-cp-003",
@@ -167,6 +201,59 @@
                             "name": "Millet Upma",
                             "description": "A healthy and delicious breakfast dish made with millet semolina. Rich in fiber and protein, this upma is perfect for starting your day with nutrition.",
                             "image": "millet_upma.jpg"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Satvik Foods",
+            "categories": [
+                {
+                    "name": "Traditional Spices",
+                    "products": [
+                        {
+                            "id": "satvik-spice-001",
+                            "name": "Premium Garam Masala",
+                            "description": "Aromatic blend of traditional spices hand-ground using time-honored methods. Perfect for authentic Indian cooking.",
+                            "image": "garam-masala.jpg",
+                            "variants": [
+                                {
+                                    "id": "garam-100g",
+                                    "name": "100g Jar",
+                                    "price": "$12.99",
+                                    "inStock": true
+                                },
+                                {
+                                    "id": "garam-250g",
+                                    "name": "250g Jar",
+                                    "price": "$24.99",
+                                    "inStock": true
+                                },
+                                {
+                                    "id": "garam-500g",
+                                    "name": "500g Pack",
+                                    "price": "$45.99",
+                                    "inStock": true
+                                }
+                            ]
+                        },
+                        {
+                            "id": "satvik-spice-002", 
+                            "name": "Organic Coriander Powder",
+                            "description": "Pure coriander powder made from organically grown coriander seeds. Adds fresh flavor to your dishes.",
+                            "image": "coriander-powder.jpg"
+                        }
+                    ]
+                },
+                {
+                    "name": "Health Mixes",
+                    "products": [
+                        {
+                            "id": "satvik-health-001",
+                            "name": "Multi-Grain Breakfast Mix",
+                            "description": "Nutritious blend of various grains and nuts for a healthy start to your day.",
+                            "image": "breakfast-mix.jpg"
                         }
                     ]
                 }
