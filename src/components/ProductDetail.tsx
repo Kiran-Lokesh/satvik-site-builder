@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -33,18 +32,10 @@ const ProductDetail = ({ product, isOpen, onClose }: ProductDetailProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="relative">
-          <DialogTitle className="text-2xl font-bold text-brandText pr-8">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-brandText">
             {product.name}
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="absolute right-0 top-0 h-8 w-8 p-0 hover:bg-muted"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
@@ -108,24 +99,15 @@ const ProductDetail = ({ product, isOpen, onClose }: ProductDetailProps) => {
 
             {/* Call to Action */}
             <div className="pt-6 border-t border-brand/10">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
-                  className="flex-1 bg-brand hover:bg-brand-dark text-white"
-                  onClick={() => {
-                    // You can add contact functionality here
-                    window.open('mailto:info@satvikfoods.ca?subject=Inquiry about ' + product.name, '_blank');
-                  }}
-                >
-                  Contact Us
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1 border-brand/20 text-brand hover:bg-brand/5"
-                  onClick={onClose}
-                >
-                  Close
-                </Button>
-              </div>
+              <Button 
+                className="w-full bg-brand hover:bg-brand-dark text-white"
+                onClick={() => {
+                  // You can add contact functionality here
+                  window.open('mailto:info@satvikfoods.ca?subject=Inquiry about ' + product.name, '_blank');
+                }}
+              >
+                Contact Us
+              </Button>
             </div>
           </div>
         </div>
