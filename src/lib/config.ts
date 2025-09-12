@@ -5,10 +5,11 @@ export const DATA_SOURCE_CONFIG = {
     // Check if we have Airtable environment variables
     const hasAirtableConfig = import.meta.env.VITE_AIRTABLE_API_KEY && import.meta.env.VITE_AIRTABLE_BASE_ID;
     
-    // Default to Airtable if environment variables are available, otherwise JSON
-    const defaultSource = hasAirtableConfig ? 'airtable' : 'json';
+    // Default to JSON for better performance with 100+ products
+    const defaultSource = 'json';
     
-    return (localStorage.getItem('dataSource') as 'json' | 'airtable') || defaultSource;
+    // Force JSON for now (ignore localStorage override)
+    return 'json';
   },
   
   set source(value: 'json' | 'airtable') {

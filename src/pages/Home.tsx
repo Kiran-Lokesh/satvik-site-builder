@@ -3,89 +3,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Leaf, Heart, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import satvikLogo from '@/assets/satvik-logo.svg';
-import { imageCache } from '@/lib/imageCache';
-import { useEffect } from 'react';
 
 const Home = () => {
-  // Intelligent image preloading based on user behavior
-  useEffect(() => {
-    let preloadTimer: NodeJS.Timeout;
-    let isPreloading = false;
-    
-    // Only preload high-priority images first
-    const priorityImages = [
-      'jawar_rotti.jpg',        // Most popular
-      'sajje_rotti.jpg',        // Most popular
-      'flax_seed_chutney_powder.jpg', // Popular chutney
-      'peanut_chutney_powder.jpg',    // Popular chutney
-    ];
-    
-    // Remaining images (lower priority)
-    const remainingImages = [
-      'niger_chutney_powder.jpg',
-      'red_chiili_powder.jpg',
-      'turmeric_powder.jpg',
-      'millets_energy_drink.jpg',
-      'millets_rotti.jpg',
-      'kunda.jpg',
-      'kardantu.jpg',
-      'supreme_dink_laddu.jpg',
-      'makhana_peri_peri.jpg',
-      'makhana_cream_onion.jpg',
-      'makhana_tangy_cheese.jpg',
-      'millet_biryani.jpg',
-      'millet_bisi_bele_bath.jpg',
-      'millet_dosa.jpg',
-      'millet_idly.jpg',
-      'millet_kheer.jpg',
-      'millet_khichdi.jpg',
-      'millet_upma.jpg'
-    ];
-
-    const startIntelligentPreloading = () => {
-      if (isPreloading) return;
-      isPreloading = true;
-      
-      console.log('🖼️ Starting intelligent image preloading...');
-      
-      // Phase 1: Preload only priority images (smaller, faster)
-      setTimeout(() => {
-        console.log('📸 Preloading priority images...');
-        imageCache.preloadImages(priorityImages);
-      }, 3000); // 3 second delay
-      
-      // Phase 2: Preload remaining images only if user is still on homepage
-      setTimeout(() => {
-        console.log('📸 Preloading remaining images...');
-        imageCache.preloadImages(remainingImages);
-      }, 8000); // 8 second delay - only if user stays
-    };
-
-    // Start preloading after user has been on homepage for a while
-    preloadTimer = setTimeout(startIntelligentPreloading, 5000); // Increased to 5 seconds
-    
-    // Also preload when user hovers over "View Products" button
-    const handleProductsHover = () => {
-      if (!isPreloading) {
-        console.log('🎯 User hovering over products button - starting preload!');
-        startIntelligentPreloading();
-      }
-    };
-    
-    // Add event listener for products button hover
-    const productsButton = document.querySelector('[href="#/products"]');
-    if (productsButton) {
-      productsButton.addEventListener('mouseenter', handleProductsHover);
-    }
-    
-    return () => {
-      clearTimeout(preloadTimer);
-      if (productsButton) {
-        productsButton.removeEventListener('mouseenter', handleProductsHover);
-      }
-    };
-  }, []);
-
   const features = [
     {
       icon: <Leaf className="h-8 w-8 text-brand" />,
@@ -170,7 +89,7 @@ const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="text-center border-[rgba(0,77,61,0.08)] shadow-soft hover:shadow-card transition-all duration-300">
+              <Card key={index} className="text-center border-[rgba(0,77,61,0.08)] shadow-soft hover:shadow-card transition-all duration-300">                                                                                                                                  
                 <CardContent className="p-8 space-y-4">
                   <div className="flex justify-center">
                     {feature.icon}

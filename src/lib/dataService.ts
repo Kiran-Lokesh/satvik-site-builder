@@ -76,13 +76,10 @@ const loadFromJson = (): Brand[] => {
 export const getProductData = async (): Promise<Brand[]> => {
   try {
     const dataSource = getCurrentDataSource();
-    console.log(`📊 Loading data from: ${dataSource}`);
     
     if (shouldUseAirtable()) {
-      console.log('🔄 Attempting to load from Airtable...');
       return await loadFromAirtable();
     } else {
-      console.log('📄 Loading from local JSON files...');
       return loadFromJson();
     }
   } catch (error) {
@@ -90,7 +87,6 @@ export const getProductData = async (): Promise<Brand[]> => {
     
     // Fallback to JSON if Airtable fails and fallback is enabled
     if (shouldUseAirtable() && DATA_SOURCE_CONFIG.fallbackToJson) {
-      console.log('🔄 Falling back to JSON data...');
       return loadFromJson();
     }
     

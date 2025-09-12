@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
 import { getProductData, type Brand, type Product, type ProductVariant } from '@/lib/dataService';
-import { imageCache } from '@/lib/imageCache';
 
 // Types are now imported from dataService
 
@@ -18,6 +17,10 @@ const Products = () => {
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(12); // Show 12 products per page
 
   useEffect(() => {
     // Load products from configured data source
@@ -26,13 +29,7 @@ const Products = () => {
         const productData = await getProductData();
         setBrands(productData);
         
-        // Skip preloading for now to improve initial load time
-        // const allImages = productData.flatMap(brand => 
-        //   brand.categories.flatMap(category => 
-        //     category.products.map(product => product.image).filter(Boolean)
-        //   )
-        // );
-        // imageCache.preloadImages(allImages as string[]);
+        // No preloading for better performance with 100+ products
       } catch (error) {
         console.error('❌ Failed to load products:', error);
         // Fallback to empty array if both sources fail
@@ -92,7 +89,45 @@ const Products = () => {
     setSelectedBrand('all');
     setSelectedCategory('all');
     setSearchQuery('');
+    setCurrentPage(1); // Reset to first page
   };
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedBrand, selectedCategory, searchQuery]);
+
+  // Get all products for pagination (with proper filtering)
+  const getAllProducts = () => {
+    return brands.flatMap(brand => {
+      // Filter by selected brand
+      if (selectedBrand !== 'all' && brand.name !== selectedBrand) {
+        return [];
+      }
+      
+      return brand.categories.flatMap(category => {
+        // Filter by selected category
+        if (selectedCategory !== 'all' && category.name !== selectedCategory) {
+          return [];
+        }
+        
+        // Apply search filter and return products
+        return getFilteredProducts(category.products).map(product => ({
+          ...product,
+          brandName: brand.name,
+          categoryName: category.name
+        }));
+      });
+    });
+  };
+
+  // Pagination logic
+  const allProducts = getAllProducts();
+  const totalProducts = allProducts.length;
+  const totalPages = Math.ceil(totalProducts / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const currentProducts = allProducts.slice(startIndex, endIndex);
 
   // Handle product card click
   const handleProductClick = (product: Product) => {
@@ -223,58 +258,85 @@ const Products = () => {
           )}
         </div>
 
-        {/* Brands, Categories and Products - Fully Dynamic Rendering */}
-        {/* This section automatically adapts to any changes in jawari_products.json */}
-        {filteredBrands.map((brand, brandIndex) => {
-          const filteredCategories = getFilteredCategories(brand);
-          
-          // Only show brand if it has categories with products or if showing all
-          if (filteredCategories.length === 0) return null;
-          
-          return (
-            <section key={brand.name} className="space-y-12">
-              {/* Categories within Brand */}
-              {filteredCategories.map((category, categoryIndex) => (
-                <div key={`${brand.name}-${category.name}`} className="space-y-8">
-                  {/* Category Header */}
-                  <div className="text-center space-y-3">
-                    <h3 className="text-2xl lg:text-3xl font-semibold text-brandText">
-                      {category.name}
-                    </h3>
-                  </div>
-
-                  {/* Products Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {getFilteredProducts(category.products).map((product) => (
-                      <ProductCard 
-                        key={product.id} 
-                        product={product} 
-                        onClick={handleProductClick}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Divider between categories (except for last category in brand) */}
-                  {categoryIndex < filteredCategories.length - 1 && (
-                    <div className="flex justify-center pt-8">
-                      <div className="w-16 h-px bg-brand/20"></div>
-                    </div>
-                  )}
-                </div>
+        {/* Products Grid with Pagination */}
+        {totalProducts > 0 && (
+          <div className="space-y-8">
+            {/* Products Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {currentProducts.map((product) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  onClick={handleProductClick}
+                />
               ))}
+            </div>
 
-              {/* Divider between brands (except for last brand) */}
-              {brandIndex < filteredBrands.length - 1 && (
-                <div className="flex justify-center pt-12">
-                  <div className="w-32 h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent"></div>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8">
+                <div className="text-sm text-muted-foreground">
+                  Showing {startIndex + 1}-{Math.min(endIndex, totalProducts)} of {totalProducts} products
                 </div>
-              )}
-            </section>
-          );
-        })}
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="border-brand/20 text-brand hover:bg-brand/5"
+                  >
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={currentPage === pageNum 
+                            ? "bg-brand hover:bg-brand-dark text-white" 
+                            : "border-brand/20 text-brand hover:bg-brand/5"
+                          }
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="border-brand/20 text-brand hover:bg-brand/5"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* No Results State */}
-        {filteredBrands.length === 0 && brands.length > 0 && (
+        {totalProducts === 0 && brands.length > 0 && (
           <div className="text-center py-16">
             <h2 className="text-2xl font-semibold text-muted-foreground mb-4">
               No Products Found
