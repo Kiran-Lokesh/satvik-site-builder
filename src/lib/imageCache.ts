@@ -18,13 +18,8 @@ class ImageCache {
       // Smart format selection: prefer WebP for local assets, fallback to JPG
       const optimizedImageName = this.getOptimizedImageName(imageName);
       
-      try {
-        // Try to load the optimized image from assets directory
-        imageUrl = new URL(`../assets/products/${optimizedImageName}`, import.meta.url).href;
-      } catch {
-        // Fallback if optimized image doesn't exist
-        imageUrl = '/placeholder.svg';
-      }
+      // Use direct path for production builds
+      imageUrl = `/assets/images/${optimizedImageName}`;
     }
 
     // Cache the URL
@@ -38,19 +33,7 @@ class ImageCache {
 
   // Smart image format selection
   private getOptimizedImageName(imageName: string): string {
-    // If it's already WebP, use it
-    if (imageName.endsWith('.webp')) {
-      return imageName;
-    }
-    
-    // If it's JPG/JPEG, try WebP first, fallback to original
-    if (imageName.endsWith('.jpg') || imageName.endsWith('.jpeg')) {
-      const webpName = imageName.replace(/\.(jpg|jpeg)$/i, '.webp');
-      // Check if WebP version exists (this is handled by the try/catch in getImageUrl)
-      return webpName;
-    }
-    
-    // For other formats, return as-is
+    // For now, just return the original image name since we're not using WebP
     return imageName;
   }
 

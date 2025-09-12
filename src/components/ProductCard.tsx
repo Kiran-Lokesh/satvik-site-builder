@@ -14,7 +14,8 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onClick }: ProductCardProps) => {
   // Use cached image URL for better performance
-  const imageUrl = imageCache.getImageUrl(product.image || 'placeholder.svg');
+  const imageName = product.image || 'placeholder.svg';
+  const imageUrl = imageCache.getImageUrl(imageName);
 
   return (
     <Card 
