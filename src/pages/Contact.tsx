@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,16 +7,26 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import emailjs from '@emailjs/browser';
+
 
 const Contact = () => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: ''
   });
+
+  // Check for success parameter from FormSubmit redirect
+  useEffect(() => {
+    if (searchParams.get('success') === 'true') {
+      toast({
+        title: "Message sent successfully!",
+        description: "Thank you for contacting us. We'll get back to you soon.",
+      });
+    }
+  }, [searchParams, toast]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -66,55 +77,18 @@ const Contact = () => {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = (e: React.FormEvent) => {
     if (!validateForm()) {
+      e.preventDefault();
       return;
     }
 
-    setIsSubmitting(true);
-
-    try {
-      // TODO: Replace these with your actual EmailJS credentials
-      const SERVICE_ID = 'your_service_id'; // Replace with your EmailJS service ID
-      const TEMPLATE_ID = 'your_template_id'; // Replace with your EmailJS template ID
-      const PUBLIC_KEY = 'your_public_key'; // Replace with your EmailJS public key
-
-      await emailjs.send(
-        SERVICE_ID,
-        TEMPLATE_ID,
-        {
-          from_name: formData.name,
-          from_email: formData.email,
-          message: formData.message,
-          to_name: 'Satvik Foods Team',
-        },
-        PUBLIC_KEY
-      );
-      
-      toast({
-        title: "Message sent successfully!",
-        description: "Thank you for contacting us. We'll get back to you soon.",
-      });
-
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        message: ''
-      });
-
-    } catch (error) {
-      console.error('Email sending failed:', error);
-      toast({
-        title: "Failed to send message",
-        description: "There was an error sending your message. Please try again later.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    console.log('Form data:', formData);
+    console.log('Submitting to FormSubmit...');
+    
+    // Let the form submit naturally to FormSubmit
+    // Don't prevent default - this allows the form to redirect to FormSubmit
+    // FormSubmit will handle the submission and redirect back
   };
 
   const contactInfo = [
@@ -127,7 +101,7 @@ const Contact = () => {
     {
       icon: <Mail className="h-6 w-6 text-brand-orange" />,
       title: "Email",
-      details: "info@satvikfoods.com",
+      details: "support@satvikfoods.ca",
       description: "We'll respond within 24 hours"
     },
     {
@@ -161,7 +135,19 @@ const Contact = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form 
+                onSubmit={handleSubmit} 
+                action="https://formsubmit.co/support@satvikfoods.ca" 
+                method="POST"
+                className="space-y-6"
+              >
+                {/* FormSubmit configuration */}
+                <input type="hidden" name="_subject" value="New Contact Form Submission - Satvik Foods" />
+                <input type="hidden" name="_next" value="https://satvikfoods.ca/#/contact?success=true" />
+                <input type="hidden" name="_captcha" value="true" />
+                <input type="hidden" name="_template" value="table" />
+                <input type="hidden" name="_autoresponse" value="Thank you for contacting Satvik Foods! We'll get back to you within 24 hours." />
+                
                 <div className="space-y-2">
                   <Label htmlFor="name">Name *</Label>
                   <Input
@@ -207,18 +193,18 @@ const Contact = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-warm"
-                  disabled={isSubmitting}
                 >
-                  {isSubmitting ? (
-                    <>Sending...</>
-                  ) : (
-                    <>
-                      Send Message
-                      <Send className="ml-2 h-4 w-4" />
-                    </>
-                  )}
+                  Send Message
+                  <Send className="ml-2 h-4 w-4" />
                 </Button>
               </form>
+              
+              {/* FormSubmit Notice */}
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  <strong>Note:</strong> After clicking "Send Message", you may be asked to complete a quick verification to prevent spam. This is normal and helps protect our contact system.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
