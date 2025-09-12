@@ -3,8 +3,52 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Leaf, Heart, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import satvikLogo from '@/assets/satvik-logo.svg';
+import { imageCache } from '@/lib/imageCache';
+import { useEffect } from 'react';
 
 const Home = () => {
+  // Preload product images while user is on homepage
+  useEffect(() => {
+    const preloadProductImages = () => {
+      // List of all product images to preload
+      const productImages = [
+        'flax_seed_chutney_powder.jpg',
+        'peanut_chutney_powder.jpg',
+        'niger_chutney_powder.jpg',
+        'red_chiili_powder.jpg',
+        'turmeric_powder.jpg',
+        'millets_energy_drink.jpg',
+        'millets_rotti.jpg',
+        'jawar_rotti.jpg',
+        'sajje_rotti.jpg',
+        'kunda.jpg',
+        'kardantu.jpg',
+        'supreme_dink_laddu.jpg',
+        'makhana_peri_peri.jpg',
+        'makhana_cream_onion.jpg',
+        'makhana_tangy_cheese.jpg',
+        'millet_biryani.jpg',
+        'millet_bisi_bele_bath.jpg',
+        'millet_dosa.jpg',
+        'millet_idly.jpg',
+        'millet_kheer.jpg',
+        'millet_khichdi.jpg',
+        'millet_upma.jpg'
+      ];
+
+      // Preload images with a small delay to not block initial page load
+      setTimeout(() => {
+        console.log('🖼️ Preloading product images from homepage...');
+        imageCache.preloadImages(productImages);
+      }, 2000); // 2 second delay to ensure homepage loads first
+    };
+
+    // Only preload if user has been on homepage for a bit (likely to navigate)
+    const preloadTimer = setTimeout(preloadProductImages, 2000);
+    
+    return () => clearTimeout(preloadTimer);
+  }, []);
+
   const features = [
     {
       icon: <Leaf className="h-8 w-8 text-brand" />,
