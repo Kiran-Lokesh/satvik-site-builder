@@ -1,4 +1,4 @@
-import { DATA_SOURCE_CONFIG, shouldUseAirtable } from './config';
+import { DATA_SOURCE_CONFIG, shouldUseAirtable, getCurrentDataSource } from './config';
 import { getDataByBrands } from './airtable';
 import jawariProducts from '@/data/jawari_products.json';
 
