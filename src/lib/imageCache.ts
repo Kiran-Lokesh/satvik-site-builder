@@ -72,8 +72,8 @@ class ImageCache {
     // Cache the URL
     this.cache.set(imageName, imageUrl);
     
-    // Preload the image for better performance
-    this.preloadImage(imageUrl);
+    // Skip preloading for better initial load performance
+    // this.preloadImage(imageUrl);
     
     return imageUrl;
   }

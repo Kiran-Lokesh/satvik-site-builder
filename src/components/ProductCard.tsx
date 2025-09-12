@@ -29,6 +29,7 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
             alt={product.name}
             className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            decoding="async"
           />
         </div>
         <div className="p-6 space-y-4">

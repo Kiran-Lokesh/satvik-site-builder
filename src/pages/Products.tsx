@@ -26,13 +26,13 @@ const Products = () => {
         const productData = await getProductData();
         setBrands(productData);
         
-        // Preload all product images for better performance
-        const allImages = productData.flatMap(brand => 
-          brand.categories.flatMap(category => 
-            category.products.map(product => product.image).filter(Boolean)
-          )
-        );
-        imageCache.preloadImages(allImages as string[]);
+        // Skip preloading for now to improve initial load time
+        // const allImages = productData.flatMap(brand => 
+        //   brand.categories.flatMap(category => 
+        //     category.products.map(product => product.image).filter(Boolean)
+        //   )
+        // );
+        // imageCache.preloadImages(allImages as string[]);
       } catch (error) {
         console.error('❌ Failed to load products:', error);
         // Fallback to empty array if both sources fail
