@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
-import ProductDetail from '@/components/ProductDetail';
+import ProductDetailModal from '@/components/ProductDetailModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -367,7 +367,7 @@ const Products = () => {
       </div>
 
       {/* Product Detail Modal */}
-      <ProductDetail
+      <ProductDetailModal
         product={selectedProduct}
         isOpen={isProductDetailOpen}
         onClose={handleProductDetailClose}

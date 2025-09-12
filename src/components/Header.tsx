@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCart } from '@/contexts/CartContext';
 import satvikLogo from '@/assets/satvik-logo.svg';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { getTotalItems, toggleCart } = useCart();
+  const totalItems = getTotalItems();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -48,6 +51,22 @@ const Header = () => {
               </Link>
             ))}
           </nav>
+
+          {/* Cart Icon */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleCart}
+            className="relative p-2 hover:bg-brand/10"
+            aria-label="Shopping cart"
+          >
+            <ShoppingCart className="h-5 w-5 text-brandText" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 bg-brand text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                {totalItems > 99 ? '99+' : totalItems}
+              </span>
+            )}
+          </Button>
 
           {/* Mobile menu button */}
           <Button
