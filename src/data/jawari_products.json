@@ -1,9 +1,11 @@
 {
     "brands": [
         {
+            "id": "jawari",
             "name": "Jawari",
             "categories": [
                 {
+                    "id": "jawari-chutney_powders",
                     "name": "Chutney Powders",
                     "products": [
                         {
@@ -56,18 +58,21 @@
                             "id": "jawari-cp-003",
                             "name": "Niger Seed Chutney Powder",
                             "description": "Niger seeds are an excellent source of protein for energy, good for overall growth and hemoglobin production, and for osteoporosis and rheumatism. They help in the formation of healthy bones and teeth, prevent the formation of fat in the liver and protect against cancer. The seeds contribute to healthy skin and hair and are good for the heart and for diabetes.",
-                            "image": "niger_chutney_powder.jpg"
+                            "image": "niger_chutney_powder.jpg",
+                            "variants": []
                         }
                     ]
                 },
                 {
+                    "id": "jawari-chilly_turmeric_powder",
                     "name": "Chilly & Turmeric Powder",
                     "products": [
                         {
                             "id": "jawari-ctp-001",
                             "name": "Red Chilli Powder",
                             "description": "Red chillies are good for digestive health as they help to improve the secretion of digestive juices which prevent issues such as constipation and gas. Red chillies help reduce inflammation and act as a natural remedy for pain relief by binding with pain-sensitive nerve endings. The production of haemoglobin can be increased because of the iron present in red chilli powder.",
-                            "image": "red_chiili_powder.jpg"
+                            "image": "red_chiili_powder.jpg",
+                            "variants": []
                         },
                         {
                             "id": "jawari-ctp-002",
@@ -78,6 +83,7 @@
                     ]
                 },
                 {
+                    "id": "jawari-healthy_drinks",
                     "name": "Healthy Drinks",
                     "products": [
                         {
@@ -89,6 +95,7 @@
                     ]
                 },
                 {
+                    "id": "jawari-roti",
                     "name": "Roti",
                     "products": [
                         {
@@ -112,6 +119,7 @@
                     ]
                 },
                 {
+                    "id": "jawari-sweets",
                     "name": "Sweets",
                     "products": [
                         {
@@ -135,6 +143,7 @@
                     ]
                 },
                 {
+                    "id": "jawari-roasted_makhana",
                     "name": "Roasted Makhana",
                     "products": [
                         {
@@ -158,6 +167,7 @@
                     ]
                 },
                 {
+                    "id": "jawari-millet_dishes",
                     "name": "Millet Dishes",
                     "products": [
                         {
@@ -207,16 +217,18 @@
             ]
         },
         {
+            "id": "satvik_foods",
             "name": "Satvik Foods",
             "categories": [
                 {
+                    "id": "satvik-traditional_spices",
                     "name": "Traditional Spices",
                     "products": [
                         {
                             "id": "satvik-spice-001",
                             "name": "Premium Garam Masala",
                             "description": "Aromatic blend of traditional spices hand-ground using time-honored methods. Perfect for authentic Indian cooking.",
-                            "image": "garam-masala.jpg",
+                            "image": "placeholder.svg",
                             "variants": [
                                 {
                                     "id": "garam-100g",
@@ -242,18 +254,19 @@
                             "id": "satvik-spice-002", 
                             "name": "Organic Coriander Powder",
                             "description": "Pure coriander powder made from organically grown coriander seeds. Adds fresh flavor to your dishes.",
-                            "image": "coriander-powder.jpg"
+                            "image": "placeholder.svg"
                         }
                     ]
                 },
                 {
+                    "id": "satvik-health_mixes",
                     "name": "Health Mixes",
                     "products": [
                         {
                             "id": "satvik-health-001",
                             "name": "Multi-Grain Breakfast Mix",
                             "description": "Nutritious blend of various grains and nuts for a healthy start to your day.",
-                            "image": "breakfast-mix.jpg"
+                            "image": "placeholder.svg"
                         }
                     ]
                 }

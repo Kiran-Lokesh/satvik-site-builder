@@ -5,32 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
-import jawariProductsData from '@/data/jawari_products.json';
+import { getProductData, type Brand, type Product, type ProductVariant } from '@/lib/dataService';
+import { imageCache } from '@/lib/imageCache';
 
-interface ProductVariant {
-  id: string;
-  name: string;
-  price?: string;
-  inStock?: boolean;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  variants?: ProductVariant[];
-}
-
-interface Category {
-  name: string;
-  products: Product[];
-}
-
-interface Brand {
-  name: string;
-  categories: Category[];
-}
+// Types are now imported from dataService
 
 const Products = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -42,8 +20,27 @@ const Products = () => {
   const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
 
   useEffect(() => {
-    // Load products from JSON file
-    setBrands(jawariProductsData.brands);
+    // Load products from configured data source
+    const loadProducts = async () => {
+      try {
+        const productData = await getProductData();
+        setBrands(productData);
+        
+        // Preload all product images for better performance
+        const allImages = productData.flatMap(brand => 
+          brand.categories.flatMap(category => 
+            category.products.map(product => product.image).filter(Boolean)
+          )
+        );
+        imageCache.preloadImages(allImages as string[]);
+      } catch (error) {
+        console.error('❌ Failed to load products:', error);
+        // Fallback to empty array if both sources fail
+        setBrands([]);
+      }
+    };
+
+    loadProducts();
   }, []);
 
   // Update available categories when brand changes
@@ -140,6 +137,7 @@ const Products = () => {
           <p className="text-sm text-muted">
             {getTotalProductCount()} products across {brands.length} brands and {getAllCategories().length} categories
           </p>
+          
         </div>
 
         {/* Search Bar */}

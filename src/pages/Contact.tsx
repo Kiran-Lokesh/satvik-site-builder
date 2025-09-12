@@ -83,8 +83,6 @@ const Contact = () => {
       return;
     }
 
-    console.log('Form data:', formData);
-    console.log('Submitting to FormSubmit...');
     
     // Let the form submit naturally to FormSubmit
     // Don't prevent default - this allows the form to redirect to FormSubmit
@@ -95,7 +93,7 @@ const Contact = () => {
     {
       icon: <Phone className="h-6 w-6 text-brand-green" />,
       title: "Phone",
-      details: "+91 XXXXX XXXXX",
+      details: "+91 98765 43210",
       description: "Mon to Fri 9am to 6pm"
     },
     {
@@ -270,6 +268,7 @@ const Contact = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };

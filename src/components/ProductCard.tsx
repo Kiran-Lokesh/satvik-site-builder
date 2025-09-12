@@ -1,37 +1,30 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { imageCache } from '@/lib/imageCache';
 
 interface ProductCardProps {
   product: {
     id: string;
     name: string;
-    description: string;
-    image: string;
+    description?: string;
+    image?: string;
   };
   onClick?: (product: ProductCardProps['product']) => void;
 }
 
 const ProductCard = ({ product, onClick }: ProductCardProps) => {
-  // Dynamic import function for product images
-  const getProductImage = (imageName: string) => {
-    try {
-      // Try to load the image directly
-      return new URL(`../assets/products/${imageName}`, import.meta.url).href;
-    } catch {
-      // Fallback if image doesn't exist
-      return '/placeholder.svg';
-    }
-  };
+  // Use cached image URL for better performance
+  const imageUrl = imageCache.getImageUrl(product.image || 'placeholder.svg');
 
   return (
     <Card 
-      className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 border-[rgba(0,77,61,0.08)] bg-card cursor-pointer"
+      className="group hover:shadow-card transition-all duration-300 border-[rgba(0,77,61,0.08)] bg-card cursor-pointer"
       onClick={() => onClick?.(product)}
     >
       <CardContent className="p-0">
         <div className="relative overflow-hidden rounded-t-lg bg-gradient-hero">
           <img
-            src={getProductImage(product.image)}
+            src={imageUrl}
             alt={product.name}
             className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
@@ -42,9 +35,11 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
             <h3 className="text-lg font-semibold text-brandText group-hover:text-brand transition-colors">
               {product.name}
             </h3>
-            <p className="text-sm text-muted leading-relaxed">
-              {product.description}
-            </p>
+            {product.description && (
+              <p className="text-sm text-muted leading-relaxed">
+                {product.description}
+              </p>
+            )}
           </div>
           
           <div className="flex justify-end">

@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { imageCache } from '@/lib/imageCache';
 
 interface ProductVariant {
   id: string;
@@ -12,8 +13,8 @@ interface ProductVariant {
 interface Product {
   id: string;
   name: string;
-  description: string;
-  image: string;
+  description?: string;
+  image?: string;
   variants?: ProductVariant[];
 }
 
@@ -26,16 +27,8 @@ interface ProductDetailProps {
 const ProductDetail = ({ product, isOpen, onClose }: ProductDetailProps) => {
   if (!product) return null;
 
-  // Dynamic import function for product images
-  const getProductImage = (imageName: string) => {
-    try {
-      // Try to load the image directly
-      return new URL(`../assets/products/${imageName}`, import.meta.url).href;
-    } catch {
-      // Fallback if image doesn't exist
-      return '/placeholder.svg';
-    }
-  };
+  // Use cached image URL for better performance
+  const imageUrl = imageCache.getImageUrl(product.image || 'placeholder.svg');
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -51,7 +44,7 @@ const ProductDetail = ({ product, isOpen, onClose }: ProductDetailProps) => {
           <div className="space-y-4">
             <div className="relative overflow-hidden rounded-lg bg-gradient-hero">
               <img
-                src={getProductImage(product.image)}
+                src={imageUrl}
                 alt={product.name}
                 className="w-full h-80 object-cover"
                 loading="lazy"
@@ -71,14 +64,16 @@ const ProductDetail = ({ product, isOpen, onClose }: ProductDetailProps) => {
 
           {/* Product Details */}
           <div className="space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-brandText">
-                Product Description
-              </h3>
-              <p className="text-muted leading-relaxed text-base">
-                {product.description}
-              </p>
-            </div>
+            {product.description && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-brandText">
+                  Product Description
+                </h3>
+                <p className="text-muted leading-relaxed text-base">
+                  {product.description}
+                </p>
+              </div>
+            )}
 
             {/* Additional Product Information */}
             <div className="space-y-4">
