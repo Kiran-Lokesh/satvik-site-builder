@@ -2,7 +2,13 @@
 export const DATA_SOURCE_CONFIG = {
   // Set to 'airtable' to use Airtable, 'json' to use local JSON files
   get source(): 'json' | 'airtable' {
-    return (localStorage.getItem('dataSource') as 'json' | 'airtable') || 'json';
+    // Check if we have Airtable environment variables
+    const hasAirtableConfig = import.meta.env.VITE_AIRTABLE_API_KEY && import.meta.env.VITE_AIRTABLE_BASE_ID;
+    
+    // Default to Airtable if environment variables are available, otherwise JSON
+    const defaultSource = hasAirtableConfig ? 'airtable' : 'json';
+    
+    return (localStorage.getItem('dataSource') as 'json' | 'airtable') || defaultSource;
   },
   
   set source(value: 'json' | 'airtable') {
