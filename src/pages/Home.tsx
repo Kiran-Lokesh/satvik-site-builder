@@ -7,46 +7,83 @@ import { imageCache } from '@/lib/imageCache';
 import { useEffect } from 'react';
 
 const Home = () => {
-  // Preload product images while user is on homepage
+  // Intelligent image preloading based on user behavior
   useEffect(() => {
-    const preloadProductImages = () => {
-      // List of all product images to preload
-      const productImages = [
-        'flax_seed_chutney_powder.jpg',
-        'peanut_chutney_powder.jpg',
-        'niger_chutney_powder.jpg',
-        'red_chiili_powder.jpg',
-        'turmeric_powder.jpg',
-        'millets_energy_drink.jpg',
-        'millets_rotti.jpg',
-        'jawar_rotti.jpg',
-        'sajje_rotti.jpg',
-        'kunda.jpg',
-        'kardantu.jpg',
-        'supreme_dink_laddu.jpg',
-        'makhana_peri_peri.jpg',
-        'makhana_cream_onion.jpg',
-        'makhana_tangy_cheese.jpg',
-        'millet_biryani.jpg',
-        'millet_bisi_bele_bath.jpg',
-        'millet_dosa.jpg',
-        'millet_idly.jpg',
-        'millet_kheer.jpg',
-        'millet_khichdi.jpg',
-        'millet_upma.jpg'
-      ];
+    let preloadTimer: NodeJS.Timeout;
+    let isPreloading = false;
+    
+    // Only preload high-priority images first
+    const priorityImages = [
+      'jawar_rotti.jpg',        // Most popular
+      'sajje_rotti.jpg',        // Most popular
+      'flax_seed_chutney_powder.jpg', // Popular chutney
+      'peanut_chutney_powder.jpg',    // Popular chutney
+    ];
+    
+    // Remaining images (lower priority)
+    const remainingImages = [
+      'niger_chutney_powder.jpg',
+      'red_chiili_powder.jpg',
+      'turmeric_powder.jpg',
+      'millets_energy_drink.jpg',
+      'millets_rotti.jpg',
+      'kunda.jpg',
+      'kardantu.jpg',
+      'supreme_dink_laddu.jpg',
+      'makhana_peri_peri.jpg',
+      'makhana_cream_onion.jpg',
+      'makhana_tangy_cheese.jpg',
+      'millet_biryani.jpg',
+      'millet_bisi_bele_bath.jpg',
+      'millet_dosa.jpg',
+      'millet_idly.jpg',
+      'millet_kheer.jpg',
+      'millet_khichdi.jpg',
+      'millet_upma.jpg'
+    ];
 
-      // Preload images with a small delay to not block initial page load
+    const startIntelligentPreloading = () => {
+      if (isPreloading) return;
+      isPreloading = true;
+      
+      console.log('🖼️ Starting intelligent image preloading...');
+      
+      // Phase 1: Preload only priority images (smaller, faster)
       setTimeout(() => {
-        console.log('🖼️ Preloading product images from homepage...');
-        imageCache.preloadImages(productImages);
-      }, 2000); // 2 second delay to ensure homepage loads first
+        console.log('📸 Preloading priority images...');
+        imageCache.preloadImages(priorityImages);
+      }, 3000); // 3 second delay
+      
+      // Phase 2: Preload remaining images only if user is still on homepage
+      setTimeout(() => {
+        console.log('📸 Preloading remaining images...');
+        imageCache.preloadImages(remainingImages);
+      }, 8000); // 8 second delay - only if user stays
     };
 
-    // Only preload if user has been on homepage for a bit (likely to navigate)
-    const preloadTimer = setTimeout(preloadProductImages, 2000);
+    // Start preloading after user has been on homepage for a while
+    preloadTimer = setTimeout(startIntelligentPreloading, 5000); // Increased to 5 seconds
     
-    return () => clearTimeout(preloadTimer);
+    // Also preload when user hovers over "View Products" button
+    const handleProductsHover = () => {
+      if (!isPreloading) {
+        console.log('🎯 User hovering over products button - starting preload!');
+        startIntelligentPreloading();
+      }
+    };
+    
+    // Add event listener for products button hover
+    const productsButton = document.querySelector('[href="#/products"]');
+    if (productsButton) {
+      productsButton.addEventListener('mouseenter', handleProductsHover);
+    }
+    
+    return () => {
+      clearTimeout(preloadTimer);
+      if (productsButton) {
+        productsButton.removeEventListener('mouseenter', handleProductsHover);
+      }
+    };
   }, []);
 
   const features = [

@@ -100,7 +100,11 @@ class ImageCache {
       // Image failed to load, remove from preload cache
       this.preloadCache.delete(url);
     };
-    img.src = url;
+    
+    // Add a small delay to prevent overwhelming the network
+    setTimeout(() => {
+      img.src = url;
+    }, Math.random() * 100); // Random delay 0-100ms to spread requests
   }
 
   // Preload multiple images
