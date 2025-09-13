@@ -4,24 +4,24 @@ import { Wheat, Heart, Users, Award } from 'lucide-react';
 const About = () => {
   const values = [
     {
-      icon: <Wheat className="h-8 w-8 text-brand-green" />,
-      title: "Farm to Table",
-      description: "We source directly from local farmers and suppliers, ensuring freshness and supporting agricultural communities."
+      icon: <Heart className="h-8 w-8 text-brand-orange" />,
+      title: "Family First",
+      description: "Every recipe we share is one we'd happily serve to our own children."
     },
     {
-      icon: <Heart className="h-8 w-8 text-brand-orange" />,
-      title: "Health First",
-      description: "Every product is crafted with your well-being in mind, using natural ingredients without artificial preservatives."
+      icon: <Wheat className="h-8 w-8 text-brand-green" />,
+      title: "Farm to Table",
+      description: "We partner directly with farmers and suppliers in India for fresh, authentic ingredients."
     },
     {
       icon: <Users className="h-8 w-8 text-brand-gold" />,
-      title: "Community Impact",
-      description: "We believe in empowering local farmers and preserving traditional food preparation methods for future generations."
+      title: "Health Always",
+      description: "No shortcuts, no artificial preservatives – only natural, nourishing foods."
     },
     {
       icon: <Award className="h-8 w-8 text-primary" />,
-      title: "Quality Assured",
-      description: "Our traditional preparation methods combined with modern hygiene standards ensure the highest quality products."
+      title: "Community & Tradition",
+      description: "Supporting rural communities and preserving South Indian culinary heritage for the next generation."
     }
   ];
 
@@ -34,7 +34,7 @@ const About = () => {
             About Satvik Foods
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Bringing the authentic taste and nutrition of South India to your table
+            Celebrating Family, Tradition, and Authentic South Indian Flavors
           </p>
         </div>
 
@@ -46,27 +46,13 @@ const About = () => {
             </h2>
             <div className="space-y-6 text-muted-foreground leading-relaxed">
               <p className="text-lg">
-                Satvik Foods was born from a simple yet powerful vision: to share the incredible 
-                flavors and nutritional benefits of traditional South Indian cuisine with families 
-                across India and beyond.
+                Satvik Foods was started by two close-knit migrant families in Canada – Kiran & Shruthi with their daughter Smrithi, and Yeshwanth & Anusha with their daughter. Together, we share a common passion: bringing the authentic taste of South Indian cuisine to homes in Canada, where food choices are often dominated by other regional flavors.
               </p>
               <p>
-                Our journey began with a passion for authentic South Indian cuisine, where generations of families 
-                have perfected the art of preparing wholesome, natural foods. We witnessed the 
-                gradual disappearance of these traditional practices and the increasing reliance 
-                on processed foods in modern kitchens.
+                We source directly from trusted suppliers and farmers in India, ensuring freshness, authenticity, and a true farm-to-table experience. Every product reflects the recipes and traditions we grew up with, prepared with love and care – the same way we cook for our own families.
               </p>
               <p>
-                This inspired us to bridge the gap between tradition and convenience. We partnered 
-                with local farmers and traditional cooks who have preserved age-old recipes and 
-                techniques. Every product we create honors these time-tested methods while meeting 
-                modern standards of hygiene and packaging.
-              </p>
-              <p>
-                Today, Satvik Foods is more than just a food company – we're custodians of cultural 
-                heritage, promoters of healthy living, and supporters of sustainable farming practices. 
-                When you choose our products, you're not just nourishing your family; you're 
-                preserving tradition and supporting rural communities.
+                For us, Satvik Foods is more than a business. It's about keeping our cultural heritage alive, nourishing our families with healthy, natural foods, and sharing those same traditions with yours.
               </p>
             </div>
           </div>
@@ -78,8 +64,7 @@ const About = () => {
             Our Mission
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            To make traditional, healthy, and authentic South Indian foods accessible to everyone, 
-            while preserving culinary heritage and supporting local farming communities.
+            To bring authentic, wholesome South Indian foods to Canadian homes while preserving culinary heritage and supporting farming communities in India.
           </p>
         </section>
 
