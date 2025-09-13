@@ -1,6 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Wheat, Heart, Users, Award } from 'lucide-react';
 
+// Import family photos
+import familyPhoto1 from '@/assets/family/satvik_family_kiran.jpg';
+
 const About = () => {
   const values = [
     {
@@ -53,6 +56,41 @@ const About = () => {
               </p>
               <p>
                 For us, Satvik Foods is more than a business. It's about keeping our cultural heritage alive, nourishing our families with healthy, natural foods, and sharing those same traditions with yours.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Family Photos Section */}
+        <section className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* First Family Photo */}
+            <div className="text-center space-y-4">
+              <div className="relative">
+                <img
+                  src={familyPhoto1}
+                  alt="Kiran, Shruthi, and Smrithi"
+                  className="w-full h-64 object-cover rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                />
+              </div>
+              <p className="text-lg font-semibold text-foreground">
+                Kiran, Shruthi, and Smrithi
+              </p>
+            </div>
+
+            {/* Second Family Photo - Placeholder */}
+            <div className="text-center space-y-4">
+              <div className="relative">
+                <div className="w-full h-64 bg-gradient-to-br from-brand/10 to-accent/10 rounded-xl shadow-lg flex items-center justify-center border-2 border-dashed border-brand/30">
+                  <div className="text-center">
+                    <Users className="h-12 w-12 text-brand/50 mx-auto mb-2" />
+                    <p className="text-brand/70 font-medium">Family Photo</p>
+                    <p className="text-sm text-brand/50">Coming Soon</p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-lg font-semibold text-foreground">
+                Yeshwanth, Anusha, and their daughter
               </p>
             </div>
           </div>
