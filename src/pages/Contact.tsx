@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Phone, MapPin, Send, Home } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Home, Clock } from 'lucide-react';
 
 
 const Contact = () => {
@@ -94,7 +94,7 @@ const Contact = () => {
       icon: <Phone className="h-6 w-6 text-brand-green" />,
       title: "Phone",
       details: "+91 6363698917",
-      description: "Mon to Fri 9am to 6pm"
+      description: "Daily 8am to 9pm"
     },
     {
       icon: <Mail className="h-6 w-6 text-brand-orange" />,
@@ -258,22 +258,21 @@ const Contact = () => {
 
             {/* Additional Info */}
             <Card className="bg-gradient-hero border-border/50">
-              <CardContent className="p-6 space-y-4">
-                <h3 className="font-semibold text-card-foreground">
-                  Business Hours
-                </h3>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex justify-between">
-                    <span>Monday - Friday</span>
-                    <span>9:00 AM - 6:00 PM</span>
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <Clock className="h-6 w-6 text-brand-gold" />
                   </div>
-                  <div className="flex justify-between">
-                    <span>Saturday</span>
-                    <span>9:00 AM - 2:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sunday</span>
-                    <span>Closed</span>
+                  <div className="space-y-1">
+                    <h3 className="font-semibold text-card-foreground">
+                      Business Hours
+                    </h3>
+                    <p className="text-lg font-medium text-primary">
+                      Daily: 8:00 AM - 9:00 PM
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Extended hours for your convenience
+                    </p>
                   </div>
                 </div>
               </CardContent>
