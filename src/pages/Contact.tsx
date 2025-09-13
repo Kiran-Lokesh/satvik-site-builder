@@ -104,9 +104,9 @@ const Contact = () => {
     },
     {
       icon: <MapPin className="h-6 w-6 text-brand-gold" />,
-      title: "Location",
-           details: "187 Belmont Blvd SW, Calgary TX2 4W5",
-      description: "Where tradition meets taste"
+      title: "Locations",
+      details: "187 Belmont Blvd SW, Calgary AB T2X 4W5",
+      description: "210 Setonstone Ave SE, Calgary AB T3M 3R6"
     }
   ];
 
@@ -230,12 +230,27 @@ const Contact = () => {
                         <h3 className="font-semibold text-card-foreground">
                           {info.title}
                         </h3>
-                        <p className="text-lg font-medium text-primary">
-                          {info.details}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {info.description}
-                        </p>
+                        {info.title === "Locations" ? (
+                          <div className="space-y-2">
+                            <div className="text-sm">
+                              <div className="font-medium text-primary mb-1">Location 1:</div>
+                              <div className="text-lg font-medium text-primary">{info.details}</div>
+                            </div>
+                            <div className="text-sm">
+                              <div className="font-medium text-primary mb-1">Location 2:</div>
+                              <div className="text-lg font-medium text-primary">{info.description}</div>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-lg font-medium text-primary">
+                              {info.details}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {info.description}
+                            </p>
+                          </>
+                        )}
                       </div>
                     </div>
                   </CardContent>

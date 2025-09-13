@@ -16,7 +16,7 @@ const Footer = () => {
               className="h-14 sm:h-16 md:h-18 w-auto object-contain"
             />
             <p className="text-sm text-muted leading-relaxed">
-              Authentic North Karnataka Foods – bringing traditional, healthy, and wholesome products 
+              Authentic South Indian Foods – bringing traditional, healthy, and wholesome products 
               from our farms to your table.
             </p>
           </div>
@@ -33,9 +33,18 @@ const Footer = () => {
                 <Mail className="h-4 w-4 flex-shrink-0" />
                 <span>support@satvikfoods.ca</span>
               </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="h-4 w-4 flex-shrink-0" />
-                       <span>187 Belmont Blvd SW, Calgary TX2 4W5</span>
+              <div className="flex items-start space-x-3">
+                <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <div className="space-y-2">
+                  <div className="text-sm">
+                    <div className="font-medium">Location 1:</div>
+                    <div>187 Belmont Blvd SW, Calgary AB T2X 4W5</div>
+                  </div>
+                  <div className="text-sm">
+                    <div className="font-medium">Location 2:</div>
+                    <div>210 Setonstone Ave SE, Calgary AB T3M 3R6</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
