@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Home } from 'lucide-react';
 
 
 const Contact = () => {
@@ -103,10 +103,10 @@ const Contact = () => {
       description: "We'll respond within 24 hours"
     },
     {
-      icon: <MapPin className="h-6 w-6 text-brand-gold" />,
+      icon: <Home className="h-6 w-6 text-brand-gold" />,
       title: "Locations",
-      details: "187 Belmont Blvd SW, Calgary AB T2X 4W5",
-      description: "210 Setonstone Ave SE, Calgary AB T3M 3R6"
+      details: "210 Setonstone Ave SE, Calgary AB T3M 3R6",
+      description: "187 Belmont Blvd SW, Calgary AB T2X 4W5"
     }
   ];
 
@@ -231,14 +231,12 @@ const Contact = () => {
                           {info.title}
                         </h3>
                         {info.title === "Locations" ? (
-                          <div className="space-y-2">
-                            <div className="text-sm">
-                              <div className="font-medium text-primary mb-1">Location 1:</div>
-                              <div className="text-lg font-medium text-primary">{info.details}</div>
+                          <div className="space-y-3">
+                            <div className="text-lg font-medium text-primary">
+                              <div className="whitespace-nowrap">{info.details}</div>
                             </div>
-                            <div className="text-sm">
-                              <div className="font-medium text-primary mb-1">Location 2:</div>
-                              <div className="text-lg font-medium text-primary">{info.description}</div>
+                            <div className="text-lg font-medium text-primary">
+                              <div className="whitespace-nowrap">{info.description}</div>
                             </div>
                           </div>
                         ) : (

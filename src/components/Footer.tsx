@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Home } from 'lucide-react';
 import satvikLogo from '@/assets/satvik-logo.svg';
 import { Button } from '@/components/ui/button';
 
@@ -33,16 +33,17 @@ const Footer = () => {
                 <Mail className="h-4 w-4 flex-shrink-0" />
                 <span>support@satvikfoods.ca</span>
               </div>
-              <div className="flex items-start space-x-3">
-                <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <div className="space-y-2">
-                  <div className="text-sm">
-                    <div className="font-medium">Location 1:</div>
-                    <div>187 Belmont Blvd SW, Calgary AB T2X 4W5</div>
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3">
+                  <Home className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm flex-1">
+                    <div className="whitespace-nowrap">210 Setonstone Ave SE, Calgary AB T3M 3R6</div>
                   </div>
-                  <div className="text-sm">
-                    <div className="font-medium">Location 2:</div>
-                    <div>210 Setonstone Ave SE, Calgary AB T3M 3R6</div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Home className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm flex-1">
+                    <div className="whitespace-nowrap">187 Belmont Blvd SW, Calgary AB T2X 4W5</div>
                   </div>
                 </div>
               </div>
