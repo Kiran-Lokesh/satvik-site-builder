@@ -13,7 +13,7 @@ import placeholderImage from '/placeholder.svg';
 // Import all product images
 import flaxSeedChutney from '@/assets/products/flax_seed_chutney_powder.jpg';
 import jawarRotti from '@/assets/products/jawar_rotti.jpg';
-import kardantu from '@/assets/products/kardantu.jpg';
+import kardantu from '@/assets/products/kardantu.png';
 import kunda from '@/assets/products/kunda.jpg';
 import makhanaCreamOnion from '@/assets/products/makhana_cream_onion.jpg';
 import makhanaPeriPeri from '@/assets/products/makhana_peri_peri.jpg';
@@ -31,7 +31,7 @@ import nigerChutney from '@/assets/products/niger_chutney_powder.jpg';
 import peanutChutney from '@/assets/products/peanut_chutney_powder.jpg';
 import redChilliPowder from '@/assets/products/red_chiili_powder.jpg';
 import sajjeRotti from '@/assets/products/sajje_rotti.jpg';
-import supremeDinkLaddu from '@/assets/products/supreme_dink_laddu.jpg';
+import supremeDinkLaddu from '@/assets/products/supreme_dink_laddu.png';
 import turmericPowder from '@/assets/products/turmeric_powder.jpg';
 
 // Import Nilgiris rice images
@@ -46,7 +46,7 @@ import sonaMasooriRice from '@/assets/products/sona_masoori_rice.png';
 const imageMap: Record<string, string> = {
   'flax_seed_chutney_powder.jpg': flaxSeedChutney,
   'jawar_rotti.jpg': jawarRotti,
-  'kardantu.jpg': kardantu,
+  'kardantu.png': kardantu,
   'kunda.jpg': kunda,
   'makhana_cream_onion.jpg': makhanaCreamOnion,
   'makhana_peri_peri.jpg': makhanaPeriPeri,
@@ -64,7 +64,7 @@ const imageMap: Record<string, string> = {
   'peanut_chutney_powder.jpg': peanutChutney,
   'red_chiili_powder.jpg': redChilliPowder,
   'sajje_rotti.jpg': sajjeRotti,
-  'supreme_dink_laddu.jpg': supremeDinkLaddu,
+  'supreme_dink_laddu.png': supremeDinkLaddu,
   'turmeric_powder.jpg': turmericPowder,
   'placeholder.svg': placeholderImage, // Use generic placeholder image
   
