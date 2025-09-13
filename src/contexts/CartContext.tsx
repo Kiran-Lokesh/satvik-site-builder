@@ -114,6 +114,8 @@ interface CartContextType {
   openCart: () => void;
   closeCart: () => void;
   getTotalItems: () => number;
+  getSubtotal: () => number;
+  getGSTAmount: () => number;
   getTotalPrice: () => number;
 }
 
@@ -162,11 +164,20 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return state.items.reduce((total, item) => total + item.quantity, 0);
   };
 
-  const getTotalPrice = () => {
+  const getSubtotal = () => {
     return state.items.reduce((total, item) => {
       const price = parseFloat(item.price?.replace('$', '') || '0');
       return total + (price * item.quantity);
     }, 0);
+  };
+
+  const getGSTAmount = () => {
+    const subtotal = getSubtotal();
+    return subtotal * 0.05; // 5% GST
+  };
+
+  const getTotalPrice = () => {
+    return getSubtotal() + getGSTAmount();
   };
 
   const value: CartContextType = {
@@ -179,6 +190,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     openCart,
     closeCart,
     getTotalItems,
+    getSubtotal,
+    getGSTAmount,
     getTotalPrice,
   };
 

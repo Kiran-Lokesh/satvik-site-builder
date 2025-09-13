@@ -67,6 +67,8 @@ interface ProductDetailModalProps {
     name: string;
     description?: string;
     image?: string;
+    price?: string;
+    variant?: string;
     variants?: Array<{
       id: string;
       name: string;
@@ -130,8 +132,10 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
           addToCart(product, variant, quantity);
         }
       } else {
-        // Add product without variant
-        addToCart(product, { id: 'default', name: 'Standard', price: '0' }, quantity);
+        // Add product with simple price/variant structure
+        const variant = product.variant || 'Standard';
+        const price = product.price || '0';
+        addToCart(product, { id: 'default', name: variant, price: price }, quantity);
       }
       
       // Close modal after adding to cart
@@ -189,6 +193,22 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
               <div>
                 <h3 className="text-lg font-semibold text-brandText mb-2">Description</h3>
                 <p className="text-muted leading-relaxed">{product.description}</p>
+              </div>
+            )}
+
+            {/* Price Display for Single Variant */}
+            {!hasVariants && product.price && (
+              <div className="bg-brand/5 border border-brand/20 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-brandText">Size</h3>
+                    <p className="text-muted">{product.variant}</p>
+                  </div>
+                  <div className="text-right">
+                    <h3 className="text-lg font-semibold text-brandText">Price</h3>
+                    <p className="text-2xl font-bold text-brand">{product.price}</p>
+                  </div>
+                </div>
               </div>
             )}
 

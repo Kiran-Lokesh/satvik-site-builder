@@ -68,6 +68,8 @@ interface ProductCardProps {
     name: string;
     description?: string;
     image?: string;
+    price?: string;
+    variant?: string;
     variants?: Array<{
       id: string;
       name: string;
@@ -119,8 +121,10 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
           addToCart(product, variant, quantity);
         }
       } else {
-        // Add product without variant
-        addToCart(product, { id: 'default', name: 'Standard', price: '0' }, quantity);
+        // Add product with simple price/variant structure
+        const variant = product.variant || 'Standard';
+        const price = product.price || '0';
+        addToCart(product, { id: 'default', name: variant, price: price }, quantity);
       }
       
       // Don't auto-open cart - let user decide when to view it
@@ -167,6 +171,14 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
               </p>
             )}
           </div>
+          
+          {/* Price Display */}
+          {!hasVariants && product.price && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">{product.variant}</span>
+              <span className="text-lg font-semibold text-brand">{product.price}</span>
+            </div>
+          )}
           
           {/* Variant Selection */}
           {hasVariants && (

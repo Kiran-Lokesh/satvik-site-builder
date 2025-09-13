@@ -10,10 +10,14 @@ const Cart = () => {
     updateQuantity, 
     removeFromCart, 
     closeCart, 
+    getSubtotal,
+    getGSTAmount,
     getTotalPrice 
   } = useCart();
 
   const { items, isOpen } = state;
+  const subtotal = getSubtotal();
+  const gstAmount = getGSTAmount();
   const totalPrice = getTotalPrice();
 
   // Don't render if cart is not open
@@ -36,7 +40,9 @@ const Cart = () => {
 
     message += `\nTotal Items: ${items.reduce((sum, item) => sum + item.quantity, 0)}`;
     if (totalPrice > 0) {
-      message += `\nEstimated Total: $${totalPrice.toFixed(2)}`;
+      message += `\nSubtotal: $${subtotal.toFixed(2)}`;
+      message += `\nGST (5%): $${gstAmount.toFixed(2)}`;
+      message += `\nTotal: $${totalPrice.toFixed(2)}`;
     }
     
     message += "\n\nPlease confirm availability and send me a payment link. Thank you!";
@@ -160,10 +166,20 @@ const Cart = () => {
           </div>
           
           {totalPrice > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold text-brandText">Estimated Total:</span>
-              <span className="text-lg font-semibold text-brand">${totalPrice.toFixed(2)}</span>
-            </div>
+            <>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Subtotal:</span>
+                <span className="text-sm text-muted-foreground">${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">GST (5%):</span>
+                <span className="text-sm text-muted-foreground">${gstAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center border-t pt-2">
+                <span className="text-lg font-semibold text-brandText">Total:</span>
+                <span className="text-lg font-semibold text-brand">${totalPrice.toFixed(2)}</span>
+              </div>
+            </>
           )}
 
           <Button
