@@ -35,7 +35,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-4 w-4 flex-shrink-0" />
-                       <span>South India</span>
+                       <span>187 Belmont Blvd SW, Calgary TX2 4W5</span>
               </div>
             </div>
           </div>
@@ -76,7 +76,7 @@ const Footer = () => {
 
         <div className="border-t border-brand/20 mt-8 pt-8 text-center">
           <p className="text-sm text-muted">
-                   © {new Date().getFullYear()} Satvik Foods. All rights reserved. | Delicacy of South India
+                   © {new Date().getFullYear()} Satvik Foods. All rights reserved. | Authentic South Indian Foods
           </p>
         </div>
       </div>

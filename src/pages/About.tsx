@@ -6,7 +6,7 @@ const About = () => {
     {
       icon: <Wheat className="h-8 w-8 text-brand-green" />,
       title: "Farm to Table",
-      description: "We source directly from local farmers, ensuring freshness and supporting agricultural communities in South India."
+      description: "We source directly from local farmers and suppliers, ensuring freshness and supporting agricultural communities."
     },
     {
       icon: <Heart className="h-8 w-8 text-brand-orange" />,
@@ -51,7 +51,7 @@ const About = () => {
                 across India and beyond.
               </p>
               <p>
-                Our journey began in the heart of South India, where generations of families 
+                Our journey began with a passion for authentic South Indian cuisine, where generations of families 
                 have perfected the art of preparing wholesome, natural foods. We witnessed the 
                 gradual disappearance of these traditional practices and the increasing reliance 
                 on processed foods in modern kitchens.

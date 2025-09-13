@@ -105,7 +105,7 @@ const Contact = () => {
     {
       icon: <MapPin className="h-6 w-6 text-brand-gold" />,
       title: "Location",
-           details: "South India",
+           details: "187 Belmont Blvd SW, Calgary TX2 4W5",
       description: "Where tradition meets taste"
     }
   ];
