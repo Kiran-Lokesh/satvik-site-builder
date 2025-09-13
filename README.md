@@ -1,6 +1,6 @@
 # Satvik Foods - Professional Food Distribution Website
 
-A modern, responsive website for Satvik Foods, featuring authentic North Karnataka food products. Built with React, TypeScript, and Tailwind CSS.
+A modern, responsive website for Satvik Foods, featuring authentic South Indian food products. Built with React, TypeScript, and Tailwind CSS.
 
 ## 🌟 Features
 

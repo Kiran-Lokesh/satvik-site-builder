@@ -166,7 +166,7 @@ const Products = () => {
             Our Products
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Discover our range of authentic North Karnataka foods, made with traditional methods 
+            Discover our range of authentic South Indian foods, made with traditional methods 
             and the finest natural ingredients for your health and taste.
           </p>
           <p className="text-sm text-muted">

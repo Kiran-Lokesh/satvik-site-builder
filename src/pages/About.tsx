@@ -6,7 +6,7 @@ const About = () => {
     {
       icon: <Wheat className="h-8 w-8 text-brand-green" />,
       title: "Farm to Table",
-      description: "We source directly from local farmers, ensuring freshness and supporting agricultural communities in North Karnataka."
+      description: "We source directly from local farmers, ensuring freshness and supporting agricultural communities in South India."
     },
     {
       icon: <Heart className="h-8 w-8 text-brand-orange" />,
@@ -34,7 +34,7 @@ const About = () => {
             About Satvik Foods
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Bringing the authentic taste and nutrition of North Karnataka to your table
+            Bringing the authentic taste and nutrition of South India to your table
           </p>
         </div>
 
@@ -47,11 +47,11 @@ const About = () => {
             <div className="space-y-6 text-muted-foreground leading-relaxed">
               <p className="text-lg">
                 Satvik Foods was born from a simple yet powerful vision: to share the incredible 
-                flavors and nutritional benefits of traditional North Karnataka cuisine with families 
+                flavors and nutritional benefits of traditional South Indian cuisine with families 
                 across India and beyond.
               </p>
               <p>
-                Our journey began in the heart of North Karnataka, where generations of families 
+                Our journey began in the heart of South India, where generations of families 
                 have perfected the art of preparing wholesome, natural foods. We witnessed the 
                 gradual disappearance of these traditional practices and the increasing reliance 
                 on processed foods in modern kitchens.
@@ -78,7 +78,7 @@ const About = () => {
             Our Mission
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            To make traditional, healthy, and authentic North Karnataka foods accessible to everyone, 
+            To make traditional, healthy, and authentic South Indian foods accessible to everyone, 
             while preserving culinary heritage and supporting local farming communities.
           </p>
         </section>

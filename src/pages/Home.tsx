@@ -19,7 +19,7 @@ const Home = () => {
     {
       icon: <Users className="h-8 w-8 text-accent" />,
       title: "Traditional Recipes",
-      description: "Authentic North Karnataka recipes passed down through generations, preserving our culinary heritage."
+      description: "Authentic South Indian recipes passed down through generations, preserving our culinary heritage."
     }
   ];
 
@@ -37,7 +37,7 @@ const Home = () => {
                 className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto mx-auto object-contain"
               />
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-brandText leading-tight">
-                Authentic North Karnataka Foods
+                Authentic South Indian Foods
               </h1>
               <p className="text-xl lg:text-2xl text-muted font-medium">
                 Healthy, Wholesome, Traditional
@@ -45,7 +45,7 @@ const Home = () => {
             </div>
             
             <p className="text-lg text-muted max-w-2xl mx-auto leading-relaxed">
-              Discover the rich flavors of North Karnataka with our traditionally made, 
+              Discover the rich flavors of South India with our traditionally made, 
               farm-fresh products that bring authentic taste and nutrition to your table.
             </p>
             
@@ -82,7 +82,7 @@ const Home = () => {
             </h2>
             <p className="text-lg text-muted leading-relaxed">
               We are passionate about bringing the authentic flavors and nutritional benefits 
-              of traditional North Karnataka cuisine to modern kitchens. Our products are crafted 
+              of traditional South Indian cuisine to modern kitchens. Our products are crafted 
               with love, using time-honored recipes and the finest natural ingredients.
             </p>
           </div>
@@ -116,7 +116,7 @@ const Home = () => {
             </h2>
             <p className="text-lg text-white/90 leading-relaxed">
               From wholesome millet rotis to aromatic chutney powders, each product is a 
-              celebration of North Karnataka's rich culinary heritage. Join thousands of 
+              celebration of South India's rich culinary heritage. Join thousands of 
               families who trust Satvik Foods for their daily nutrition.
             </p>
             <Link to="/products">
