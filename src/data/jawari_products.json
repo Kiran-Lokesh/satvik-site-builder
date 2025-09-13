@@ -108,7 +108,7 @@
               "id": "jawari-karadantu",
               "name": "Karadantu",
               "description": "Traditional South Indian sweet made with dry fruits and jaggery.",
-              "image": "kardantu.jpg",
+              "image": "kardantu.png",
               "price": "$11.99",
               "variant": "250 gm"
             },
@@ -116,7 +116,7 @@
               "id": "jawari-dink-ladu",
               "name": "Dink Ladu",
               "description": "Nutritious ladoos made with edible gum (dink) and dry fruits.",
-              "image": "supreme_dink_laddu.jpg",
+              "image": "supreme_dink_laddu.png",
               "price": "$11.99",
               "variant": "250 gm"
             },
@@ -398,7 +398,7 @@
               "id": "nilgiris-sona-masoori",
               "name": "Sona Masoori",
               "description": "High-quality Sona Masoori rice with excellent texture and taste.",
-              "image": "sona_masoori_nilgiris.jpg",
+              "image": "sona_masoori_rice.png",
               "price": "$22.99",
               "variant": "20 lb"
             },
@@ -406,7 +406,7 @@
               "id": "nilgiris-palakaddan-matta",
               "name": "Palakaddan Matta Rice",
               "description": "Traditional Kerala red rice (Matta) from Palakaddan. Rich in nutrients and fiber.",
-              "image": "palakaddan_matta_rice.jpg",
+              "image": "matta_rice.png",
               "price": "$22.99",
               "variant": "20 lb"
             },
@@ -414,7 +414,7 @@
               "id": "nilgiris-jeerakasala-rice",
               "name": "Jeerakasala Rice",
               "description": "Premium Jeerakasala rice known for its aromatic fragrance and distinct taste.",
-              "image": "jeerakasala_rice.jpg",
+              "image": "jeerakalasa_rice.png",
               "price": "$22.99",
               "variant": "20 lb",
               "inStock": false
@@ -423,7 +423,7 @@
               "id": "nilgiris-idli-rice",
               "name": "Idli Rice",
               "description": "Specially selected rice perfect for making soft and fluffy idlis.",
-              "image": "idli_rice.jpg",
+              "image": "idli_rice.png",
               "price": "$22.99",
               "variant": "10 lb"
             },
@@ -431,7 +431,7 @@
               "id": "nilgiris-thanjavoor-ponni",
               "name": "Thanjavoor Ponni Rice",
               "description": "Premium Ponni rice from Thanjavoor region with excellent cooking quality.",
-              "image": "thanjavoor_ponni_rice.jpg",
+              "image": "ponni_rice.png",
               "price": "$22.99",
               "variant": "20 lb"
                         }

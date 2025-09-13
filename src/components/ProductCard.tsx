@@ -34,6 +34,13 @@ import sajjeRotti from '@/assets/products/sajje_rotti.jpg';
 import supremeDinkLaddu from '@/assets/products/supreme_dink_laddu.jpg';
 import turmericPowder from '@/assets/products/turmeric_powder.jpg';
 
+// Import Nilgiris rice images
+import idliRice from '@/assets/products/idli_rice.png';
+import jeerakalasaRice from '@/assets/products/jeerakalasa_rice.png';
+import mattaRice from '@/assets/products/matta_rice.png';
+import ponniRice from '@/assets/products/ponni_rice.png';
+import sonaMasooriRice from '@/assets/products/sona_masoori_rice.png';
+
 // Static imports for local images (used when data source is JSON)
 // Image mapping
 const imageMap: Record<string, string> = {
@@ -60,6 +67,13 @@ const imageMap: Record<string, string> = {
   'supreme_dink_laddu.jpg': supremeDinkLaddu,
   'turmeric_powder.jpg': turmericPowder,
   'placeholder.svg': placeholderImage, // Use generic placeholder image
+  
+  // Nilgiris rice images
+  'idli_rice.png': idliRice,
+  'jeerakalasa_rice.png': jeerakalasaRice,
+  'matta_rice.png': mattaRice,
+  'ponni_rice.png': ponniRice,
+  'sona_masoori_rice.png': sonaMasooriRice,
 };
 
 interface ProductCardProps {
