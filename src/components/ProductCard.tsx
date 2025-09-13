@@ -70,6 +70,7 @@ interface ProductCardProps {
     image?: string;
     price?: string;
     variant?: string;
+    inStock?: boolean;
     variants?: Array<{
       id: string;
       name: string;
@@ -105,11 +106,18 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
   // Get available variants (only in-stock ones)
   const availableVariants = product.variants?.filter(variant => variant.inStock !== false) || [];
   const hasVariants = availableVariants.length > 0;
+  
+  // Check if single-variant product is in stock
+  const isInStock = product.inStock !== false;
 
   // Handle add to cart
   const handleAddToCart = async () => {
     if (hasVariants && !selectedVariant) {
       return; // Don't add if variants exist but none selected
+    }
+    
+    if (!hasVariants && !isInStock) {
+      return; // Don't add if single-variant product is out of stock
     }
 
     setIsAddingToCart(true);
@@ -238,11 +246,20 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
                 e.stopPropagation(); // Prevent card click
                 handleAddToCart();
               }}
-              disabled={hasVariants && !selectedVariant || isAddingToCart}
-              className="w-full bg-accent hover:bg-accent/90 text-black font-medium"
+              disabled={hasVariants && !selectedVariant || isAddingToCart || !isInStock}
+              className={`w-full font-medium ${
+                !isInStock 
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                  : 'bg-accent hover:bg-accent/90 text-black'
+              }`}
             >
               <ShoppingCart className="h-4 w-4 mr-2" />
-              {isAddingToCart ? 'Adding...' : `Add ${quantity} to Cart`}
+              {!isInStock 
+                ? 'Sold Out' 
+                : isAddingToCart 
+                  ? 'Adding...' 
+                  : `Add ${quantity} to Cart`
+              }
             </Button>
             
             <div className="flex justify-end">

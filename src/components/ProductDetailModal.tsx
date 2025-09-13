@@ -69,6 +69,7 @@ interface ProductDetailModalProps {
     image?: string;
     price?: string;
     variant?: string;
+    inStock?: boolean;
     variants?: Array<{
       id: string;
       name: string;
@@ -116,11 +117,18 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
   // Get available variants (only in-stock ones)
   const availableVariants = product.variants?.filter(variant => variant.inStock !== false) || [];
   const hasVariants = availableVariants.length > 0;
+  
+  // Check if single-variant product is in stock
+  const isInStock = product.inStock !== false;
 
   // Handle add to cart
   const handleAddToCart = async () => {
     if (hasVariants && !selectedVariant) {
       return; // Don't add if variants exist but none selected
+    }
+    
+    if (!hasVariants && !isInStock) {
+      return; // Don't add if single-variant product is out of stock
     }
 
     setIsAddingToCart(true);
@@ -260,11 +268,20 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
             <div className="pt-4">
               <Button
                 onClick={handleAddToCart}
-                disabled={hasVariants && !selectedVariant || isAddingToCart}
-                className="w-full bg-accent hover:bg-accent/90 text-black font-medium py-3 text-lg"
+                disabled={hasVariants && !selectedVariant || isAddingToCart || !isInStock}
+                className={`w-full font-medium py-3 text-lg ${
+                  !isInStock 
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                    : 'bg-accent hover:bg-accent/90 text-black'
+                }`}
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                {isAddingToCart ? 'Adding...' : `Add ${quantity} to Cart`}
+                {!isInStock 
+                  ? 'Sold Out' 
+                  : isAddingToCart 
+                    ? 'Adding...' 
+                    : `Add ${quantity} to Cart`
+                }
               </Button>
             </div>
 

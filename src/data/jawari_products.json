@@ -1,14 +1,14 @@
 {
-  "brands": [
-    {
-      "id": "jawari",
-      "name": "Jawari",
-      "categories": [
+    "brands": [
         {
+      "id": "jawari",
+            "name": "Jawari",
+            "categories": [
+                {
           "id": "jawari-chutney-powders",
-          "name": "Chutney Powders",
-          "products": [
-            {
+                    "name": "Chutney Powders",
+                    "products": [
+                        {
               "id": "jawari-flaxseed-chutney",
               "name": "Flaxseed Chutney Powder",
               "description": "A rich source of omega-3 fatty acids, flaxseed promotes heart's health and lowers the risk of stroke.",
@@ -31,16 +31,16 @@
               "image": "peanut_chutney_powder.jpg",
               "price": "$4.99",
               "variant": "250 gm"
-            }
-          ]
-        },
-        {
+                        }
+                    ]
+                },
+                {
           "id": "jawari-masala-powders",
           "name": "Masala Powders",
-          "products": [
-            {
+                    "products": [
+                        {
               "id": "jawari-red-chilli-powder",
-              "name": "Red Chilli Powder",
+                            "name": "Red Chilli Powder",
               "description": "Pure and aromatic red chilli powder made from premium quality chillies.",
               "image": "red_chiili_powder.jpg",
               "price": "$4.99",
@@ -48,33 +48,33 @@
             },
             {
               "id": "jawari-turmeric-powder",
-              "name": "Turmeric Powder",
+                            "name": "Turmeric Powder",
               "description": "Pure turmeric powder with anti-inflammatory properties and numerous health benefits.",
               "image": "turmeric_powder.jpg",
               "price": "$5.99",
               "variant": "200 gm"
-            }
-          ]
-        },
-        {
+                        }
+                    ]
+                },
+                {
           "id": "jawari-healthy-drinks",
-          "name": "Healthy Drinks",
-          "products": [
-            {
+                    "name": "Healthy Drinks",
+                    "products": [
+                        {
               "id": "jawari-millets-turmeric-drink",
               "name": "Millets Turmeric Drink",
               "description": "A nutritious blend of millets and turmeric that provides energy and boosts immunity.",
               "image": "millets_energy_drink.jpg",
               "price": "$7.99",
               "variant": "200 gm"
-            }
-          ]
-        },
-        {
+                        }
+                    ]
+                },
+                {
           "id": "jawari-roti",
-          "name": "Roti",
-          "products": [
-            {
+                    "name": "Roti",
+                    "products": [
+                        {
               "id": "jawari-jowar-rotti",
               "name": "Jowar Rotti",
               "description": "Traditional jowar (sorghum) rotis made from whole grain flour. Gluten-free and rich in fiber.",
@@ -97,14 +97,14 @@
               "image": "millets_rotti.jpg",
               "price": "$10.99",
               "variant": "10 no"
-            }
-          ]
-        },
-        {
+                        }
+                    ]
+                },
+                {
           "id": "jawari-sweets",
-          "name": "Sweets",
-          "products": [
-            {
+                    "name": "Sweets",
+                    "products": [
+                        {
               "id": "jawari-karadantu",
               "name": "Karadantu",
               "description": "Traditional North Karnataka sweet made with dry fruits and jaggery.",
@@ -127,14 +127,14 @@
               "image": "kunda.jpg",
               "price": "$9.99",
               "variant": "250 gm"
-            }
-          ]
-        },
-        {
+                        }
+                    ]
+                },
+                {
           "id": "jawari-roasted-makhana",
-          "name": "Roasted Makhana",
-          "products": [
-            {
+                    "name": "Roasted Makhana",
+                    "products": [
+                        {
               "id": "jawari-makhana-peri",
               "name": "Makhana Peri Peri",
               "description": "Crunchy roasted makhana (fox nuts) with peri peri seasoning.",
@@ -157,14 +157,14 @@
               "image": "makhana_tangy_cheese.jpg",
               "price": "$4.99",
               "variant": "90 gm"
-            }
-          ]
-        },
-        {
+                        }
+                    ]
+                },
+                {
           "id": "jawari-millets-ready-to-cook",
           "name": "Millets Ready to Cook",
-          "products": [
-            {
+                    "products": [
+                        {
               "id": "jawari-little-millet-idly",
               "name": "Little Millet Idly",
               "description": "Ready-to-cook little millet idly mix. Gluten-free and nutritious alternative.",
@@ -416,7 +416,8 @@
               "description": "Premium Jeerakasala rice known for its aromatic fragrance and distinct taste.",
               "image": "jeerakasala_rice.jpg",
               "price": "$22.99",
-              "variant": "20 lb"
+              "variant": "20 lb",
+              "inStock": false
             },
             {
               "id": "nilgiris-idli-rice",
@@ -433,10 +434,10 @@
               "image": "thanjavoor_ponni_rice.jpg",
               "price": "$22.99",
               "variant": "20 lb"
-            }
-          ]
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
