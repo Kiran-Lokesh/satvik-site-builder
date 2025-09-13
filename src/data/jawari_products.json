@@ -108,7 +108,7 @@
               "id": "jawari-karadantu",
               "name": "Karadantu",
               "description": "Traditional South Indian sweet made with dry fruits and jaggery.",
-              "image": "kardantu.png",
+              "image": "kardantu.jpg",
               "price": "$11.99",
               "variant": "250 gm"
             },
@@ -116,7 +116,7 @@
               "id": "jawari-dink-ladu",
               "name": "Dink Ladu",
               "description": "Nutritious ladoos made with edible gum (dink) and dry fruits.",
-              "image": "supreme_dink_laddu.png",
+              "image": "supreme_dink_laddu.jpg",
               "price": "$11.99",
               "variant": "250 gm"
             },
