@@ -1,4 +1,5 @@
 import { Mail, Phone, MapPin, Send, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import satvikLogo from '@/assets/satvik-logo.svg';
 import { Button } from '@/components/ui/button';
 
@@ -54,10 +55,9 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quick Links</h3>
             <div className="space-y-2 text-sm">
-              <a href="/products" className="block hover:text-brand transition-colors">Our Products</a>
-              <a href="/about" className="block hover:text-brand transition-colors">About Us</a>
-              <a href="/contact" className="block hover:text-brand transition-colors">Contact</a>
-              <a href="#" className="block hover:text-brand transition-colors">Quality Policy</a>
+              <Link to="/products" className="block hover:text-brand transition-colors">Our Products</Link>
+              <Link to="/about" className="block hover:text-brand transition-colors">About Us</Link>
+              <Link to="/contact" className="block hover:text-brand transition-colors">Contact</Link>
             </div>
           </div>
 
