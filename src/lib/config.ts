@@ -47,7 +47,12 @@ export const getCurrentDataSource = (): DataSource => {
 
 // Function to switch data source at runtime
 export const switchDataSource = (source: DataSource): void => {
+  const previousSource = DATA_SOURCE_CONFIG.source;
   DATA_SOURCE_CONFIG.source = source;
+  
+  // Log the data source switch
+  console.log(`🔄 Data source switched: ${previousSource.toUpperCase()} → ${source.toUpperCase()}`);
+  
   // Clear any cached data when switching
   localStorage.removeItem('productDataCache');
   localStorage.removeItem('cacheTimestamp');

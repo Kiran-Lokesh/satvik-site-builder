@@ -12,8 +12,12 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
+import { getCurrentDataSource } from "./lib/config";
 
 const queryClient = new QueryClient();
+
+// Log the initial data source when app starts
+console.log(`🚀 App starting with data source: ${getCurrentDataSource().toUpperCase()}`);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

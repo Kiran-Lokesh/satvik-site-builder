@@ -115,6 +115,9 @@ export class UnifiedDataService {
   async getUnifiedData(forceRefresh: boolean = false): Promise<UnifiedData> {
     const source = DATA_SOURCE_CONFIG.source;
     
+    // Log the active data source prominently
+    console.log(`🎯 ACTIVE DATA SOURCE: ${source.toUpperCase()}`);
+    
     // Check cache first (unless force refresh)
     if (!forceRefresh) {
       const cachedData = this.cache.get(source);
@@ -179,6 +182,7 @@ export class UnifiedDataService {
    * Load data from local JSON source
    */
   private async loadFromLocal(): Promise<UnifiedData> {
+    console.log(`📁 Loading data from LOCAL JSON source...`);
     const context = { ...this.context, source: 'local' as const };
     const result = transformLocalToUnified(jawariProducts as any, context);
 
@@ -193,7 +197,7 @@ export class UnifiedDataService {
    * Load data from Sanity CMS source
    */
   private async loadFromSanity(): Promise<UnifiedData> {
-    console.log('🔄 Loading data from Sanity CMS...');
+    console.log('☁️ Loading data from SANITY CMS source...');
     console.log('🔍 Sanity configuration:', {
       projectId: import.meta.env.VITE_SANITY_PROJECT_ID || 'eaaly2y1',
       dataset: import.meta.env.VITE_SANITY_DATASET || 'products',
