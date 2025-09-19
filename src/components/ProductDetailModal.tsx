@@ -90,9 +90,12 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
   const [selectedVariant, setSelectedVariant] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  
+  // Handle unified image interface with fallback - moved before early return
+  const [imageError, setImageError] = useState(false);
+  const [currentImageUrl, setCurrentImageUrl] = useState(product?.image?.url || placeholderImage);
 
-
-  // Reset state when modal closes - moved before early return
+  // Reset state when modal closes
   React.useEffect(() => {
     if (!isOpen) {
       setSelectedVariant('');
@@ -101,17 +104,15 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
     }
   }, [isOpen]);
 
-  if (!product) return null;
-
-  // Handle unified image interface with fallback
-  const [imageError, setImageError] = useState(false);
-  const [currentImageUrl, setCurrentImageUrl] = useState(product.image?.url || placeholderImage);
-  
   // Reset image error when product changes
   useEffect(() => {
-    setImageError(false);
-    setCurrentImageUrl(product.image?.url || placeholderImage);
-  }, [product.id, product.image?.url]);
+    if (product) {
+      setImageError(false);
+      setCurrentImageUrl(product.image?.url || placeholderImage);
+    }
+  }, [product?.id, product?.image?.url]);
+
+  if (!product) return null;
   
   // Handle image load error with fallback
   const handleImageError = () => {
