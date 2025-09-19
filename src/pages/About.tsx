@@ -3,6 +3,7 @@ import { Wheat, Heart, Users, Award } from 'lucide-react';
 
 // Import family photos
 import familyPhoto1 from '@/assets/family/satvik_family_kiran.jpg';
+import familyPhoto2 from '@/assets/family/satvik_family_yeshwanth.jpeg';
 
 const About = () => {
   const values = [
@@ -83,16 +84,14 @@ const About = () => {
               </div>
             </div>
 
-            {/* Second Family Photo - Placeholder */}
+            {/* Second Family Photo */}
             <div className="text-center space-y-6">
-              <div className="relative">
-                <div className="w-full h-72 bg-gradient-to-br from-brand/10 to-accent/10 rounded-2xl shadow-xl flex items-center justify-center border-2 border-dashed border-brand/30 hover:border-brand/50 transition-colors duration-300">
-                  <div className="text-center">
-                    <Users className="h-16 w-16 text-brand/50 mx-auto mb-4" />
-                    <p className="text-brand/70 font-semibold text-lg">Family Photo</p>
-                    <p className="text-sm text-brand/50">Coming Soon</p>
-                  </div>
-                </div>
+              <div className="relative group">
+                <img
+                  src={familyPhoto2}
+                  alt="Anusha and Yeshwanth"
+                  className="w-full h-72 object-cover rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+                />
               </div>
               <div className="space-y-2">
                 <p className="text-xl font-bold text-foreground">

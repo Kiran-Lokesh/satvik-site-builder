@@ -1,0 +1,18 @@
+{
+  "name": "Satvik Foods",
+  "short_name": "Satvik Foods",
+  "description": "Authentic South Indian Foods - Traditional & Healthy",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7faf5",
+  "theme_color": "#004d3d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
