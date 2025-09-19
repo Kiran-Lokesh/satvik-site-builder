@@ -75,7 +75,7 @@ const imageMap: Record<string, string> = {
   'ponni_rice.png': ponniRice,
   'sona_masoori_rice.png': sonaMasooriRice,
   // Handle discrepancy in JSON data
-  'sona_masoori_priya.jpg': sonaMasooriRice,
+  'sona_masoori_priya.jpg': '/placeholder.svg', // No specific image available for Priya Sona Masoori
 };
 
 import { UnifiedProduct } from '@/lib/unifiedDataTypes';

@@ -78,10 +78,21 @@ import sonaMasooriRice from '@/assets/products/sona_masoori_rice.png';
 /**
  * Find matching local image by product name
  */
-function findMatchingLocalImage(productName: string): string | null {
+function findMatchingLocalImage(productName: string, productId?: string): string | null {
   const name = productName.toLowerCase();
   
-  // Map product names to image filenames
+  // If we have an ID, use it for precise matching first
+  if (productId) {
+    const idToImageMap: Record<string, string> = {
+      'priya-sona-masoori': 'sona_masoori_priya.jpg',
+      'nilgiris-sona-masoori': 'sona_masoori_rice.png',
+    };
+    if (idToImageMap[productId]) {
+      return idToImageMap[productId];
+    }
+  }
+  
+  // Map product names to image filenames (fallback for products without specific ID mapping)
   const nameToImageMap: Record<string, string> = {
     'flaxseed chutney powder': 'flax_seed_chutney_powder.jpg',
     'jawar rotti': 'jawar_rotti.jpg',
@@ -166,7 +177,7 @@ function getLocalImageUrl(imageName: string): string {
     'ponni_rice.png': ponniRice,
     'sona_masoori_rice.png': sonaMasooriRice,
     // Handle discrepancy in JSON data
-    'sona_masoori_priya.jpg': sonaMasooriRice,
+    'sona_masoori_priya.jpg': '/placeholder.svg', // No specific image available for Priya Sona Masoori
   };
   
   return imageMap[imageName] || '/placeholder.svg';
@@ -553,7 +564,7 @@ function transformSanityProductToUnified(
       const sanityUrl = `https://cdn.sanity.io/images/eaaly2y1/products/${sanityProduct.image.asset._ref.replace('image-', '').replace('-jpg', '.jpg')}`;
       
       // Try to find a matching local image as fallback
-      const localImageName = findMatchingLocalImage(sanityProduct.name);
+      const localImageName = findMatchingLocalImage(sanityProduct.name, sanityProduct.id);
       const localUrl = localImageName ? getLocalImageUrl(localImageName) : context.defaultImage;
       
       return {
@@ -566,7 +577,7 @@ function transformSanityProductToUnified(
     }
     
     // No Sanity image, try to find matching local image
-    const localImageName = findMatchingLocalImage(sanityProduct.name);
+    const localImageName = findMatchingLocalImage(sanityProduct.name, sanityProduct.id);
     if (localImageName) {
       return {
         url: getLocalImageUrl(localImageName),
