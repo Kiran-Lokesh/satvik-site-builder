@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart } from 'lucide-react';
 import ProductDetailModal from './ProductDetailModal';
@@ -74,25 +74,15 @@ const imageMap: Record<string, string> = {
   'matta_rice.png': mattaRice,
   'ponni_rice.png': ponniRice,
   'sona_masoori_rice.png': sonaMasooriRice,
+  // Handle discrepancy in JSON data
+  'sona_masoori_priya.jpg': sonaMasooriRice,
 };
 
+import { UnifiedProduct } from '@/lib/unifiedDataTypes';
+
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    description?: string;
-    image?: string;
-    price?: string;
-    variant?: string;
-    inStock?: boolean;
-    variants?: Array<{
-      id: string;
-      name: string;
-      price?: string;
-      inStock?: boolean;
-    }>;
-  };
-  onClick?: (product: ProductCardProps['product']) => void;
+  product: UnifiedProduct;
+  onClick?: (product: UnifiedProduct) => void;
 }
 
 const ProductCard = ({ product, onClick }: ProductCardProps) => {
@@ -102,20 +92,28 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Handle both Airtable URLs and local image names
-  const imageName = product.image || 'placeholder.svg';
+  // Handle unified image interface with fallback
+  const [imageError, setImageError] = useState(false);
+  const [currentImageUrl, setCurrentImageUrl] = useState(product.image?.url || placeholderImage);
   
-  // Check if it's an Airtable URL (starts with https://v5.airtableusercontent.com)
-  const isAirtableUrl = imageName.startsWith('https://v5.airtableusercontent.com');
+  // Reset image error when product changes
+  useEffect(() => {
+    setImageError(false);
+    setCurrentImageUrl(product.image?.url || placeholderImage);
+  }, [product.id, product.image?.url]);
   
-  let imageUrl: string;
-  if (isAirtableUrl) {
-    // Use Airtable URL directly
-    imageUrl = imageName;
-  } else {
-    // Use local image mapping
-    imageUrl = imageMap[imageName] || placeholderImage; // fallback to generic placeholder
-  }
+  // Handle image load error with fallback
+  const handleImageError = () => {
+    if (!imageError && product.image?.fallbackUrl) {
+      console.log(`🔄 Image failed to load, using fallback for ${product.name}`);
+      setImageError(true);
+      setCurrentImageUrl(product.image.fallbackUrl);
+    } else if (!imageError) {
+      console.log(`🔄 Image failed to load, using placeholder for ${product.name}`);
+      setImageError(true);
+      setCurrentImageUrl(placeholderImage);
+    }
+  };
 
   // Get available variants (only in-stock ones)
   const availableVariants = product.variants?.filter(variant => variant.inStock !== false) || [];
@@ -172,10 +170,11 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
       <CardContent className="p-0 flex flex-col h-full">
         <div className="relative overflow-hidden rounded-t-lg bg-gradient-hero">
           <img
-            src={imageUrl}
+            src={currentImageUrl}
             alt={product.name}
             className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            onError={handleImageError}
             decoding="async"
           />
         </div>

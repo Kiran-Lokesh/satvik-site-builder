@@ -61,7 +61,7 @@ class ImageCache {
 
     let imageUrl: string;
     
-    // If it's already a full URL (from Airtable), use it directly
+    // If it's already a full URL, use it directly
     if (imageName.startsWith('http')) {
       imageUrl = imageName;
     } else {

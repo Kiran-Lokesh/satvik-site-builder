@@ -1,39 +1,54 @@
 // Configuration for data sources
+export type DataSource = 'local' | 'sanity';
+
 export const DATA_SOURCE_CONFIG = {
-  // Set to 'airtable' to use Airtable, 'json' to use local JSON files
-  get source(): 'json' | 'airtable' {
-    // Check if we have Airtable environment variables
-    const hasAirtableConfig = import.meta.env.VITE_AIRTABLE_API_KEY && import.meta.env.VITE_AIRTABLE_BASE_ID;
+  // Get data source from environment variable or default to 'local'
+  get source(): DataSource {
+    // Check environment variable first
+    const envSource = import.meta.env.VITE_DATA_SOURCE as DataSource;
+    if (envSource && ['local', 'sanity'].includes(envSource)) {
+      return envSource;
+    }
     
-    // Default to JSON for better performance with 100+ products
-    const defaultSource = 'json';
+    // Check localStorage for runtime switching
+    const storedSource = localStorage.getItem('dataSource') as DataSource;
+    if (storedSource && ['local', 'sanity'].includes(storedSource)) {
+      return storedSource;
+    }
     
-    // Force JSON for now (ignore localStorage override)
-    return 'json';
+    // Default to sanity
+    return 'sanity';
   },
   
-  set source(value: 'json' | 'airtable') {
+  // Set data source (for runtime switching)
+  set source(value: DataSource) {
     localStorage.setItem('dataSource', value);
   },
   
-  // Fallback to JSON if Airtable fails
-  fallbackToJson: true,
+  // Fallback configuration
+  fallbackToLocal: true,
   
-  // Cache Airtable data for this many minutes
-  airtableCacheMinutes: 5,
+  // Cache settings
+  cacheMinutes: 5,
 };
 
-// Helper function to check if we should use Airtable
-export const shouldUseAirtable = (): boolean => {
-  return DATA_SOURCE_CONFIG.source === 'airtable';
+// Helper functions
+export const isLocalDataSource = (): boolean => {
+  return DATA_SOURCE_CONFIG.source === 'local';
 };
 
-// Helper function to check if we should use JSON
-export const shouldUseJson = (): boolean => {
-  return DATA_SOURCE_CONFIG.source === 'json';
+export const isSanityDataSource = (): boolean => {
+  return DATA_SOURCE_CONFIG.source === 'sanity';
 };
 
-// Helper function to get the current data source
-export const getCurrentDataSource = (): string => {
+export const getCurrentDataSource = (): DataSource => {
   return DATA_SOURCE_CONFIG.source;
+};
+
+// Function to switch data source at runtime
+export const switchDataSource = (source: DataSource): void => {
+  DATA_SOURCE_CONFIG.source = source;
+  // Clear any cached data when switching
+  localStorage.removeItem('productDataCache');
+  localStorage.removeItem('cacheTimestamp');
 };

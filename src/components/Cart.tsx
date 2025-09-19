@@ -49,7 +49,7 @@ const Cart = () => {
 
     // Encode the message and create WhatsApp link
     const encodedMessage = encodeURIComponent(message);
-    const whatsappNumber = "916363698917"; // Satvik Foods WhatsApp business number
+    const whatsappNumber = "15875813956"; // Satvik Foods WhatsApp business number
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
     // Open WhatsApp

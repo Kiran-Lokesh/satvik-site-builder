@@ -1,96 +1,57 @@
-import { DATA_SOURCE_CONFIG, shouldUseAirtable, getCurrentDataSource } from './config';
-import { getDataByBrands } from './airtable';
-import jawariProducts from '@/data/jawari_products.json';
+// Re-export unified types for backward compatibility
+export type {
+  UnifiedProductVariant as ProductVariant,
+  UnifiedProduct as Product,
+  UnifiedCategory as Category,
+  UnifiedBrand as Brand,
+  UnifiedData,
+  UnifiedImage,
+} from './unifiedDataTypes';
 
-// Types for our data structure
-export interface ProductVariant {
-  id: string;
-  name: string;
-  price?: string;
-  inStock?: boolean;
-  weight?: string;
-  unit?: string;
-}
+// Import the types for internal use
+import type { UnifiedBrand as Brand } from './unifiedDataTypes';
 
-export interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  image?: string;
-  variants?: ProductVariant[];
-  featured?: boolean;
-}
+// Import unified data service
+import { unifiedDataService } from './unifiedDataService';
+import { isLocalDataSource, isSanityDataSource, DATA_SOURCE_CONFIG } from './config';
 
-export interface Category {
-  id: string;
-  name: string;
-  products: Product[];
-}
-
-export interface Brand {
-  id: string;
-  name: string;
-  categories: Category[];
-}
-
-// Cache for Airtable data
-let airtableCache: Brand[] | null = null;
-let cacheTimestamp: number = 0;
-
-// Helper function to check if cache is valid
-const isCacheValid = (): boolean => {
-  if (!airtableCache) return false;
-  const now = Date.now();
-  const cacheAge = now - cacheTimestamp;
-  const cacheValidityMs = DATA_SOURCE_CONFIG.airtableCacheMinutes * 60 * 1000;
-  return cacheAge < cacheValidityMs;
-};
-
-// Load data from Airtable with caching
-const loadFromAirtable = async (): Promise<Brand[]> => {
-  try {
-    // Check cache first
-    if (isCacheValid() && airtableCache) {
-      return airtableCache;
-    }
-
-    const data = await getDataByBrands();
-    
-    // Update cache
-    airtableCache = data;
-    cacheTimestamp = Date.now();
-    
-    return data;
-  } catch (error) {
-    console.error('❌ Failed to load from Airtable:', error);
-    throw error;
-  }
-};
-
-// Load data from JSON files
-const loadFromJson = (): Brand[] => {
-  return (jawariProducts as any).brands || (jawariProducts as unknown as Brand[]);
-};
-
-// Main function to get product data
+// Main function to get product data (now uses unified service)
 export const getProductData = async (): Promise<Brand[]> => {
   try {
-    const dataSource = getCurrentDataSource();
+    const unifiedData = await unifiedDataService.getUnifiedData();
     
-    if (shouldUseAirtable()) {
-      return await loadFromAirtable();
-    } else {
-      return loadFromJson();
-    }
+    // Transform unified data back to old format for backward compatibility
+    const brands: Brand[] = unifiedData.brands.map(brand => ({
+      ...brand,
+      categories: unifiedData.categories
+        .filter(category => {
+          // Find products that belong to this brand and category
+          const brandProducts = unifiedData.products.filter(product => 
+            product.brand.id === brand.id && product.category.id === category.id
+          );
+          return brandProducts.length > 0;
+        })
+        .map(category => ({
+          ...category,
+          products: unifiedData.products
+            .filter(product => product.brand.id === brand.id && product.category.id === category.id)
+        }))
+    }));
+    
+    return brands;
   } catch (error) {
     console.error('❌ Error loading product data:', error);
-    
-    // Fallback to JSON if Airtable fails and fallback is enabled
-    if (shouldUseAirtable() && DATA_SOURCE_CONFIG.fallbackToJson) {
-      return loadFromJson();
-    }
-    
     throw error;
   }
+};
+
+// Clear all caches (now uses unified service)
+export const clearAllCaches = (): void => {
+  unifiedDataService.clearCache();
+};
+
+// Get current data source info (now uses unified service)
+export const getDataSourceInfo = () => {
+  return unifiedDataService.getDataSourceInfo();
 };
 

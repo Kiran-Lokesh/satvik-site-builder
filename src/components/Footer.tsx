@@ -28,7 +28,7 @@ const Footer = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 flex-shrink-0" />
-                <span>+91 6363698917</span>
+                <span>+1 587-581-3956</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 flex-shrink-0" />
@@ -55,9 +55,27 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quick Links</h3>
             <div className="space-y-2 text-sm">
-              <Link to="/products" className="block hover:text-brand transition-colors">Our Products</Link>
-              <Link to="/about" className="block hover:text-brand transition-colors">About Us</Link>
-              <Link to="/contact" className="block hover:text-brand transition-colors">Contact</Link>
+              <Link 
+                to="/products" 
+                className="block hover:text-brand transition-colors"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                Our Products
+              </Link>
+              <Link 
+                to="/about" 
+                className="block hover:text-brand transition-colors"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                About Us
+              </Link>
+              <Link 
+                to="/contact" 
+                className="block hover:text-brand transition-colors"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                Contact
+              </Link>
             </div>
           </div>
 

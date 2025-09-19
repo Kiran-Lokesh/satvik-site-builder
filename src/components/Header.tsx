@@ -52,6 +52,7 @@ const Header = () => {
             ))}
           </nav>
 
+
           {/* Cart Icon */}
           <Button
             variant="ghost"
@@ -98,6 +99,7 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
+              
             </nav>
           </div>
         )}

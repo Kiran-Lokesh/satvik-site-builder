@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
-import { getProductData, type Brand, type Product, type ProductVariant } from '@/lib/dataService';
+import { getProductData, type Brand, type Product } from '@/lib/dataService';
 
 // Types are now imported from dataService
 
@@ -17,6 +17,8 @@ const Products = () => {
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,14 +28,19 @@ const Products = () => {
     // Load products from configured data source
     const loadProducts = async () => {
       try {
+        setLoading(true);
+        setError(null);
+        
         const productData = await getProductData();
         setBrands(productData);
         
-        // No preloading for better performance with 100+ products
+        console.log('✅ Products loaded:', productData.length, 'brands');
       } catch (error) {
         console.error('❌ Failed to load products:', error);
-        // Fallback to empty array if both sources fail
+        setError(error instanceof Error ? error.message : 'Failed to load products');
         setBrands([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -42,46 +49,61 @@ const Products = () => {
 
   // Update available categories when brand changes
   useEffect(() => {
+    if (!brands || brands.length === 0) {
+      setAvailableCategories([]);
+      return;
+    }
+    
     if (selectedBrand === 'all') {
-      // Get all unique categories from all brands dynamically
+      // Get all unique categories from all brands
       const allCategories = brands.flatMap(brand => 
-        brand.categories.map(category => category.name)
+        brand.categories?.map(category => category.name) || []
       );
       setAvailableCategories([...new Set(allCategories)]);
     } else {
-      // Get categories from selected brand dynamically
+      // Get categories from selected brand
       const brand = brands.find(b => b.name === selectedBrand);
-      setAvailableCategories(brand ? brand.categories.map(c => c.name) : []);
+      setAvailableCategories(brand?.categories?.map(c => c.name) || []);
     }
     // Reset category filter when brand changes
     setSelectedCategory('all');
   }, [selectedBrand, brands]);
 
-  // Filter brands based on selected filters
-  const filteredBrands = brands.filter(brand => {
-    if (selectedBrand === 'all') return true;
-    return brand.name === selectedBrand;
-  });
-
-  // Filter categories within each brand
-  const getFilteredCategories = (brand: Brand) => {
-    return brand.categories.filter(category => {
-      // First filter by selected category
-      const categoryMatches = selectedCategory === 'all' || category.name === selectedCategory;
-      if (!categoryMatches) return false;
+  // Filter products based on selected filters
+  const getFilteredProducts = () => {
+    if (!brands || brands.length === 0) {
+      return [];
+    }
+    
+    return brands.flatMap(brand => {
+      // Filter by selected brand
+      if (selectedBrand !== 'all' && brand.name !== selectedBrand) {
+        return [];
+      }
       
-      // Then check if category has products after search filtering
-      const filteredProducts = getFilteredProducts(category.products);
-      return filteredProducts.length > 0;
+      // Check if brand has categories
+      if (!brand.categories || brand.categories.length === 0) {
+        return [];
+      }
+      
+      return brand.categories.flatMap(category => {
+        // Filter by selected category
+        if (selectedCategory !== 'all' && category.name !== selectedCategory) {
+          return [];
+        }
+        
+        // Check if category has products
+        if (!category.products || category.products.length === 0) {
+          return [];
+        }
+        
+        // Apply search filter and return products
+        return category.products.filter(product => {
+          if (!searchQuery.trim()) return true;
+          return product.name.toLowerCase().includes(searchQuery.toLowerCase());
+        });
+      });
     });
-  };
-
-  // Filter products by search query
-  const getFilteredProducts = (products: Product[]) => {
-    if (!searchQuery.trim()) return products;
-    return products.filter(product => 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
   };
 
   // Clear all filters
@@ -97,37 +119,15 @@ const Products = () => {
     setCurrentPage(1);
   }, [selectedBrand, selectedCategory, searchQuery]);
 
-  // Get all products for pagination (with proper filtering)
-  const getAllProducts = () => {
-    return brands.flatMap(brand => {
-      // Filter by selected brand
-      if (selectedBrand !== 'all' && brand.name !== selectedBrand) {
-        return [];
-      }
-      
-      return brand.categories.flatMap(category => {
-        // Filter by selected category
-        if (selectedCategory !== 'all' && category.name !== selectedCategory) {
-          return [];
-        }
-        
-        // Apply search filter and return products
-        return getFilteredProducts(category.products).map(product => ({
-          ...product,
-          brandName: brand.name,
-          categoryName: category.name
-        }));
-      });
-    });
-  };
+  // Get filtered products for pagination
+  const allFilteredProducts = getFilteredProducts();
 
-  // Pagination logic
-  const allProducts = getAllProducts();
-  const totalProducts = allProducts.length;
+  // Pagination calculations
+  const totalProducts = allFilteredProducts.length;
   const totalPages = Math.ceil(totalProducts / productsPerPage);
   const startIndex = (currentPage - 1) * productsPerPage;
   const endIndex = startIndex + productsPerPage;
-  const currentProducts = allProducts.slice(startIndex, endIndex);
+  const currentProducts = allFilteredProducts.slice(startIndex, endIndex);
 
   // Handle product card click
   const handleProductClick = (product: Product) => {
@@ -141,21 +141,68 @@ const Products = () => {
     setSelectedProduct(null);
   };
 
-  // Helper function to get all unique categories across all brands
+  // Helper function to get all unique categories
   const getAllCategories = () => {
+    if (!brands || brands.length === 0) {
+      return [];
+    }
     return brands.flatMap(brand => 
-      brand.categories.map(category => category.name)
+      brand.categories?.map(category => category.name) || []
     ).filter((category, index, array) => array.indexOf(category) === index);
   };
 
   // Helper function to get total product count
   const getTotalProductCount = () => {
+    if (!brands || brands.length === 0) {
+      return 0;
+    }
     return brands.reduce((total, brand) => 
-      total + brand.categories.reduce((brandTotal, category) => 
-        brandTotal + category.products.length, 0
-      ), 0
+      total + (brand.categories?.reduce((brandTotal, category) => 
+        brandTotal + (category.products?.length || 0), 0
+      ) || 0), 0
     );
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
+            Our Products
+          </h1>
+          <div className="flex items-center justify-center space-x-2">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand"></div>
+            <p className="text-lg text-muted-foreground">Loading products...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
+            Our Products
+          </h1>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+            <p className="text-red-600 font-medium">Failed to load products</p>
+            <p className="text-red-500 text-sm mt-2">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="mt-4"
+              variant="outline"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -174,6 +221,7 @@ const Products = () => {
           </p>
           
         </div>
+
 
         {/* Search Bar */}
         <div className="max-w-2xl mx-auto">
