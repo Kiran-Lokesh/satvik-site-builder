@@ -25,7 +25,6 @@ import {
 } from './dataTransformers';
 
 import { isLocalDataSource, isSanityDataSource, DATA_SOURCE_CONFIG } from './config';
-import { imageHandler } from './unifiedImageHandler';
 
 // Import data sources
 import jawariProducts from '@/data/jawari_products.json';
@@ -389,7 +388,6 @@ export class UnifiedDataService {
    */
   clearCache(): void {
     this.cache.clear();
-    imageHandler.clearCache();
     console.log('🗑️ All caches cleared');
   }
 
