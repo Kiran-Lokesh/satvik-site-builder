@@ -133,8 +133,19 @@ async function generateCatalog() {
     // Write CSV file to dist directory
     await csvWriter.writeRecords(transformedProducts)
     
+    // Also copy to public directory for easy access
+    const publicDir = path.join(process.cwd(), 'public')
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir, { recursive: true })
+    }
+    
+    const distCsvPath = path.join(distDir, 'catalog-feed.csv')
+    const publicCsvPath = path.join(publicDir, 'catalog-feed.csv')
+    fs.copyFileSync(distCsvPath, publicCsvPath)
+    
     console.log(`✅ Catalog generated successfully!`)
     console.log(`📁 Saved to: dist/catalog-feed.csv`)
+    console.log(`📁 Copied to: public/catalog-feed.csv`)
     console.log(`🌐 Local access: http://localhost:8080/catalog-feed.csv`)
     console.log(`🌐 Production: https://satvikfoods.ca/catalog-feed.csv`)
     
