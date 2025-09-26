@@ -62,14 +62,14 @@ async function generateCatalog() {
             availability: variant.inStock ? 'in stock' : 'out of stock',
             condition: 'new',
             price: `${formattedPrice} CAD`,
-            sale_price: `${formattedPrice} CAD`,
-            sale_price_effective_date: '',
             link: `https://satvikfoods.ca/product/${slug}`,
             image_link: product.imageUrl || '',
             brand: 'Satvik Foods',
             google_product_category: 'Food, Beverages & Tobacco > Food Items',
             fb_product_category: 'Food & Beverage',
             quantity_to_sell_on_facebook: '100',
+            sale_price: `${formattedPrice} CAD`,
+            sale_price_effective_date: '',
             item_group_id: product._id, // Group variants together
             size: variant.name || variant.id || 'Standard'
           })
@@ -88,14 +88,14 @@ async function generateCatalog() {
           availability: 'in stock',
           condition: 'new',
           price: `${formattedPrice} CAD`,
-          sale_price: `${formattedPrice} CAD`,
-          sale_price_effective_date: '',
           link: `https://satvikfoods.ca/product/${slug}`,
           image_link: product.imageUrl || '',
           brand: 'Satvik Foods',
           google_product_category: 'Food, Beverages & Tobacco > Food Items',
           fb_product_category: 'Food & Beverage',
-          quantity_to_sell_on_facebook: '100'
+          quantity_to_sell_on_facebook: '100',
+          sale_price: `${formattedPrice} CAD`,
+          sale_price_effective_date: ''
         })
       }
     })
@@ -117,14 +117,14 @@ async function generateCatalog() {
         {id: 'availability', title: 'availability'},
         {id: 'condition', title: 'condition'},
         {id: 'price', title: 'price'},
-        {id: 'sale_price', title: 'sale_price'},
-        {id: 'sale_price_effective_date', title: 'sale_price_effective_date'},
         {id: 'link', title: 'link'},
         {id: 'image_link', title: 'image_link'},
         {id: 'brand', title: 'brand'},
         {id: 'google_product_category', title: 'google_product_category'},
         {id: 'fb_product_category', title: 'fb_product_category'},
         {id: 'quantity_to_sell_on_facebook', title: 'quantity_to_sell_on_facebook'},
+        {id: 'sale_price', title: 'sale_price'},
+        {id: 'sale_price_effective_date', title: 'sale_price_effective_date'},
         {id: 'item_group_id', title: 'item_group_id'},
         {id: 'size', title: 'size'}
       ]
