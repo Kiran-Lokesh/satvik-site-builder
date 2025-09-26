@@ -36,14 +36,22 @@ async function generateCatalog() {
       // Handle slug - use product name as fallback if slug is null
       const slug = product.slug || product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
       
+      // Extract numeric price (remove $ and CAD)
+      const numericPrice = product.price ? product.price.replace(/[^0-9.]/g, '') : '0'
+      
       return {
         id: product._id,
         title: product.name,
         description: product.description || '',
         availability: 'in stock',
-        price: `${product.price} CAD`,
+        condition: 'new',
+        price: `${numericPrice} CAD`,
         link: `https://satvikfoods.ca/product/${slug}`,
-        image_link: product.imageUrl || ''
+        image_link: product.imageUrl || '',
+        brand: 'Satvik Foods',
+        google_product_category: 'Food, Beverages & Tobacco > Food Items',
+        fb_product_category: 'Food & Beverage',
+        quantity_to_sell_on_facebook: '100'
       }
     })
     
@@ -62,9 +70,14 @@ async function generateCatalog() {
         {id: 'title', title: 'title'},
         {id: 'description', title: 'description'},
         {id: 'availability', title: 'availability'},
+        {id: 'condition', title: 'condition'},
         {id: 'price', title: 'price'},
         {id: 'link', title: 'link'},
-        {id: 'image_link', title: 'image_link'}
+        {id: 'image_link', title: 'image_link'},
+        {id: 'brand', title: 'brand'},
+        {id: 'google_product_category', title: 'google_product_category'},
+        {id: 'fb_product_category', title: 'fb_product_category'},
+        {id: 'quantity_to_sell_on_facebook', title: 'quantity_to_sell_on_facebook'}
       ]
     })
     
