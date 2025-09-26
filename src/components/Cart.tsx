@@ -2,7 +2,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
-import { X, Plus, Minus, Trash2, MessageCircle } from 'lucide-react';
+import { X, Plus, Minus, Trash2, MessageCircle, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Cart = () => {
   const { 
@@ -23,37 +24,9 @@ const Cart = () => {
   // Don't render if cart is not open
   if (!isOpen) return null;
 
-  // WhatsApp checkout functionality
-  const handleWhatsAppCheckout = () => {
-    if (items.length === 0) return;
-
-    // Build the message
-    let message = "Hello Satvik Foods! I'd like to order:\n\n";
-    
-    items.forEach((item, index) => {
-      message += `${index + 1}. ${item.productName} (${item.variantName}) - Qty: ${item.quantity}`;
-      if (item.price && item.price !== '0') {
-        message += ` - ${item.price}`;
-      }
-      message += '\n';
-    });
-
-    message += `\nTotal Items: ${items.reduce((sum, item) => sum + item.quantity, 0)}`;
-    if (totalPrice > 0) {
-      message += `\nSubtotal: $${subtotal.toFixed(2)}`;
-      message += `\nGST (5%): $${gstAmount.toFixed(2)}`;
-      message += `\nTotal: $${totalPrice.toFixed(2)}`;
-    }
-    
-    message += "\n\nPlease confirm availability and send me a payment link. Thank you!";
-
-    // Encode the message and create WhatsApp link
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappNumber = "15875813956"; // Satvik Foods WhatsApp business number
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-
-    // Open WhatsApp
-    window.open(whatsappUrl, '_blank');
+  // Navigate to order confirmation page
+  const handleProceedToCheckout = () => {
+    closeCart(); // Close the cart modal first
   };
 
   if (items.length === 0) {
@@ -182,13 +155,12 @@ const Cart = () => {
             </>
           )}
 
-          <Button
-            onClick={handleWhatsAppCheckout}
-            className="w-full bg-brand hover:bg-brand-dark text-white"
-          >
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Checkout via WhatsApp
-          </Button>
+          <Link to="/order-confirmation" onClick={handleProceedToCheckout}>
+            <Button className="w-full bg-brand hover:bg-brand-dark text-white">
+              <ArrowRight className="h-4 w-4 mr-2" />
+              Proceed to Checkout
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

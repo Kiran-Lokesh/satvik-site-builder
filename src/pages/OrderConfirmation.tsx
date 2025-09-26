@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { MessageCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MessageCircle, CheckCircle, ArrowLeft, User, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const OrderConfirmation = () => {
@@ -19,6 +21,16 @@ const OrderConfirmation = () => {
   const gstAmount = getGSTAmount();
   const totalPrice = getTotalPrice();
 
+  // Customer information state
+  const [customerName, setCustomerName] = useState('');
+  const [customerAddress, setCustomerAddress] = useState('');
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  // Validate form whenever customer details change
+  React.useEffect(() => {
+    setIsFormValid(customerName.trim().length > 0 && customerAddress.trim().length > 0);
+  }, [customerName, customerAddress]);
+
   // Generate order summary text
   const generateOrderSummary = () => {
     let summary = "ORDER SUMMARY\n";
@@ -32,7 +44,12 @@ const OrderConfirmation = () => {
       summary += `   Variant: ${item.variantName}\n`;
       summary += `   Quantity: ${item.quantity}\n`;
       if (item.price && item.price !== '0') {
-        summary += `   Price: ${item.price}\n`;
+        const unitPrice = parseFloat(item.price.replace('$', ''));
+        const totalPrice = unitPrice * item.quantity;
+        summary += `   Unit Price: ${item.price}\n`;
+        if (item.quantity > 1) {
+          summary += `   Total: $${totalPrice.toFixed(2)}\n`;
+        }
       }
       summary += "\n";
     });
@@ -49,23 +66,33 @@ const OrderConfirmation = () => {
 
     summary += "\n" + "=".repeat(50) + "\n";
     summary += "Thank you for choosing Satvik Foods!\n";
-    summary += "Please review your order details above.\n";
-    summary += "Click 'Complete Order via WhatsApp' to proceed.";
+    summary += "Please review your order details above.";
 
     return summary;
   };
 
   // WhatsApp checkout functionality
   const handleWhatsAppCheckout = () => {
-    if (items.length === 0) return;
+    if (items.length === 0 || !isFormValid) return;
 
     // Build the message
     let message = "Hello Satvik Foods! I'd like to order:\n\n";
     
+    // Add customer information
+    message += "CUSTOMER DETAILS:\n";
+    message += `Name: ${customerName}\n`;
+    message += `Address: ${customerAddress}\n\n`;
+    
+    message += "ORDER ITEMS:\n";
     items.forEach((item, index) => {
       message += `${index + 1}. ${item.productName} (${item.variantName}) - Qty: ${item.quantity}`;
       if (item.price && item.price !== '0') {
+        const unitPrice = parseFloat(item.price.replace('$', ''));
+        const totalPrice = unitPrice * item.quantity;
         message += ` - ${item.price}`;
+        if (item.quantity > 1) {
+          message += ` (Total: $${totalPrice.toFixed(2)})`;
+        }
       }
       message += '\n';
     });
@@ -125,6 +152,49 @@ const OrderConfirmation = () => {
           </p>
         </div>
 
+        {/* Customer Information Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Customer Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="customerName" className="text-sm font-medium">
+                  Full Name *
+                </Label>
+                <Input
+                  id="customerName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerAddress" className="text-sm font-medium">
+                  Delivery Address *
+                </Label>
+                <Input
+                  id="customerAddress"
+                  type="text"
+                  placeholder="Enter your delivery address"
+                  value={customerAddress}
+                  onChange={(e) => setCustomerAddress(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              * Required fields. This information will be included in your WhatsApp order message.
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Order Details Card */}
         <Card>
           <CardHeader>
@@ -156,12 +226,19 @@ const OrderConfirmation = () => {
               
               <Button
                 onClick={handleWhatsAppCheckout}
-                className="flex-1 bg-brand hover:bg-brand-dark text-white"
+                disabled={!isFormValid}
+                className="flex-1 bg-brand hover:bg-brand-dark text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Complete Order via WhatsApp
               </Button>
             </div>
+            
+            {!isFormValid && (
+              <p className="text-sm text-red-500 text-center">
+                Please fill in your name and address to proceed with the order.
+              </p>
+            )}
           </CardContent>
         </Card>
 
