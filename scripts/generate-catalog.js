@@ -47,20 +47,16 @@ async function generateCatalog() {
       }
     })
     
-    // Ensure directories exist
-    const publicDir = path.join(process.cwd(), 'public')
+    // Ensure dist directory exists
     const distDir = path.join(process.cwd(), 'dist')
     
-    if (!fs.existsSync(publicDir)) {
-      fs.mkdirSync(publicDir, { recursive: true })
-    }
     if (!fs.existsSync(distDir)) {
       fs.mkdirSync(distDir, { recursive: true })
     }
     
-    // Create CSV writer
+    // Create CSV writer for dist directory
     const csvWriter = createCsvWriter.createObjectCsvWriter({
-      path: path.join(publicDir, 'catalog-feed.csv'),
+      path: path.join(distDir, 'catalog-feed.csv'),
       header: [
         {id: 'id', title: 'id'},
         {id: 'title', title: 'title'},
@@ -72,35 +68,11 @@ async function generateCatalog() {
       ]
     })
     
-    // Write CSV file
+    // Write CSV file to dist directory
     await csvWriter.writeRecords(transformedProducts)
     
-    // Also copy to dist directory for deployment
-    const distPath = path.join(distDir, 'catalog-feed.csv')
-    const publicPath = path.join(publicDir, 'catalog-feed.csv')
-    
-    if (fs.existsSync(publicPath)) {
-      fs.copyFileSync(publicPath, distPath)
-    } else {
-      // If public directory doesn't exist, write directly to dist
-      const distCsvWriter = createCsvWriter.createObjectCsvWriter({
-        path: distPath,
-        header: [
-          {id: 'id', title: 'id'},
-          {id: 'title', title: 'title'},
-          {id: 'description', title: 'description'},
-          {id: 'availability', title: 'availability'},
-          {id: 'price', title: 'price'},
-          {id: 'link', title: 'link'},
-          {id: 'image_link', title: 'image_link'}
-        ]
-      })
-      await distCsvWriter.writeRecords(transformedProducts)
-    }
-    
     console.log(`✅ Catalog generated successfully!`)
-    console.log(`📁 Saved to: public/catalog-feed.csv`)
-    console.log(`📁 Also saved to: dist/catalog-feed.csv`)
+    console.log(`📁 Saved to: dist/catalog-feed.csv`)
     console.log(`🌐 Local access: http://localhost:8080/catalog-feed.csv`)
     console.log(`🌐 Production: https://satvikfoods.ca/catalog-feed.csv`)
     
