@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "predeploy": "npm run generate-catalog && npm run build && touch dist/.nojekyll && cp CNAME dist/",
     "deploy": "gh-pages -d dist -r https://github.com/Kiran-Lokesh/satvik-site-builder.git",
-    "generate-catalog": "node scripts/generate-catalog.js"
+    "generate-catalog": "node scripts/generate-catalog.js",
+    "postinstall": "npm rebuild rollup"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

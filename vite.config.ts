@@ -24,6 +24,13 @@ export default defineConfig(({ mode }) => ({
     // Optimize asset handling
     assetsInlineLimit: 4096, // Inline assets smaller than 4kb
     rollupOptions: {
+      external: (id) => {
+        // Handle rollup native modules
+        if (id.includes('@rollup/rollup-linux-x64-gnu')) {
+          return true;
+        }
+        return false;
+      },
       output: {
         // Separate chunks for better caching
         manualChunks: {
