@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/catalog-feed.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "SANITY_PROJECT_ID": "@sanity_project_id",
+    "SANITY_DATASET": "@sanity_dataset", 
+    "SANITY_TOKEN": "@sanity_token",
+    "SANITY_API_VERSION": "@sanity_api_version"
+  }
+}

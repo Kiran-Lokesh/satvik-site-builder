@@ -322,24 +322,6 @@ const OrderConfirmation = () => {
           </CardContent>
         </Card>
 
-        {/* Free Delivery Notice */}
-        {deliveryMethod === 'delivery' && subtotal < 50 && (
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-2">
-                <h3 className="font-semibold text-green-700">💡 Save on Delivery!</h3>
-                <p className="text-sm text-green-600">
-                  Add ${(50 - subtotal).toFixed(2)} more to your order and get FREE delivery!
-                </p>
-                <Link to="/products">
-                  <Button variant="outline" size="sm" className="text-green-700 border-green-300 hover:bg-green-100">
-                    Continue Shopping
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Order Details Card */}
         <Card>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satvik Foods Catalog Feed</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .csv-content {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            white-space: pre-wrap;
+            font-size: 12px;
+            line-height: 1.4;
+            overflow-x: auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2d5a27;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌾 Satvik Foods Catalog Feed</h1>
+            <p>CSV Data for Meta Commerce Manager</p>
+        </div>
+        
+        <div class="csv-content" id="csv-content">
+            Loading catalog data...
+        </div>
+    </div>
+
+    <script>
+        // Fetch the CSV data and display it
+        async function loadCatalogData() {
+            try {
+                const response = await fetch('catalog-feed.csv');
+                const csvText = await response.text();
+                
+                // Display the CSV content
+                document.getElementById('csv-content').textContent = csvText;
+                
+            } catch (error) {
+                document.getElementById('csv-content').textContent = 'Error loading catalog data: ' + error.message;
+            }
+        }
+        
+        // Load the data when page loads
+        loadCatalogData();
+    </script>
+</body>
+</html>

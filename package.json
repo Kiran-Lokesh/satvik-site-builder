@@ -10,8 +10,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build && touch dist/.nojekyll && cp CNAME dist/",
-    "deploy": "gh-pages -d dist -r https://github.com/Kiran-Lokesh/satvik-site-builder.git"
+    "predeploy": "npm run generate-catalog && npm run build && touch dist/.nojekyll && cp CNAME dist/",
+    "deploy": "gh-pages -d dist -r https://github.com/Kiran-Lokesh/satvik-site-builder.git",
+    "generate-catalog": "node scripts/generate-catalog.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -52,6 +53,7 @@
     "dotenv": "^17.2.2",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
+    "json2csv": "^6.0.0",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",
