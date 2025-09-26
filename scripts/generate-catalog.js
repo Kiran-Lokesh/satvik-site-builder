@@ -52,13 +52,17 @@ async function generateCatalog() {
           const variantPrice = variant.price ? variant.price.replace(/[^0-9.]/g, '') : '0'
           const variantId = `${product._id}_${variant.id || index}`
           
+          // Format price to always have 2 decimal places
+          const formattedPrice = parseFloat(variantPrice || 0).toFixed(2)
+          
           transformedProducts.push({
             id: variantId,
             title: `${product.name} - ${variant.name || variant.id}`,
             description: product.description || '',
             availability: variant.inStock ? 'in stock' : 'out of stock',
             condition: 'new',
-            price: `${variantPrice} CAD`,
+            price: `${formattedPrice} CAD`,
+            sale_price: `${formattedPrice} CAD`,
             link: `https://satvikfoods.ca/product/${slug}`,
             image_link: product.imageUrl || '',
             brand: 'Satvik Foods',
@@ -73,13 +77,17 @@ async function generateCatalog() {
         // No variants, create single product entry
         const numericPrice = product.price ? product.price.replace(/[^0-9.]/g, '') : '0'
         
+        // Format price to always have 2 decimal places
+        const formattedPrice = parseFloat(numericPrice || 0).toFixed(2)
+        
         transformedProducts.push({
           id: product._id,
           title: product.name,
           description: product.description || '',
           availability: 'in stock',
           condition: 'new',
-          price: `${numericPrice} CAD`,
+          price: `${formattedPrice} CAD`,
+          sale_price: `${formattedPrice} CAD`,
           link: `https://satvikfoods.ca/product/${slug}`,
           image_link: product.imageUrl || '',
           brand: 'Satvik Foods',
@@ -107,6 +115,7 @@ async function generateCatalog() {
         {id: 'availability', title: 'availability'},
         {id: 'condition', title: 'condition'},
         {id: 'price', title: 'price'},
+        {id: 'sale_price', title: 'sale_price'},
         {id: 'link', title: 'link'},
         {id: 'image_link', title: 'image_link'},
         {id: 'brand', title: 'brand'},
