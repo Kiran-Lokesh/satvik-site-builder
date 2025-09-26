@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MessageCircle, CheckCircle, ArrowLeft, User, MapPin } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { MessageCircle, CheckCircle, ArrowLeft, User, MapPin, Store, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const OrderConfirmation = () => {
@@ -24,12 +25,28 @@ const OrderConfirmation = () => {
   // Customer information state
   const [customerName, setCustomerName] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
+  const [deliveryMethod, setDeliveryMethod] = useState('pickup');
+  const [pickupLocation, setPickupLocation] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+
+  // Pickup locations
+  const pickupLocations = [
+    { id: 'belmont', name: 'Belmont Location', address: '187 Belmont Blvd SW, Calgary AB T2X 4W5' },
+    { id: 'seton', name: 'Seton Location', address: '210 Setonstone Ave SE, Calgary AB T3M 3R6' }
+  ];
+
+  // Calculate delivery fee
+  const deliveryFee = subtotal < 50 && deliveryMethod === 'delivery' ? 3 : 0;
+  const finalTotal = totalPrice + deliveryFee;
 
   // Validate form whenever customer details change
   React.useEffect(() => {
-    setIsFormValid(customerName.trim().length > 0 && customerAddress.trim().length > 0);
-  }, [customerName, customerAddress]);
+    const hasName = customerName.trim().length > 0;
+    const hasAddress = customerAddress.trim().length > 0;
+    const hasPickupLocation = deliveryMethod === 'pickup' ? pickupLocation.trim().length > 0 : true;
+    
+    setIsFormValid(hasName && hasAddress && hasPickupLocation);
+  }, [customerName, customerAddress, deliveryMethod, pickupLocation]);
 
   // Generate order summary text
   const generateOrderSummary = () => {
@@ -54,6 +71,21 @@ const OrderConfirmation = () => {
       summary += "\n";
     });
 
+    summary += "DELIVERY/PICKUP INFO:\n";
+    summary += "-".repeat(20) + "\n";
+    if (deliveryMethod === 'pickup') {
+      const selectedLocation = pickupLocations.find(loc => loc.id === pickupLocation);
+      summary += `Method: Pickup\n`;
+      summary += `Location: ${selectedLocation ? selectedLocation.name : 'Not selected'}\n`;
+      if (selectedLocation) {
+        summary += `Address: ${selectedLocation.address}\n`;
+      }
+    } else {
+      summary += `Method: Delivery\n`;
+      summary += `Delivery Address: ${customerAddress}\n`;
+    }
+    summary += "\n";
+
     summary += "ORDER TOTALS:\n";
     summary += "-".repeat(20) + "\n";
     summary += `Total Items: ${items.reduce((sum, item) => sum + item.quantity, 0)}\n`;
@@ -61,7 +93,10 @@ const OrderConfirmation = () => {
     if (totalPrice > 0) {
       summary += `Subtotal: $${subtotal.toFixed(2)}\n`;
       summary += `GST (5%): $${gstAmount.toFixed(2)}\n`;
-      summary += `TOTAL: $${totalPrice.toFixed(2)}\n`;
+      if (deliveryFee > 0) {
+        summary += `Delivery Fee: $${deliveryFee.toFixed(2)}\n`;
+      }
+      summary += `TOTAL: $${finalTotal.toFixed(2)}\n`;
     }
 
     summary += "\n" + "=".repeat(50) + "\n";
@@ -81,7 +116,18 @@ const OrderConfirmation = () => {
     // Add customer information
     message += "CUSTOMER DETAILS:\n";
     message += `Name: ${customerName}\n`;
-    message += `Address: ${customerAddress}\n\n`;
+    if (deliveryMethod === 'pickup') {
+      const selectedLocation = pickupLocations.find(loc => loc.id === pickupLocation);
+      message += `Method: Pickup\n`;
+      message += `Pickup Location: ${selectedLocation ? selectedLocation.name : 'Not selected'}\n`;
+      if (selectedLocation) {
+        message += `Address: ${selectedLocation.address}\n`;
+      }
+    } else {
+      message += `Method: Delivery\n`;
+      message += `Delivery Address: ${customerAddress}\n`;
+    }
+    message += "\n";
     
     message += "ORDER ITEMS:\n";
     items.forEach((item, index) => {
@@ -101,7 +147,10 @@ const OrderConfirmation = () => {
     if (totalPrice > 0) {
       message += `\nSubtotal: $${subtotal.toFixed(2)}`;
       message += `\nGST (5%): $${gstAmount.toFixed(2)}`;
-      message += `\nTotal: $${totalPrice.toFixed(2)}`;
+      if (deliveryFee > 0) {
+        message += `\nDelivery Fee: $${deliveryFee.toFixed(2)}`;
+      }
+      message += `\nTotal: $${finalTotal.toFixed(2)}`;
     }
     
     message += "\n\nPlease confirm availability and send me a payment link. Thank you!";
@@ -194,6 +243,103 @@ const OrderConfirmation = () => {
             </p>
           </CardContent>
         </Card>
+
+        {/* Delivery Method Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              Delivery Method
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="pickup" id="pickup" />
+                <Label htmlFor="pickup" className="flex items-center gap-2">
+                  <Store className="h-4 w-4" />
+                  Pickup from Store
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="delivery" id="delivery" />
+                <Label htmlFor="delivery" className="flex items-center gap-2">
+                  <Truck className="h-4 w-4" />
+                  Delivery to Address
+                  {subtotal < 50 ? (
+                    <span className="text-sm text-orange-600 font-medium">
+                      (+$3 delivery fee - FREE over $50!)
+                    </span>
+                  ) : (
+                    <span className="text-sm text-green-600 font-medium">
+                      (FREE delivery!)
+                    </span>
+                  )}
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {deliveryMethod === 'pickup' && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Pickup Location *</Label>
+                <RadioGroup value={pickupLocation} onValueChange={setPickupLocation}>
+                  {pickupLocations.map((location) => (
+                    <div key={location.id} className="flex items-start space-x-2">
+                      <RadioGroupItem value={location.id} id={location.id} />
+                      <Label htmlFor={location.id} className="flex-1">
+                        <div className="font-medium">{location.name}</div>
+                        <div className="text-sm text-muted-foreground">{location.address}</div>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
+
+            {deliveryMethod === 'delivery' && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Delivery Address</Label>
+                <p className="text-sm text-muted-foreground">
+                  We'll deliver to: {customerAddress || 'Please enter your address above'}
+                </p>
+                {subtotal < 50 && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 space-y-2">
+                    <p className="text-sm text-orange-700 font-medium">
+                      Orders under $50 have a $3 delivery fee
+                    </p>
+                    <p className="text-sm text-orange-600">
+                      Add ${(50 - subtotal).toFixed(2)} more to your order to get FREE delivery!
+                    </p>
+                    <Link to="/products">
+                      <Button variant="outline" size="sm" className="text-orange-700 border-orange-300 hover:bg-orange-100">
+                        Continue Shopping
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Free Delivery Notice */}
+        {deliveryMethod === 'delivery' && subtotal < 50 && (
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-2">
+                <h3 className="font-semibold text-green-700">💡 Save on Delivery!</h3>
+                <p className="text-sm text-green-600">
+                  Add ${(50 - subtotal).toFixed(2)} more to your order and get FREE delivery!
+                </p>
+                <Link to="/products">
+                  <Button variant="outline" size="sm" className="text-green-700 border-green-300 hover:bg-green-100">
+                    Continue Shopping
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Order Details Card */}
         <Card>
