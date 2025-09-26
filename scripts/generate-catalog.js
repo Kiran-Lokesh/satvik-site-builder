@@ -52,7 +52,7 @@ async function generateCatalog() {
           const variantPrice = variant.price ? variant.price.replace(/[^0-9.]/g, '') : '0'
           const variantId = `${product._id}_${variant.id || index}`
           
-          // Format price to always have 2 decimal places
+          // Format price to always have 2 decimal places (e.g., 1.99 -> 1.99, 3.99 -> 3.99)
           const formattedPrice = parseFloat(variantPrice || 0).toFixed(2)
           
           transformedProducts.push({
@@ -63,6 +63,7 @@ async function generateCatalog() {
             condition: 'new',
             price: `${formattedPrice} CAD`,
             sale_price: `${formattedPrice} CAD`,
+            sale_price_effective_date: '',
             link: `https://satvikfoods.ca/product/${slug}`,
             image_link: product.imageUrl || '',
             brand: 'Satvik Foods',
@@ -88,6 +89,7 @@ async function generateCatalog() {
           condition: 'new',
           price: `${formattedPrice} CAD`,
           sale_price: `${formattedPrice} CAD`,
+          sale_price_effective_date: '',
           link: `https://satvikfoods.ca/product/${slug}`,
           image_link: product.imageUrl || '',
           brand: 'Satvik Foods',
@@ -116,6 +118,7 @@ async function generateCatalog() {
         {id: 'condition', title: 'condition'},
         {id: 'price', title: 'price'},
         {id: 'sale_price', title: 'sale_price'},
+        {id: 'sale_price_effective_date', title: 'sale_price_effective_date'},
         {id: 'link', title: 'link'},
         {id: 'image_link', title: 'image_link'},
         {id: 'brand', title: 'brand'},
