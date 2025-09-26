@@ -1,5 +1,5 @@
 import { createClient } from '@sanity/client'
-import { Parser } from 'json2csv'
+import createCsvWriter from 'csv-writer'
 import fs from 'fs'
 import path from 'path'
 
@@ -47,24 +47,30 @@ async function generateCatalog() {
       }
     })
     
-    // Convert to CSV
-    const parser = new Parser({
-      fields: ['id', 'title', 'description', 'availability', 'price', 'link', 'image_link']
+    // Create CSV writer
+    const csvWriter = createCsvWriter.createObjectCsvWriter({
+      path: path.join(process.cwd(), 'public', 'catalog-feed.csv'),
+      header: [
+        {id: 'id', title: 'id'},
+        {id: 'title', title: 'title'},
+        {id: 'description', title: 'description'},
+        {id: 'availability', title: 'availability'},
+        {id: 'price', title: 'price'},
+        {id: 'link', title: 'link'},
+        {id: 'image_link', title: 'image_link'}
+      ]
     })
     
-    const csv = parser.parse(transformedProducts)
+    // Write CSV file
+    await csvWriter.writeRecords(transformedProducts)
     
-    // Save CSV file to public directory (for GitHub Pages)
-    const outputPath = path.join(process.cwd(), 'public', 'catalog-feed.csv')
-    fs.writeFileSync(outputPath, csv)
-    
-    // Also save to dist directory for deployment
+    // Also copy to dist directory for deployment
     const distPath = path.join(process.cwd(), 'dist', 'catalog-feed.csv')
-    fs.writeFileSync(distPath, csv)
+    fs.copyFileSync(path.join(process.cwd(), 'public', 'catalog-feed.csv'), distPath)
     
     console.log(`✅ Catalog generated successfully!`)
-    console.log(`📁 Saved to: ${outputPath}`)
-    console.log(`📁 Also saved to: ${distPath}`)
+    console.log(`📁 Saved to: public/catalog-feed.csv`)
+    console.log(`📁 Also saved to: dist/catalog-feed.csv`)
     console.log(`🌐 Local access: http://localhost:8080/catalog-feed.csv`)
     console.log(`🌐 Production: https://satvikfoods.ca/catalog-feed.csv`)
     
