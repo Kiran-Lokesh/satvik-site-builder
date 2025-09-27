@@ -92,7 +92,6 @@ const OrderConfirmation = () => {
     
     if (totalPrice > 0) {
       summary += `Subtotal: $${subtotal.toFixed(2)}\n`;
-      summary += `GST (5%): $${gstAmount.toFixed(2)}\n`;
       if (deliveryFee > 0) {
         summary += `Delivery Fee: $${deliveryFee.toFixed(2)}\n`;
       }
@@ -146,7 +145,6 @@ const OrderConfirmation = () => {
     message += `\nTotal Items: ${items.reduce((sum, item) => sum + item.quantity, 0)}`;
     if (totalPrice > 0) {
       message += `\nSubtotal: $${subtotal.toFixed(2)}`;
-      message += `\nGST (5%): $${gstAmount.toFixed(2)}`;
       if (deliveryFee > 0) {
         message += `\nDelivery Fee: $${deliveryFee.toFixed(2)}`;
       }

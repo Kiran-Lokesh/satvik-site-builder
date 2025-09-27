@@ -140,14 +140,6 @@ const Cart = () => {
           
           {totalPrice > 0 && (
             <>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Subtotal:</span>
-                <span className="text-sm text-muted-foreground">${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">GST (5%):</span>
-                <span className="text-sm text-muted-foreground">${gstAmount.toFixed(2)}</span>
-              </div>
               <div className="flex justify-between items-center border-t pt-2">
                 <span className="text-lg font-semibold text-brandText">Total:</span>
                 <span className="text-lg font-semibold text-brand">${totalPrice.toFixed(2)}</span>

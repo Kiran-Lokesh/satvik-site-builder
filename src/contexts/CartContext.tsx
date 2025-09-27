@@ -172,12 +172,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const getGSTAmount = () => {
-    const subtotal = getSubtotal();
-    return subtotal * 0.05; // 5% GST
+    return 0; // No GST charged to customers
   };
 
   const getTotalPrice = () => {
-    return getSubtotal() + getGSTAmount();
+    return getSubtotal(); // Total is just the subtotal (no GST)
   };
 
   const value: CartContextType = {
