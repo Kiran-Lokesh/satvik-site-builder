@@ -15,6 +15,7 @@ const client = createClient({
 // GROQ query to fetch all products with variants
 const PRODUCTS_QUERY = `*[_type == "product"]{
   _id,
+  id,
   name,
   description,
   price,
@@ -39,12 +40,13 @@ async function generateCatalog() {
       console.log('🔍 Sample product with variants:', JSON.stringify(productsWithVariants[0], null, 2))
     }
     
+    
     // Transform products into Meta Commerce Manager format
     const transformedProducts = []
     
     products.forEach(product => {
-      // Handle slug - use product name as fallback if slug is null
-      const slug = product.slug || product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+      // Use product ID for the link instead of generating from name
+      const productId = product.id || product._id
       
       // If product has variants, create a separate entry for each variant
       if (product.variants && product.variants.length > 0) {
@@ -56,13 +58,13 @@ async function generateCatalog() {
           const formattedPrice = parseFloat(variantPrice || 0).toFixed(2)
           
           transformedProducts.push({
-            id: variantId,
+            id: `${productId}_${variant.id || index}`,
             title: `${product.name} - ${variant.name || variant.id}`,
             description: product.description || '',
             availability: variant.inStock ? 'in stock' : 'out of stock',
             condition: 'new',
             price: `${formattedPrice} CAD`,
-            link: `https://satvikfoods.ca/product/${slug}`,
+            link: `https://satvikfoods.ca/product/${productId}`,
             image_link: product.imageUrl || '',
             brand: 'Satvik Foods',
             google_product_category: 'Food, Beverages & Tobacco > Food Items',
@@ -70,7 +72,7 @@ async function generateCatalog() {
             quantity_to_sell_on_facebook: '100',
             sale_price: `${formattedPrice} CAD`,
             sale_price_effective_date: '',
-            item_group_id: product._id, // Group variants together
+            item_group_id: productId, // Group variants together
             size: variant.name || variant.id || 'Standard'
           })
         })
@@ -82,13 +84,13 @@ async function generateCatalog() {
         const formattedPrice = parseFloat(numericPrice || 0).toFixed(2)
         
         transformedProducts.push({
-          id: product._id,
+          id: productId,
           title: product.name,
           description: product.description || '',
           availability: 'in stock',
           condition: 'new',
           price: `${formattedPrice} CAD`,
-          link: `https://satvikfoods.ca/product/${slug}`,
+          link: `https://satvikfoods.ca/product/${productId}`,
           image_link: product.imageUrl || '',
           brand: 'Satvik Foods',
           google_product_category: 'Food, Beverages & Tobacco > Food Items',

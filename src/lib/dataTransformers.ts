@@ -38,6 +38,8 @@ import {
   DataSource,
 } from './unifiedDataTypes';
 
+import { getImageUrl } from './sanity';
+
 // import { imageHandler, ImageHandlerConfig } from './unifiedImageHandler';
 
 // Import all local product images for mapping
@@ -561,14 +563,15 @@ function transformSanityProductToUnified(
   const getImageWithFallback = (sanityProduct: SanityRawProduct) => {
     // Try Sanity image first
     if (sanityProduct.image) {
-      const sanityUrl = `https://cdn.sanity.io/images/eaaly2y1/products/${sanityProduct.image.asset._ref.replace('image-', '').replace('-jpg', '.jpg')}`;
+      // Use proper Sanity imageUrlBuilder to construct the URL
+      const sanityUrl = getImageUrl(sanityProduct.image);
       
       // Try to find a matching local image as fallback
       const localImageName = findMatchingLocalImage(sanityProduct.name, sanityProduct.id);
       const localUrl = localImageName ? getLocalImageUrl(localImageName) : context.defaultImage;
       
       return {
-        url: sanityUrl,
+        url: sanityUrl || context.defaultImage, // Fallback to default if URL construction fails
         alt: sanityProduct.image.alt || sanityProduct.name,
         source: 'sanity' as const,
         originalName: sanityProduct.image.asset._ref,

@@ -172,7 +172,7 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
           <img
             src={currentImageUrl}
             alt={product.name}
-            className="w-full h-48 sm:h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-48 sm:h-56 object-contain group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
             onError={handleImageError}
             decoding="async"

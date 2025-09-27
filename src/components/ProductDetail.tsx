@@ -46,7 +46,7 @@ const ProductDetail = ({ product, isOpen, onClose }: ProductDetailProps) => {
               <img
                 src={imageUrl}
                 alt={product.name}
-                className="w-full h-80 object-cover"
+                className="w-full h-80 object-contain"
                 loading="lazy"
               />
             </div>
