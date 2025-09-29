@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Send, Home, Instagram, Facebook } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Home, Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import satvikLogo from '@/assets/satvik-logo.svg';
 import { Button } from '@/components/ui/button';
@@ -107,25 +107,25 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Newsletter Signup */}
+          {/* WhatsApp Group */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Stay Updated</h3>
             <p className="text-sm text-muted">
-              Get the latest updates on our products and offers.
+              Join our WhatsApp group for the latest updates on our products and offers.
             </p>
             <div className="flex flex-col space-y-2">
-              <input 
-                type="email" 
-                placeholder="Enter your email" 
-                className="px-3 py-2 text-sm border border-brand/20 rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
-              />
-              <Button 
-                className="bg-brand hover:bg-brand-dark text-white text-sm"
-                size="sm"
+              <a
+                href="https://chat.whatsapp.com/YOUR_GROUP_LINK_HERE"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground shadow-warm rounded-md transition-colors"
               >
-                <Send className="h-4 w-4 mr-2" />
-                Subscribe
-              </Button>
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Join WhatsApp Group
+              </a>
+              <p className="text-xs text-muted-foreground">
+                Get instant notifications about new products and special offers
+              </p>
             </div>
           </div>
         </div>
