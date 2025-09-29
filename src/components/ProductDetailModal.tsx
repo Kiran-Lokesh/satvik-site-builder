@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCart } from '@/contexts/CartContext';
-import { ShoppingCart, X, Star, Heart } from 'lucide-react';
+import { ShoppingCart, X, Star, Heart, Check, Loader2 } from 'lucide-react';
 
 // Import placeholder image
 import placeholderImage from '/placeholder.svg';
@@ -90,6 +90,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
   const [selectedVariant, setSelectedVariant] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
   
   // Handle unified image interface with fallback - moved before early return
   const [imageError, setImageError] = useState(false);
@@ -101,6 +102,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
       setSelectedVariant('');
       setQuantity(1);
       setIsAddingToCart(false);
+      setIsAddedToCart(false);
     }
   }, [isOpen]);
 
@@ -159,8 +161,14 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
         addToCart(product, { id: 'default', name: variant, price: price }, quantity);
       }
       
-      // Close modal after adding to cart
-      onClose();
+      // Show success animation
+      setIsAddedToCart(true);
+      
+      // Reset quantity and close modal after animation
+      setTimeout(() => {
+        setQuantity(1);
+        onClose();
+      }, 300);
     } finally {
       setIsAddingToCart(false);
     }
@@ -282,20 +290,36 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
             <div className="pt-4">
               <Button
                 onClick={handleAddToCart}
-                disabled={hasVariants && !selectedVariant || isAddingToCart || !isInStock}
-                className={`w-full font-medium py-3 text-lg ${
+                disabled={hasVariants && !selectedVariant || isAddingToCart || !isInStock || isAddedToCart}
+                className={`w-full font-medium py-3 text-lg transition-all duration-200 ${
                   !isInStock 
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                    : 'bg-accent hover:bg-accent/90 text-black'
+                    : isAddedToCart
+                      ? 'bg-green-500 hover:bg-green-600 text-white'
+                      : 'bg-accent hover:bg-accent/90 text-black'
                 }`}
               >
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                {!isInStock 
-                  ? 'Sold Out' 
-                  : isAddingToCart 
-                    ? 'Adding...' 
-                    : `Add ${quantity} to Cart`
-                }
+                {!isInStock ? (
+                  <>
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    Sold Out
+                  </>
+                ) : isAddingToCart ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Adding...
+                  </>
+                ) : isAddedToCart ? (
+                  <>
+                    <Check className="h-5 w-5 mr-2" />
+                    Added {quantity}!
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    Add {quantity} to Cart
+                  </>
+                )}
               </Button>
             </div>
 

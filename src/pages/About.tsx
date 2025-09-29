@@ -71,7 +71,7 @@ const About = () => {
                 <img
                   src={familyPhoto1}
                   alt="Shruthi and Kiran"
-                  className="w-full h-72 object-contain rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+                  className="w-full h-72 object-cover rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
                 />
               </div>
               <div className="space-y-2">
@@ -90,7 +90,7 @@ const About = () => {
                 <img
                   src={familyPhoto2}
                   alt="Anusha and Yeshwanth"
-                  className="w-full h-72 object-contain rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
+                  className="w-full h-72 object-cover rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105"
                 />
               </div>
               <div className="space-y-2">

@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Send, Home } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Home, Instagram, Facebook } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import satvikLogo from '@/assets/satvik-logo.svg';
 import { Button } from '@/components/ui/button';
@@ -38,14 +38,42 @@ const Footer = () => {
                 <div className="flex items-start space-x-3">
                   <Home className="h-4 w-4 flex-shrink-0 mt-0.5" />
                   <div className="text-sm flex-1">
-                    <div className="whitespace-nowrap">210 Setonstone Ave SE, Calgary AB T3M 3R6</div>
+                    <div>210 Setonstone Ave SE</div>
+                    <div>Calgary AB T3M 3R6</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Home className="h-4 w-4 flex-shrink-0 mt-0.5" />
                   <div className="text-sm flex-1">
-                    <div className="whitespace-nowrap">187 Belmont Blvd SW, Calgary AB T2X 4W5</div>
+                    <div>187 Belmont Blvd SW</div>
+                    <div>Calgary AB T2X 4W5</div>
                   </div>
+                </div>
+              </div>
+              
+              {/* Social Media Links */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center space-x-3">
+                  <Instagram className="h-4 w-4 flex-shrink-0 text-pink-500" />
+                  <a 
+                    href="https://www.instagram.com/satvik_foods_ca/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm hover:text-brand transition-colors"
+                  >
+                    @satvik_foods_ca
+                  </a>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Facebook className="h-4 w-4 flex-shrink-0 text-blue-600" />
+                  <a 
+                    href="https://www.facebook.com/profile.php?id=61580878303182" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm hover:text-brand transition-colors"
+                  >
+                    Satvik Foods
+                  </a>
                 </div>
               </div>
             </div>

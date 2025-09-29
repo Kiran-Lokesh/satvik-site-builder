@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Phone, MapPin, Send, Home, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Home, Clock, Instagram, Facebook } from 'lucide-react';
 
 
 const Contact = () => {
@@ -107,6 +107,20 @@ const Contact = () => {
       title: "Locations",
       details: "210 Setonstone Ave SE, Calgary AB T3M 3R6",
       description: "187 Belmont Blvd SW, Calgary AB T2X 4W5"
+    },
+    {
+      icon: <Instagram className="h-6 w-6 text-pink-500" />,
+      title: "Instagram",
+      details: "@satvik_foods_ca",
+      description: "Follow us for daily updates and food inspiration",
+      url: "https://www.instagram.com/satvik_foods_ca/"
+    },
+    {
+      icon: <Facebook className="h-6 w-6 text-blue-600" />,
+      title: "Facebook",
+      details: "Satvik Foods",
+      description: "Connect with us on Facebook",
+      url: "https://www.facebook.com/profile.php?id=61580878303182"
     }
   ];
 
@@ -220,7 +234,7 @@ const Contact = () => {
 
             <div className="space-y-6">
               {contactInfo.map((info, index) => (
-                <Card key={index} className="border-border/50 shadow-soft hover:shadow-card transition-all duration-300">
+                <Card key={index} className="bg-gradient-hero border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
                       <div className="flex-shrink-0">
@@ -233,12 +247,26 @@ const Contact = () => {
                         {info.title === "Locations" ? (
                           <div className="space-y-3">
                             <div className="text-lg font-medium text-primary">
-                              <div className="whitespace-nowrap">{info.details}</div>
+                              <div>{info.details}</div>
                             </div>
                             <div className="text-lg font-medium text-primary">
-                              <div className="whitespace-nowrap">{info.description}</div>
+                              <div>{info.description}</div>
                             </div>
                           </div>
+                        ) : info.url ? (
+                          <a 
+                            href={info.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="block hover:opacity-80 transition-opacity"
+                          >
+                            <p className="text-lg font-medium text-primary">
+                              {info.details}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {info.description}
+                            </p>
+                          </a>
                         ) : (
                           <>
                             <p className="text-lg font-medium text-primary">

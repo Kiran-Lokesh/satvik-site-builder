@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Check, Loader2 } from 'lucide-react';
 import ProductDetailModal from './ProductDetailModal';
 
 // Import placeholder image
@@ -91,6 +91,7 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
 
   // Handle unified image interface with fallback
   const [imageError, setImageError] = useState(false);
@@ -147,7 +148,15 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
         addToCart(product, { id: 'default', name: variant, price: price }, quantity);
       }
       
-      // Don't auto-open cart - let user decide when to view it
+      // Show success animation
+      setIsAddedToCart(true);
+      
+      // Reset quantity and success state after animation
+      setTimeout(() => {
+        setIsAddedToCart(false);
+        setQuantity(1);
+      }, 300);
+      
     } finally {
       setIsAddingToCart(false);
     }
@@ -259,20 +268,36 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
                 e.stopPropagation(); // Prevent card click
                 handleAddToCart();
               }}
-              disabled={hasVariants && !selectedVariant || isAddingToCart || !isInStock}
-              className={`w-full font-medium ${
+              disabled={hasVariants && !selectedVariant || isAddingToCart || !isInStock || isAddedToCart}
+              className={`w-full font-medium transition-all duration-200 ${
                 !isInStock 
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                  : 'bg-accent hover:bg-accent/90 text-black'
+                  : isAddedToCart
+                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                    : 'bg-accent hover:bg-accent/90 text-black'
               }`}
             >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              {!isInStock 
-                ? 'Sold Out' 
-                : isAddingToCart 
-                  ? 'Adding...' 
-                  : `Add ${quantity} to Cart`
-              }
+              {!isInStock ? (
+                <>
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Sold Out
+                </>
+              ) : isAddingToCart ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : isAddedToCart ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Added {quantity}!
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Add {quantity} to Cart
+                </>
+              )}
             </Button>
             
             <div className="flex justify-end">

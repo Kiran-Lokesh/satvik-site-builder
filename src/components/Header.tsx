@@ -37,7 +37,7 @@ const Header = () => {
           {/* Logo */}
           <Link 
             to="/" 
-            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            className="flex items-center space-x-2"
             onClick={scrollToTop}
           >
             <img 
