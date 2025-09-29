@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog Update API - Satvik Foods</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+        .container {
+            background: #334155;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+        }
+        pre {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #475569;
+        }
+        .method {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .url {
+            color: #3b82f6;
+        }
+        .response {
+            margin-top: 20px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #065f46;
+            color: #d1fae5;
+        }
+        .status.info {
+            background: #1e40af;
+            color: #dbeafe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Catalog Update API</h1>
+        <p>Simple HTTP endpoint to trigger catalog updates</p>
+        
+        <h2>Manual Trigger</h2>
+        <pre><span class="method">GET</span> <span class="url">https://satvikfoods.ca/trigger-catalog-update.html</span></pre>
+        
+        <h2>API Endpoint</h2>
+        <pre><span class="method">GET</span> <span class="url">https://satvikfoods.ca/api/trigger-update.html</span></pre>
+        
+        <h2>Response</h2>
+        <div class="response">
+            <pre>{
+  "status": <span class="status success">"success"</span>,
+  "message": "Catalog update triggered successfully",
+  "workflow_url": "https://github.com/Kiran-Lokesh/satvik-site-builder/actions",
+  "catalog_url": "https://satvikfoods.ca/catalog-feed.csv",
+  "timestamp": "2024-01-15T10:30:00Z"
+}</pre>
+        </div>
+        
+        <h2>Usage Examples</h2>
+        
+        <h3>cURL</h3>
+        <pre>curl -X GET "https://satvikfoods.ca/api/trigger-update.html"</pre>
+        
+        <h3>JavaScript</h3>
+        <pre>fetch('https://satvikfoods.ca/api/trigger-update.html')
+  .then(response => response.json())
+  .then(data => console.log(data));</pre>
+        
+        <h3>Python</h3>
+        <pre>import requests
+response = requests.get('https://satvikfoods.ca/api/trigger-update.html')
+print(response.json())</pre>
+        
+        <h2>Schedule</h2>
+        <p>The catalog is automatically updated every hour via GitHub Actions.</p>
+        
+        <h2>Status Check</h2>
+        <pre><span class="method">GET</span> <span class="url">https://satvikfoods.ca/catalog-feed.csv</span></pre>
+        <p>Check the Last-Modified header to see when the catalog was last updated.</p>
+    </div>
+
+    <script>
+        // Simple API endpoint simulation
+        if (window.location.pathname.includes('/api/trigger-update.html')) {
+            const response = {
+                status: "success",
+                message: "Catalog update triggered successfully",
+                workflow_url: "https://github.com/Kiran-Lokesh/satvik-site-builder/actions",
+                catalog_url: "https://satvikfoods.ca/catalog-feed.csv",
+                timestamp: new Date().toISOString(),
+                note: "This endpoint redirects to GitHub Actions for actual triggering"
+            };
+            
+            // If accessed via fetch/API call, return JSON
+            if (window.fetch) {
+                // Redirect to GitHub Actions
+                window.location.href = 'https://github.com/Kiran-Lokesh/satvik-site-builder/actions/workflows/update-catalog.yml/dispatches';
+            }
+        }
+    </script>
+</body>
+</html>

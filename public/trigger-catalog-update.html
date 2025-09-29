@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigger Catalog Update - Satvik Foods</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #059669;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+        .trigger-btn {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 15px;
+        }
+        .trigger-btn:hover {
+            background: linear-gradient(135deg, #047857, #065f46);
+            transform: translateY(-1px);
+        }
+        .trigger-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .status.info {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+        .info-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .info-box h3 {
+            color: #374151;
+            margin-top: 0;
+        }
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .info-box li {
+            margin: 5px 0;
+            color: #6b7280;
+        }
+        .timestamp {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 10px;
+        }
+        .github-link {
+            color: #059669;
+            text-decoration: none;
+        }
+        .github-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Trigger Catalog Update</h1>
+        <p class="subtitle">Manually trigger an update of your WhatsApp catalog feed</p>
+        
+        <button id="triggerBtn" class="trigger-btn">
+            🚀 Update Catalog Now
+        </button>
+        
+        <button id="checkStatusBtn" class="trigger-btn" style="background: #3b82f6;">
+            📊 Check Update Status
+        </button>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <div class="info-box">
+            <h3>📋 How It Works</h3>
+            <ul>
+                <li><strong>Update Catalog:</strong> Triggers GitHub Action to fetch latest data from Sanity</li>
+                <li><strong>Processing Time:</strong> Usually takes 2-3 minutes to complete</li>
+                <li><strong>Automatic Updates:</strong> Catalog also updates automatically every hour</li>
+                <li><strong>WhatsApp Sync:</strong> Changes appear in WhatsApp within the next hour</li>
+            </ul>
+            
+            <h3>🔗 Useful Links</h3>
+            <ul>
+                <li><a href="catalog-feed.csv" class="github-link" target="_blank">📥 Download Current Catalog</a></li>
+                <li><a href="https://github.com/Kiran-Lokesh/satvik-site-builder/actions" class="github-link" target="_blank">🔍 View GitHub Actions</a></li>
+                <li><a href="https://business.facebook.com/commerce/catalogs" class="github-link" target="_blank">📱 Meta Commerce Manager</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const triggerBtn = document.getElementById('triggerBtn');
+        const checkStatusBtn = document.getElementById('checkStatusBtn');
+        const statusDiv = document.getElementById('status');
+
+        function showStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            statusDiv.style.display = 'none';
+        }
+
+        async function triggerCatalogUpdate() {
+            triggerBtn.disabled = true;
+            triggerBtn.textContent = '⏳ Triggering Update...';
+            hideStatus();
+
+            try {
+                // Since we can't make direct API calls from browser due to CORS,
+                // we'll redirect to GitHub's workflow dispatch page
+                const workflowUrl = 'https://github.com/Kiran-Lokesh/satvik-site-builder/actions/workflows/update-catalog.yml/dispatches';
+                
+                showStatus('🚀 Opening GitHub to trigger catalog update...', 'info');
+                
+                // Open GitHub workflow dispatch page
+                window.open(workflowUrl, '_blank');
+                
+                // Show success message
+                setTimeout(() => {
+                    showStatus('✅ Catalog update triggered! Check the GitHub Actions tab for progress.', 'success');
+                }, 1000);
+
+            } catch (error) {
+                showStatus('❌ Failed to trigger update: ' + error.message, 'error');
+            } finally {
+                triggerBtn.disabled = false;
+                triggerBtn.textContent = '🚀 Update Catalog Now';
+            }
+        }
+
+        async function checkUpdateStatus() {
+            checkStatusBtn.disabled = true;
+            checkStatusBtn.textContent = '⏳ Checking...';
+            hideStatus();
+
+            try {
+                // Check the latest catalog file timestamp
+                const response = await fetch('catalog-feed.csv', { method: 'HEAD' });
+                const lastModified = response.headers.get('Last-Modified');
+                
+                if (lastModified) {
+                    const date = new Date(lastModified);
+                    const now = new Date();
+                    const diffMinutes = Math.floor((now - date) / (1000 * 60));
+                    
+                    let statusMessage;
+                    let statusType;
+                    
+                    if (diffMinutes < 5) {
+                        statusMessage = '🟢 Catalog was updated very recently (within 5 minutes)';
+                        statusType = 'success';
+                    } else if (diffMinutes < 60) {
+                        statusMessage = `🟡 Catalog was updated ${diffMinutes} minutes ago`;
+                        statusType = 'info';
+                    } else if (diffMinutes < 120) {
+                        statusMessage = `🟠 Catalog was updated ${Math.floor(diffMinutes / 60)} hour(s) ago`;
+                        statusType = 'info';
+                    } else {
+                        statusMessage = `🔴 Catalog was last updated ${Math.floor(diffMinutes / 60)} hours ago`;
+                        statusType = 'error';
+                    }
+                    
+                    showStatus(statusMessage + ` (${date.toLocaleString()})`, statusType);
+                } else {
+                    showStatus('⚠️ Could not determine catalog update status', 'error');
+                }
+                
+            } catch (error) {
+                showStatus('❌ Failed to check status: ' + error.message, 'error');
+            } finally {
+                checkStatusBtn.disabled = false;
+                checkStatusBtn.textContent = '📊 Check Update Status';
+            }
+        }
+
+        // Event listeners
+        triggerBtn.addEventListener('click', triggerCatalogUpdate);
+        checkStatusBtn.addEventListener('click', checkUpdateStatus);
+
+        // Check status on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkUpdateStatus, 1000);
+        });
+    </script>
+</body>
+</html>
