@@ -190,7 +190,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
               <img
                 src={currentImageUrl}
                 alt={product.name}
-                className="w-full h-64 md:h-80 object-contain"
+                className="w-full h-80 md:h-96 lg:h-[28rem] object-contain"
                 loading="lazy"
                 onError={handleImageError}
                 decoding="async"

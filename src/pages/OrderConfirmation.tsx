@@ -65,7 +65,7 @@ const OrderConfirmation = () => {
         const totalPrice = unitPrice * item.quantity;
         summary += `   Unit Price: ${item.price}\n`;
         if (item.quantity > 1) {
-          summary += `   Total: $${totalPrice.toFixed(2)}\n`;
+          summary += `   Subtotal: $${totalPrice.toFixed(2)}\n`;
         }
       }
       summary += "\n";
@@ -91,7 +91,6 @@ const OrderConfirmation = () => {
     summary += `Total Items: ${items.reduce((sum, item) => sum + item.quantity, 0)}\n`;
     
     if (totalPrice > 0) {
-      summary += `Subtotal: $${subtotal.toFixed(2)}\n`;
       if (deliveryFee > 0) {
         summary += `Delivery Fee: $${deliveryFee.toFixed(2)}\n`;
       }
@@ -136,7 +135,7 @@ const OrderConfirmation = () => {
         const totalPrice = unitPrice * item.quantity;
         message += ` - ${item.price}`;
         if (item.quantity > 1) {
-          message += ` (Total: $${totalPrice.toFixed(2)})`;
+          message += ` (Subtotal: $${totalPrice.toFixed(2)})`;
         }
       }
       message += '\n';
@@ -144,7 +143,6 @@ const OrderConfirmation = () => {
 
     message += `\nTotal Items: ${items.reduce((sum, item) => sum + item.quantity, 0)}`;
     if (totalPrice > 0) {
-      message += `\nSubtotal: $${subtotal.toFixed(2)}`;
       if (deliveryFee > 0) {
         message += `\nDelivery Fee: $${deliveryFee.toFixed(2)}`;
       }
@@ -279,7 +277,9 @@ const OrderConfirmation = () => {
 
             {deliveryMethod === 'pickup' && (
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Pickup Location *</Label>
+                <Label className={`text-sm font-medium ${!pickupLocation.trim() ? 'text-red-600' : ''}`}>
+                  Pickup Location *
+                </Label>
                 <RadioGroup value={pickupLocation} onValueChange={setPickupLocation}>
                   {pickupLocations.map((location) => (
                     <div key={location.id} className="flex items-start space-x-2">
@@ -362,7 +362,10 @@ const OrderConfirmation = () => {
             
             {!isFormValid && (
               <p className="text-sm text-red-500 text-center">
-                Please fill in your name and address to proceed with the order.
+                {deliveryMethod === 'pickup' && !pickupLocation.trim() 
+                  ? 'Please fill in your name, address, and select a pickup location to proceed.'
+                  : 'Please fill in your name and address to proceed with the order.'
+                }
               </p>
             )}
           </CardContent>
