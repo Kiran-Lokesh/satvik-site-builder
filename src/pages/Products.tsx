@@ -24,6 +24,14 @@ const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(12); // Show 12 products per page
 
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   useEffect(() => {
     // Load products from configured data source
     const loadProducts = async () => {
@@ -331,7 +339,10 @@ const Products = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    onClick={() => {
+                      setCurrentPage(prev => Math.max(1, prev - 1));
+                      scrollToTop();
+                    }}
                     disabled={currentPage === 1}
                     className="border-brand/20 text-brand hover:bg-brand/5"
                   >
@@ -356,7 +367,10 @@ const Products = () => {
                           key={pageNum}
                           variant={currentPage === pageNum ? "default" : "outline"}
                           size="sm"
-                          onClick={() => setCurrentPage(pageNum)}
+                          onClick={() => {
+                            setCurrentPage(pageNum);
+                            scrollToTop();
+                          }}
                           className={currentPage === pageNum 
                             ? "bg-brand hover:bg-brand-dark text-white" 
                             : "border-brand/20 text-brand hover:bg-brand/5"
@@ -371,7 +385,10 @@ const Products = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    onClick={() => {
+                      setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                      scrollToTop();
+                    }}
                     disabled={currentPage === totalPages}
                     className="border-brand/20 text-brand hover:bg-brand/5"
                   >
