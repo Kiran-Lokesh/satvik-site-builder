@@ -156,19 +156,50 @@
             hideStatus();
 
             try {
-                // Since we can't make direct API calls from browser due to CORS,
-                // we'll redirect to GitHub's workflow dispatch page
-                const workflowUrl = 'https://github.com/Kiran-Lokesh/satvik-site-builder/actions/workflows/update-catalog.yml/dispatches';
+                // Prompt user for GitHub token for API access
+                const githubToken = prompt('Enter your GitHub Personal Access Token to trigger the workflow automatically:\n\n(Leave empty to open GitHub manually)');
                 
-                showStatus('🚀 Opening GitHub to trigger catalog update...', 'info');
-                
-                // Open GitHub workflow dispatch page
-                window.open(workflowUrl, '_blank');
-                
-                // Show success message
-                setTimeout(() => {
-                    showStatus('✅ Catalog update triggered! Check the GitHub Actions tab for progress.', 'success');
-                }, 1000);
+                if (githubToken && githubToken.trim()) {
+                    // Use GitHub API to trigger workflow
+                    showStatus('🚀 Triggering workflow via GitHub API...', 'info');
+                    
+                    const response = await fetch('https://api.github.com/repos/Kiran-Lokesh/satvik-site-builder/actions/workflows/update-catalog.yml/dispatches', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${githubToken}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'satvik-catalog-updater'
+                        },
+                        body: JSON.stringify({
+                            ref: 'main',
+                            inputs: {
+                                trigger: 'manual',
+                                timestamp: new Date().toISOString()
+                            }
+                        })
+                    });
+
+                    if (response.ok) {
+                        showStatus('✅ Catalog update workflow triggered successfully! Check GitHub Actions for progress.', 'success');
+                    } else {
+                        const errorData = await response.text();
+                        showStatus('❌ Failed to trigger workflow: ' + errorData, 'error');
+                    }
+                } else {
+                    // Fallback: Open GitHub workflow dispatch page
+                    const workflowUrl = 'https://github.com/Kiran-Lokesh/satvik-site-builder/actions/workflows/update-catalog.yml/dispatches';
+                    
+                    showStatus('🚀 Opening GitHub to trigger catalog update manually...', 'info');
+                    
+                    // Open GitHub workflow dispatch page
+                    window.open(workflowUrl, '_blank');
+                    
+                    // Show success message
+                    setTimeout(() => {
+                        showStatus('✅ Please click "Run workflow" in the GitHub tab that opened.', 'success');
+                    }, 1000);
+                }
 
             } catch (error) {
                 showStatus('❌ Failed to trigger update: ' + error.message, 'error');
