@@ -1,0 +1,70 @@
+name: Update Catalog Feed
+
+on:
+  schedule:
+    # Run every 6 hours to keep catalog updated
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: write
+
+jobs:
+  update-catalog:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        rm -rf node_modules package-lock.json
+        npm install
+        
+    - name: Generate updated catalog
+      run: npm run generate-catalog
+      env:
+        VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+        VITE_SANITY_DATASET: ${{ secrets.VITE_SANITY_DATASET }}
+        VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
+        
+    - name: Check for changes
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain public/catalog-feed.csv)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "📦 Catalog has been updated with new data from Sanity"
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "✅ No changes detected in catalog"
+        fi
+        
+    - name: Commit and push changes
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add public/catalog-feed.csv
+        git commit -m "🤖 Auto-update catalog feed from Sanity
+        
+        - Automatically regenerated catalog with latest product data
+        - Updated image URLs and product information
+        - Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        git push
+        echo "🚀 Catalog feed updated and pushed to repository"
+        
+    - name: Summary
+      run: |
+        if [ "${{ steps.verify-changed-files.outputs.changed }}" == "true" ]; then
+          echo "✅ Catalog successfully updated with latest Sanity data"
+          echo "📋 New catalog is now available at: https://satvikfoods.ca/catalog-feed.csv"
+        else
+          echo "ℹ️ No updates needed - catalog is already up to date"
+        fi

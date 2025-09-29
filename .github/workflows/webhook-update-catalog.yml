@@ -1,0 +1,47 @@
+name: Webhook Update Catalog
+
+on:
+  repository_dispatch:
+    types: [update-catalog]
+
+permissions:
+  contents: write
+
+jobs:
+  update-catalog:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        rm -rf node_modules package-lock.json
+        npm install
+        
+    - name: Generate updated catalog
+      run: npm run generate-catalog
+      env:
+        VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+        VITE_SANITY_DATASET: ${{ secrets.VITE_SANITY_DATASET }}
+        VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
+        
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add public/catalog-feed.csv
+        git commit -m "🔄 Webhook-triggered catalog update
+        
+        - Triggered by: ${{ github.event.client_payload.trigger || 'manual' }}
+        - Updated with latest Sanity data
+        - Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        git push
+        echo "🚀 Catalog feed updated via webhook"
