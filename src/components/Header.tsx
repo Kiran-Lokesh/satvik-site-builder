@@ -11,6 +11,14 @@ const Header = () => {
   const { getTotalItems, toggleCart } = useCart();
   const totalItems = getTotalItems();
 
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Products', href: '/products' },
@@ -27,7 +35,11 @@ const Header = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-22 md:h-24 lg:h-26">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+          <Link 
+            to="/" 
+            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            onClick={scrollToTop}
+          >
             <img 
               src={satvikLogo} 
               alt="Satvik Foods" 
