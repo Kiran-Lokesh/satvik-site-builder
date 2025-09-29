@@ -4,8 +4,8 @@ This document explains how to set up automatic catalog updates so your WhatsApp 
 
 ## 🚀 What's Been Set Up
 
-### 1. **Scheduled Updates (Every Hour)**
-- GitHub Action runs automatically every hour
+### 1. **Scheduled Updates (Every 6 Hours)**
+- GitHub Action runs automatically every 6 hours
 - Fetches latest data from Sanity and updates the catalog
 - No manual intervention required
 
@@ -49,7 +49,7 @@ To create a GitHub token:
 ## 🔄 How It Works
 
 ### Automatic Updates
-1. **Every hour**: GitHub Action runs
+1. **Every 6 hours**: GitHub Action runs
 2. **Fetches data**: Gets latest products from Sanity
 3. **Generates CSV**: Creates updated catalog feed
 4. **Commits changes**: Pushes to repository
@@ -78,12 +78,12 @@ npm run trigger-catalog-update
    - ✅ Product images changed in Sanity
    - ✅ Product prices updated in Sanity
    - ✅ Product descriptions modified in Sanity
-   - ✅ Updates appear in WhatsApp within 1 hour
+   - ✅ Updates appear in WhatsApp within 6 hours
 
 ## 🎯 Benefits
 
 - **No more manual updates**: Catalog stays fresh automatically
-- **Real-time sync**: Changes appear in WhatsApp within 1 hour
+- **Regular sync**: Changes appear in WhatsApp within 6 hours
 - **Reliable**: GitHub Actions are highly reliable
 - **Traceable**: Full history of all catalog updates
 - **Scalable**: Handles any number of product changes

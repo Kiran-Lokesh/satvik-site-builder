@@ -2,8 +2,8 @@ name: Update Catalog Feed
 
 on:
   schedule:
-    # Run every hour to keep catalog updated
-    - cron: '0 * * * *'
+    # Run every 6 hours to keep catalog updated
+    - cron: '0 */6 * * *'
   workflow_dispatch: # Allow manual triggering
     inputs:
       trigger:
