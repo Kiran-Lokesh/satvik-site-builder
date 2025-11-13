@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
-import { X, Plus, Minus, Trash2, MessageCircle, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { X, Plus, Minus, Trash2, ArrowRight, Loader2, ShoppingCart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ordersApiClient } from '@/lib/ordersApiClient';
+import { toast } from '@/hooks/use-toast';
 
 const Cart = () => {
+  const navigate = useNavigate();
   const { 
     state, 
     updateQuantity, 
     removeFromCart, 
     closeCart, 
+    clearCart,
     getSubtotal,
     getGSTAmount,
     getTotalPrice 
@@ -20,13 +24,55 @@ const Cart = () => {
   const subtotal = getSubtotal();
   const gstAmount = getGSTAmount();
   const totalPrice = getTotalPrice();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  // Reset checkout state when cart closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setIsCheckingOut(false);
+    }
+  }, [isOpen]);
 
   // Don't render if cart is not open
   if (!isOpen) return null;
 
-  // Navigate to order confirmation page
-  const handleProceedToCheckout = () => {
-    closeCart(); // Close the cart modal first
+  // Handle checkout - create order and navigate to embedded payment form
+  const handleProceedToCheckout = async () => {
+    console.log('🛒 Starting checkout...');
+    setIsCheckingOut(true);
+    
+    try {
+      const orderItems = items.map(item => ({
+        product_id: item.productId,
+        product_name: `${item.productName} - ${item.variantName}`,
+        quantity: item.quantity,
+        unit_price: parseFloat(item.price.replace('$', '').replace(/[^0-9.]/g, '')) || 0,
+      }));
+
+      console.log('📦 Creating order with items:', orderItems);
+      
+      const order = await ordersApiClient.createOrder({
+        user_id: 'guest_user_' + Date.now(),
+        items: orderItems,
+      });
+
+      console.log('✅ Order created:', order);
+      console.log('🔍 Order ID:', order.id);
+
+      closeCart();
+      console.log('🚀 Navigating to:', `/checkout?orderId=${order.id}`);
+      navigate(`/checkout?orderId=${order.id}`);
+      
+    } catch (error) {
+      console.error('❌ Checkout failed:', error);
+      setIsCheckingOut(false);
+      
+      toast({
+        title: "Checkout Failed",
+        description: error instanceof Error ? error.message : "Failed to process checkout. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (items.length === 0) {
@@ -46,10 +92,8 @@ const Cart = () => {
           </div>
           
           <div className="p-6 text-center">
-            <div className="text-gray-500 mb-4">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-              </svg>
+            <div className="flex justify-center mb-4">
+              <ShoppingCart className="h-16 w-16 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
             <p className="text-gray-500 mb-4">Add some products to get started!</p>
@@ -147,12 +191,23 @@ const Cart = () => {
             </>
           )}
 
-          <Link to="/order-confirmation" onClick={handleProceedToCheckout}>
-            <Button className="w-full bg-brand hover:bg-brand-dark text-white">
-              <ArrowRight className="h-4 w-4 mr-2" />
-              Proceed to Checkout
-            </Button>
-          </Link>
+          <Button 
+            onClick={handleProceedToCheckout}
+            disabled={isCheckingOut}
+            className="w-full bg-brand hover:bg-brand-dark text-white"
+          >
+            {isCheckingOut ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <ArrowRight className="h-4 w-4 mr-2" />
+                Proceed to Checkout
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </div>

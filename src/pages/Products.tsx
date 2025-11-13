@@ -22,7 +22,7 @@ const Products = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage] = useState(12); // Show 12 products per page
+  const [productsPerPage] = useState(12); // Show 12 products per page (3 rows of 4 cards)
 
   // Scroll to top function
   const scrollToTop = () => {
@@ -349,37 +349,24 @@ const Products = () => {
                     Previous
                   </Button>
                   
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-                      
-                      return (
-                        <Button
-                          key={pageNum}
-                          variant={currentPage === pageNum ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => {
-                            setCurrentPage(pageNum);
-                            scrollToTop();
-                          }}
-                          className={currentPage === pageNum 
-                            ? "bg-brand hover:bg-brand-dark text-white" 
-                            : "border-brand/20 text-brand hover:bg-brand/5"
-                          }
-                        >
-                          {pageNum}
-                        </Button>
-                      );
-                    })}
+                  <div className="flex items-center gap-1 flex-wrap justify-center">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          setCurrentPage(pageNum);
+                          scrollToTop();
+                        }}
+                        className={currentPage === pageNum
+                          ? "bg-brand hover:bg-brand-dark text-white"
+                          : "border-brand/20 text-brand hover:bg-brand/5"
+                        }
+                      >
+                        {pageNum}
+                      </Button>
+                    ))}
                   </div>
                   
                   <Button

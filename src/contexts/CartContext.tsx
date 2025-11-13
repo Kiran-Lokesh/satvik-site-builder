@@ -24,9 +24,41 @@ type CartAction =
   | { type: 'CLOSE_CART' };
 
 // Initial state
+const STORAGE_KEY = 'satvik-cart-state';
+
 const initialState: CartState = {
   items: [],
   isOpen: false,
+};
+
+const loadInitialState = (): CartState => {
+  if (typeof window === 'undefined') {
+    return initialState;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return initialState;
+    }
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed.items)) {
+      return initialState;
+    }
+    return {
+      items: parsed.items.map((item: any) => ({
+        productId: item.productId,
+        productName: item.productName,
+        variantName: item.variantName,
+        quantity: Number(item.quantity) || 0,
+        price: item.price,
+      })).filter((item: CartItem) => item.quantity > 0),
+      isOpen: false,
+    };
+  } catch (error) {
+    console.warn('Failed to restore cart from storage', error);
+    return initialState;
+  }
 };
 
 // Reducer
@@ -123,15 +155,20 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Provider component
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [state, dispatch] = useReducer(cartReducer, initialState, loadInitialState);
 
   const addToCart = (product: any, variant: any, quantity: number = 1) => {
+    const resolvedPrice =
+      (variant?.price && variant.price.trim() !== '' ? variant.price : undefined) ??
+      (product?.price && product.price.trim() !== '' ? product.price : undefined) ??
+      '$0.00';
+
     const cartItem: CartItem = {
       productId: product.id,
       productName: product.name,
       variantName: variant.name,
       quantity,
-      price: variant.price,
+      price: resolvedPrice,
     };
     dispatch({ type: 'ADD_TO_CART', payload: cartItem });
   };
@@ -193,6 +230,18 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     getGSTAmount,
     getTotalPrice,
   };
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      const payload = JSON.stringify({ items: state.items });
+      window.localStorage.setItem(STORAGE_KEY, payload);
+    } catch (error) {
+      console.warn('Failed to persist cart to storage', error);
+    }
+  }, [state.items]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

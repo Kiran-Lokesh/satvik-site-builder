@@ -23,7 +23,7 @@ interface UseFeaturedProductsReturn {
   products: UnifiedProduct[];
   loading: boolean;
   error: string | null;
-  dataSource: 'local' | 'sanity';
+  dataSource: 'local' | 'sanity' | 'backend';
   totalCount: number;
   refetch: () => Promise<void>;
   clearError: () => void;
@@ -33,7 +33,7 @@ export const useFeaturedProducts = (options: UseFeaturedProductsOptions = {}): U
   const [products, setProducts] = useState<UnifiedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<'local' | 'sanity'>('local');
+  const [dataSource, setDataSource] = useState<'local' | 'sanity' | 'backend'>('local');
   const [totalCount, setTotalCount] = useState(0);
 
   const {

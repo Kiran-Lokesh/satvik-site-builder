@@ -20,7 +20,7 @@ interface UseProductReturn {
   relatedProducts: UnifiedProduct[];
   loading: boolean;
   error: string | null;
-  dataSource: 'local' | 'sanity';
+  dataSource: 'local' | 'sanity' | 'backend';
   refetch: () => Promise<void>;
   clearError: () => void;
 }
@@ -30,7 +30,7 @@ export const useProduct = (productId: string, options: UseProductOptions = {}): 
   const [relatedProducts, setRelatedProducts] = useState<UnifiedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<'local' | 'sanity'>('local');
+  const [dataSource, setDataSource] = useState<'local' | 'sanity' | 'backend'>('local');
 
   const {
     includeRelated = false,

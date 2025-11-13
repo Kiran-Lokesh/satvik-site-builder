@@ -40,150 +40,12 @@ import {
 
 import { getImageUrl } from './sanity';
 
-// import { imageHandler, ImageHandlerConfig } from './unifiedImageHandler';
-
-// Import all local product images for mapping
-import flaxSeedChutney from '@/assets/products/flax_seed_chutney_powder.jpg';
-import jawarRotti from '@/assets/products/jawar_rotti.jpg';
-import kardantu from '@/assets/products/kardantu.jpg';
-import kunda from '@/assets/products/kunda.jpg';
-import makhanaCreamOnion from '@/assets/products/makhana_cream_onion.jpg';
-import makhanaPeriPeri from '@/assets/products/makhana_peri_peri.jpg';
-import makhanaTangyCheese from '@/assets/products/makhana_tangy_cheese.jpg';
-import milletBiryani from '@/assets/products/millet_biryani.jpg';
-import milletBisiBeleBath from '@/assets/products/millet_bisi_bele_bath.jpg';
-import milletDosa from '@/assets/products/millet_dosa.jpg';
-import milletIdly from '@/assets/products/millet_idly.jpg';
-import milletKheer from '@/assets/products/millet_kheer.jpg';
-import milletKhichdi from '@/assets/products/millet_khichdi.jpg';
-import milletUpma from '@/assets/products/millet_upma.jpg';
-import milletsEnergyDrink from '@/assets/products/millets_energy_drink.jpg';
-import milletsRotti from '@/assets/products/millets_rotti.jpg';
-import nigerChutney from '@/assets/products/niger_chutney_powder.jpg';
-import peanutChutney from '@/assets/products/peanut_chutney_powder.jpg';
-import redChilliPowder from '@/assets/products/red_chiili_powder.jpg';
-import sajjeRotti from '@/assets/products/sajje_rotti.jpg';
-import supremeDinkLaddu from '@/assets/products/supreme_dink_laddu.jpg';
-import turmericPowder from '@/assets/products/turmeric_powder.jpg';
-
-// Import rice images (PNG format)
-import idliRice from '@/assets/products/idli_rice.png';
-import jeerakalasaRice from '@/assets/products/jeerakalasa_rice.png';
-import mattaRice from '@/assets/products/matta_rice.png';
-import ponniRice from '@/assets/products/ponni_rice.png';
-import sonaMasooriRice from '@/assets/products/sona_masoori_rice.png';
+// Using Sanity CDN for all images - no local imports needed
 
 // ============================================================================
-// IMAGE FALLBACK HELPERS
+// IMAGE HELPERS - Sanity CDN only
 // ============================================================================
-
-/**
- * Find matching local image by product name
- */
-function findMatchingLocalImage(productName: string, productId?: string): string | null {
-  const name = productName.toLowerCase();
-  
-  // If we have an ID, use it for precise matching first
-  if (productId) {
-    const idToImageMap: Record<string, string> = {
-      'priya-sona-masoori': 'sona_masoori_priya.jpg',
-      'nilgiris-sona-masoori': 'sona_masoori_rice.png',
-    };
-    if (idToImageMap[productId]) {
-      return idToImageMap[productId];
-    }
-  }
-  
-  // Map product names to image filenames (fallback for products without specific ID mapping)
-  const nameToImageMap: Record<string, string> = {
-    'flaxseed chutney powder': 'flax_seed_chutney_powder.jpg',
-    'jawar rotti': 'jawar_rotti.jpg',
-    'kardantu': 'kardantu.jpg',
-    'kunda': 'kunda.jpg',
-    'makhana cream onion': 'makhana_cream_onion.jpg',
-    'makhana peri peri': 'makhana_peri_peri.jpg',
-    'makhana tangy cheese': 'makhana_tangy_cheese.jpg',
-    'millet biryani': 'millet_biryani.jpg',
-    'millet bisi bele bath': 'millet_bisi_bele_bath.jpg',
-    'millet dosa': 'millet_dosa.jpg',
-    'millet idly': 'millet_idly.jpg',
-    'millet kheer': 'millet_kheer.jpg',
-    'millet khichdi': 'millet_khichdi.jpg',
-    'millet upma': 'millet_upma.jpg',
-    'millets energy drink': 'millets_energy_drink.jpg',
-    'millets rotti': 'millets_rotti.jpg',
-    'niger chutney powder': 'niger_chutney_powder.jpg',
-    'peanut chutney powder': 'peanut_chutney_powder.jpg',
-    'red chilli powder': 'red_chiili_powder.jpg',
-    'sajje rotti': 'sajje_rotti.jpg',
-    'supreme dink laddu': 'supreme_dink_laddu.jpg',
-    'turmeric powder': 'turmeric_powder.jpg',
-    // Rice products
-    'idli rice': 'idli_rice.png',
-    'jeerakasala rice': 'jeerakalasa_rice.png',
-    'jeerakalasa rice': 'jeerakalasa_rice.png',
-    'palakaddan matta rice': 'matta_rice.png',
-    'matta rice': 'matta_rice.png',
-    'thanjavoor ponni rice': 'ponni_rice.png',
-    'ponni rice': 'ponni_rice.png',
-    'sona masoori': 'sona_masoori_rice.png',
-    'sona masoori rice': 'sona_masoori_rice.png',
-  };
-  
-  // Try exact match first
-  if (nameToImageMap[name]) {
-    return nameToImageMap[name];
-  }
-  
-  // Try partial matches
-  for (const [key, imageName] of Object.entries(nameToImageMap)) {
-    if (name.includes(key) || key.includes(name)) {
-      return imageName;
-    }
-  }
-  
-  return null;
-}
-
-/**
- * Get local image URL by filename
- */
-function getLocalImageUrl(imageName: string): string {
-  const imageMap: Record<string, string> = {
-    'flax_seed_chutney_powder.jpg': flaxSeedChutney,
-    'jawar_rotti.jpg': jawarRotti,
-    'kardantu.jpg': kardantu,
-    'kunda.jpg': kunda,
-    'makhana_cream_onion.jpg': makhanaCreamOnion,
-    'makhana_peri_peri.jpg': makhanaPeriPeri,
-    'makhana_tangy_cheese.jpg': makhanaTangyCheese,
-    'millet_biryani.jpg': milletBiryani,
-    'millet_bisi_bele_bath.jpg': milletBisiBeleBath,
-    'millet_dosa.jpg': milletDosa,
-    'millet_idly.jpg': milletIdly,
-    'millet_kheer.jpg': milletKheer,
-    'millet_khichdi.jpg': milletKhichdi,
-    'millet_upma.jpg': milletUpma,
-    'millets_energy_drink.jpg': milletsEnergyDrink,
-    'millets_rotti.jpg': milletsRotti,
-    'niger_chutney_powder.jpg': nigerChutney,
-    'peanut_chutney_powder.jpg': peanutChutney,
-    'red_chiili_powder.jpg': redChilliPowder,
-    'sajje_rotti.jpg': sajjeRotti,
-    'supreme_dink_laddu.jpg': supremeDinkLaddu,
-    'turmeric_powder.jpg': turmericPowder,
-    // Rice images (PNG format)
-    'idli_rice.png': idliRice,
-    'jeerakalasa_rice.png': jeerakalasaRice,
-    'matta_rice.png': mattaRice,
-    'ponni_rice.png': ponniRice,
-    'sona_masoori_rice.png': sonaMasooriRice,
-    // Handle discrepancy in JSON data
-    'sona_masoori_priya.jpg': '/placeholder.svg', // No specific image available for Priya Sona Masoori
-  };
-  
-  return imageMap[imageName] || '/placeholder.svg';
-}
+// All local image helpers removed - using Sanity CDN exclusively
 
 // ============================================================================
 // TRANSFORMATION CONTEXT
@@ -343,12 +205,12 @@ function transformLocalProductToUnified(
   category: UnifiedCategory,
   context: TransformationContext
 ): UnifiedProduct {
-  // Process image using the shared helper function
+  // For local data source, use placeholder (we're using Sanity CDN only now)
   const image = {
-    url: localProduct.image ? getLocalImageUrl(localProduct.image) : context.defaultImage,
+    url: context.defaultImage,
     alt: localProduct.name,
     source: 'local' as const,
-    originalName: localProduct.image,
+    originalName: localProduct.image || '',
   };
 
   // Transform variants
@@ -563,39 +425,25 @@ function transformSanityProductToUnified(
   const getImageWithFallback = (sanityProduct: SanityRawProduct) => {
     // Try Sanity image first
     if (sanityProduct.image) {
-      // Use proper Sanity imageUrlBuilder to construct the URL
-      const sanityUrl = getImageUrl(sanityProduct.image);
+      // Check if backend already provided an optimized URL
+      const backendProvidedUrl = (sanityProduct.image as any).url;
       
-      // Try to find a matching local image as fallback
-      const localImageName = findMatchingLocalImage(sanityProduct.name, sanityProduct.id);
-      const localUrl = localImageName ? getLocalImageUrl(localImageName) : context.defaultImage;
+      // Use backend URL if available (already optimized), otherwise build from Sanity
+      const sanityUrl = backendProvidedUrl || getImageUrl(sanityProduct.image);
       
       return {
-        url: sanityUrl || context.defaultImage, // Fallback to default if URL construction fails
+        url: sanityUrl || context.defaultImage,
         alt: sanityProduct.image.alt || sanityProduct.name,
         source: 'sanity' as const,
-        originalName: sanityProduct.image.asset._ref,
-        fallbackUrl: localUrl, // Store fallback URL for client-side use
+        originalName: sanityProduct.image.asset?._ref || '',
       };
     }
     
-    // No Sanity image, try to find matching local image
-    const localImageName = findMatchingLocalImage(sanityProduct.name, sanityProduct.id);
-    if (localImageName) {
-      return {
-        url: getLocalImageUrl(localImageName),
-        alt: sanityProduct.name,
-        source: 'local' as const,
-        originalName: localImageName,
-      };
-    }
-    
-    // No image found, use default
+    // No Sanity image available - use placeholder
     return {
       url: context.defaultImage,
       alt: sanityProduct.name,
-      source: 'local' as const,
-      originalName: 'placeholder',
+      source: 'default' as const,
     };
   };
 

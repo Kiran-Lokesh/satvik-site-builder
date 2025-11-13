@@ -33,6 +33,7 @@ export interface UnifiedProduct {
   name: string;
   description: string;
   image: UnifiedImage;
+  gallery?: UnifiedImage[];
   price?: string; // For single-variant products
   variant?: string; // For single-variant products
   variants?: UnifiedProductVariant[]; // For multi-variant products
@@ -59,6 +60,7 @@ export interface UnifiedCategory {
   name: string;
   description?: string;
   image?: UnifiedImage;
+  gallery?: UnifiedImage[];
   sortOrder?: number;
   isActive: boolean;
   parentCategoryId?: string;
@@ -114,7 +116,7 @@ export interface UnifiedData {
     totalCategories: number;
     totalProducts: number;
     lastUpdated: string;
-    dataSource: 'local' | 'sanity';
+    dataSource: 'local' | 'sanity' | 'backend';
   };
 }
 
@@ -257,7 +259,7 @@ export interface SanityImage {
  * Provides context for data transformations
  */
 export interface TransformationContext {
-  source: 'local' | 'sanity';
+  source: 'local' | 'sanity' | 'backend';
   baseUrl?: string;
   imageBaseUrl?: string;
   defaultImage?: string;
@@ -273,7 +275,7 @@ export interface TransformationResult<T> {
   errors: string[];
   warnings: string[];
   metadata: {
-    source: 'local' | 'sanity';
+    source: 'local' | 'sanity' | 'backend';
     transformedAt: string;
     recordCount: number;
   };
@@ -286,7 +288,7 @@ export interface TransformationResult<T> {
 /**
  * Data Source Identifier
  */
-export type DataSource = 'local' | 'sanity';
+export type DataSource = 'local' | 'sanity' | 'backend';
 
 /**
  * Image Source Type

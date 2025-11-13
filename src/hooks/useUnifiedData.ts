@@ -27,7 +27,7 @@ interface UseUnifiedDataReturn {
   // State
   loading: boolean;
   error: string | null;
-  dataSource: 'local' | 'sanity';
+  dataSource: 'local' | 'sanity' | 'backend';
   
   // Metadata
   metadata: {
@@ -35,7 +35,7 @@ interface UseUnifiedDataReturn {
     totalBrands: number;
     totalCategories: number;
     lastUpdated: string;
-    dataSource: 'local' | 'sanity';
+    dataSource: 'local' | 'sanity' | 'backend';
   } | null;
   
   // Actions
@@ -57,7 +57,7 @@ export const useUnifiedData = (options: UseUnifiedDataOptions = {}): UseUnifiedD
   const [data, setData] = useState<UnifiedData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<'local' | 'sanity'>('local');
+  const [dataSource, setDataSource] = useState<'local' | 'sanity' | 'backend'>('local');
 
   const {
     includeMetadata = true,

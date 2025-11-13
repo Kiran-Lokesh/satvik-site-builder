@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
+import { getEnvironment } from '@/lib/config';
 import satvikLogo from '@/assets/satvik-logo.svg';
 
 const Header = () => {
@@ -10,6 +11,13 @@ const Header = () => {
   const location = useLocation();
   const { getTotalItems, toggleCart } = useCart();
   const totalItems = getTotalItems();
+  const env = getEnvironment();
+
+  // Environment-specific header classes
+  const headerBgClass =
+    env === 'local' ? 'bg-blue-200/80' :
+    env === 'test' ? 'bg-purple-300' :
+    'bg-accent'; // prod - keep original golden color
 
   // Scroll to top function
   const scrollToTop = () => {
@@ -31,7 +39,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-accent backdrop-blur-sm border-b border-brand/20 shadow-soft">
+    <header className={`sticky top-0 z-50 ${headerBgClass} backdrop-blur-sm border-b border-brand/20 shadow-soft`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-22 md:h-24 lg:h-26">
           {/* Logo */}
@@ -95,7 +103,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-brand/20 bg-accent">
+          <div className={`md:hidden border-t border-brand/20 ${headerBgClass}`}>
             <nav className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => (
                 <Link

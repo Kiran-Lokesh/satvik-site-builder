@@ -24,11 +24,12 @@ import {
   mergeUnifiedData,
 } from './dataTransformers';
 
-import { isLocalDataSource, isSanityDataSource, DATA_SOURCE_CONFIG } from './config';
+import { isLocalDataSource, isSanityDataSource, isBackendDataSource, DATA_SOURCE_CONFIG } from './config';
 
 // Import data sources
 import jawariProducts from '@/data/jawari_products.json';
 import { client, queries } from './sanity';
+import { commerceApiClient, transformBackendProductToUnified } from './commerceApiClient';
 
 // ============================================================================
 // CACHE MANAGEMENT
@@ -115,19 +116,13 @@ export class UnifiedDataService {
   async getUnifiedData(forceRefresh: boolean = false): Promise<UnifiedData> {
     const source = DATA_SOURCE_CONFIG.source;
     
-    // Log the active data source prominently
-    console.log(`🎯 ACTIVE DATA SOURCE: ${source.toUpperCase()}`);
-    
     // Check cache first (unless force refresh)
     if (!forceRefresh) {
       const cachedData = this.cache.get(source);
       if (cachedData) {
-        console.log(`📦 Using cached unified data from ${source}`);
         return cachedData;
       }
     }
-
-    console.log(`🔄 Loading unified data from ${source} source...`);
 
     try {
       let unifiedData: UnifiedData;
@@ -136,6 +131,8 @@ export class UnifiedDataService {
         unifiedData = await this.loadFromLocal();
       } else if (isSanityDataSource()) {
         unifiedData = await this.loadFromSanity();
+      } else if (isBackendDataSource()) {
+        unifiedData = await this.loadFromBackend();
       } else {
         throw new Error(`Unknown data source: ${source}`);
       }
@@ -143,34 +140,18 @@ export class UnifiedDataService {
       // Validate the data
       const validation = validateUnifiedData(unifiedData);
       if (!validation.isValid) {
-        console.warn('⚠️ Data validation warnings:', validation.errors);
+        console.warn('Data validation warnings:', validation.errors);
       }
 
       // Cache the data
       this.cache.set(source, unifiedData);
 
-      console.log(`✅ Unified data loaded from ${source}:`, {
-        brands: unifiedData.brands.length,
-        categories: unifiedData.categories.length,
-        products: unifiedData.products.length,
-        metadata: unifiedData.metadata
-      });
-      
-      // Log data source indicators for debugging
-      console.log(`🔍 Data source indicators:`, {
-        currentSource: source,
-        fallbackEnabled: DATA_SOURCE_CONFIG.fallbackToLocal,
-        cacheMinutes: DATA_SOURCE_CONFIG.cacheMinutes,
-        timestamp: new Date().toISOString()
-      });
-
       return unifiedData;
     } catch (error) {
-      console.error(`❌ Failed to load unified data from ${source}:`, error);
+      console.error(`Failed to load unified data from ${source}:`, error);
 
       // Try fallback if enabled
-      if (isSanityDataSource() && DATA_SOURCE_CONFIG.fallbackToLocal) {
-        console.log('🔄 Falling back to local data...');
+      if ((isSanityDataSource() || isBackendDataSource()) && DATA_SOURCE_CONFIG.fallbackToLocal) {
         return await this.loadFromLocal();
       }
 
@@ -182,13 +163,12 @@ export class UnifiedDataService {
    * Load data from local JSON source
    */
   private async loadFromLocal(): Promise<UnifiedData> {
-    console.log(`📁 Loading data from LOCAL JSON source...`);
     const context = { ...this.context, source: 'local' as const };
     const result = transformLocalToUnified(jawariProducts as any, context);
 
-    if (result.errors.length > 0) {
-      console.warn('⚠️ Local data transformation warnings:', result.errors);
-    }
+      if (result.errors.length > 0) {
+        console.warn('Local data transformation warnings:', result.errors);
+      }
 
     return result.data;
   }
@@ -204,7 +184,7 @@ export class UnifiedDataService {
       hasToken: !!import.meta.env.VITE_SANITY_TOKEN
     });
     
-    const context = { ...this.context, source: 'sanity' as const };
+    const context = { ...this.context, source: 'backend' as const };
 
     try {
       // Test connection first
@@ -246,6 +226,62 @@ export class UnifiedDataService {
         type: error instanceof Error ? error.constructor.name : typeof error
       });
       throw new Error(`Sanity fetch failed: ${error}`);
+    }
+  }
+
+  /**
+   * Load data from Commerce Service backend (which fetches from Sanity)
+   */
+  private async loadFromBackend(): Promise<UnifiedData> {
+    const context = { ...this.context, source: 'sanity' as const };
+
+    try {
+      // Test connection first
+      const isHealthy = await commerceApiClient.healthCheck();
+      if (!isHealthy) {
+        throw new Error('Backend health check failed');
+      }
+      
+      const { products, brands, categories } = await commerceApiClient.fetchAllData();
+
+      const unifiedProducts = products.map((product) =>
+        transformBackendProductToUnified(product, context.defaultImage)
+      );
+
+      const unifiedBrands: UnifiedBrand[] = brands.map((brand) => ({
+        id: brand.id,
+        name: brand.name,
+        isActive: true,
+      }));
+
+      const unifiedCategories: UnifiedCategory[] = categories.map((category) => ({
+        id: category.id,
+        name: category.name,
+        isActive: true,
+      }));
+
+      const unifiedData: UnifiedData = {
+        brands: unifiedBrands,
+        categories: unifiedCategories,
+        products: unifiedProducts,
+        metadata: {
+          totalBrands: unifiedBrands.length,
+          totalCategories: unifiedCategories.length,
+          totalProducts: unifiedProducts.length,
+          lastUpdated: new Date().toISOString(),
+          dataSource: 'backend',
+        },
+      };
+
+      const validation = validateUnifiedData(unifiedData);
+      if (!validation.isValid) {
+        console.warn('Backend data validation warnings:', validation.errors);
+      }
+
+      return unifiedData;
+    } catch (error) {
+      console.error('Failed to fetch data from backend:', error);
+      throw new Error(`Backend fetch failed: ${error}`);
     }
   }
 
@@ -382,6 +418,7 @@ export class UnifiedDataService {
       current: DATA_SOURCE_CONFIG.source,
       isLocal: isLocalDataSource(),
       isSanity: isSanityDataSource(),
+      isBackend: isBackendDataSource(),
       fallbackEnabled: DATA_SOURCE_CONFIG.fallbackToLocal,
       cacheStats: this.cache.getStats(),
     };
@@ -423,6 +460,9 @@ export class UnifiedDataService {
         // Test Sanity connection
         await client.fetch('*[_type == "product"][0]');
         return true;
+      } else if (isBackendDataSource()) {
+        // Test backend connection
+        return await commerceApiClient.healthCheck();
       }
       return false;
     } catch (error) {

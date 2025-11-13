@@ -20,7 +20,7 @@ interface UseBrandsReturn {
   brands: UnifiedBrand[];
   loading: boolean;
   error: string | null;
-  dataSource: 'local' | 'sanity';
+  dataSource: 'local' | 'sanity' | 'backend';
   refetch: () => Promise<void>;
   clearError: () => void;
 }
@@ -29,7 +29,7 @@ export const useBrands = (options: UseBrandsOptions = {}): UseBrandsReturn => {
   const [brands, setBrands] = useState<UnifiedBrand[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<'local' | 'sanity'>('local');
+  const [dataSource, setDataSource] = useState<'local' | 'sanity' | 'backend'>('local');
 
   const {
     activeOnly = true,

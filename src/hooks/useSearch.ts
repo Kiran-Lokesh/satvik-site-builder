@@ -30,7 +30,7 @@ interface UseSearchReturn {
   results: SearchResult;
   loading: boolean;
   error: string | null;
-  dataSource: 'local' | 'sanity';
+  dataSource: 'local' | 'sanity' | 'backend';
   hasSearched: boolean;
   setQuery: (query: string) => void;
   clearSearch: () => void;
@@ -48,7 +48,7 @@ export const useSearch = (options: UseSearchOptions = {}): UseSearchReturn => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dataSource, setDataSource] = useState<'local' | 'sanity'>('local');
+  const [dataSource, setDataSource] = useState<'local' | 'sanity' | 'backend'>('local');
   const [hasSearched, setHasSearched] = useState(false);
 
   const {

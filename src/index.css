@@ -133,6 +133,20 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-surface text-brandText;
+    @apply text-brandText;
+    background-color: hsl(48 56% 98%); /* Default prod color */
   }
+}
+
+/* Environment-specific background colors */
+body.env-local {
+  background-color: hsl(210 50% 95%) !important;
+}
+
+body.env-test {
+  background-color: hsl(45 50% 95%) !important;
+}
+
+body.env-prod {
+  background-color: hsl(48 56% 98%) !important;
 }
