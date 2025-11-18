@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingCart } from 'lucide-react';
+import { Menu, X, ShoppingCart, LogIn, LogOut, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { getEnvironment } from '@/lib/config';
 import satvikLogo from '@/assets/satvik-logo.svg';
+import { useAuth } from '@/hooks/useAuth';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +13,7 @@ const Header = () => {
   const { getTotalItems, toggleCart } = useCart();
   const totalItems = getTotalItems();
   const env = getEnvironment();
+  const { user, loading: authLoading, signInWithGoogle, logout } = useAuth();
 
   // Environment-specific header classes
   const headerBgClass =
@@ -72,33 +74,60 @@ const Header = () => {
             ))}
           </nav>
 
+          <div className="flex items-center space-x-2 md:space-x-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleCart}
+              className="relative p-2 hover:bg-brand/10"
+              aria-label="Shopping cart"
+            >
+              <ShoppingCart className="h-5 w-5 text-brandText" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-brand text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                  {totalItems > 99 ? '99+' : totalItems}
+                </span>
+              )}
+            </Button>
 
-          {/* Cart Icon */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleCart}
-            className="relative p-2 hover:bg-brand/10"
-            aria-label="Shopping cart"
-          >
-            <ShoppingCart className="h-5 w-5 text-brandText" />
-            {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 bg-brand text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                {totalItems > 99 ? '99+' : totalItems}
-              </span>
-            )}
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (authLoading) return;
+                if (user) {
+                  logout();
+                } else {
+                  signInWithGoogle();
+                }
+              }}
+              className="flex items-center gap-2"
+            >
+              {authLoading ? (
+                <UserCircle className="h-4 w-4 animate-pulse" />
+              ) : user ? (
+                <>
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden lg:inline">Log out</span>
+                </>
+              ) : (
+                <>
+                  <LogIn className="h-4 w-4" />
+                  <span className="hidden lg:inline">Log in</span>
+                </>
+              )}
+            </Button>
 
-          {/* Mobile menu button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -119,7 +148,36 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
-              
+              <div className="px-3 py-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={() => {
+                    if (authLoading) return;
+                    if (user) {
+                      logout();
+                    } else {
+                      signInWithGoogle();
+                    }
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  {authLoading ? (
+                    <UserCircle className="h-4 w-4 animate-pulse" />
+                  ) : user ? (
+                    <>
+                      <LogOut className="h-4 w-4" />
+                      <span>Log out</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="h-4 w-4" />
+                      <span>Log in</span>
+                    </>
+                  )}
+                </Button>
+              </div>
             </nav>
           </div>
         )}

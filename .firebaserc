@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "satvik-foods-475613"
+  },
+  "targets": {
+    "satvik-foods-475613": {
+      "hosting": {
+        "qa": [
+          "satvik-foods-builder-qa"
+        ],
+        "prod": [
+          "satvik-site-builder-prod"
+        ]
+      }
+    }
+  }
+}

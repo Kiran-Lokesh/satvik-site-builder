@@ -1,0 +1,62 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main
+      - qa
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Generate catalog
+      run: npm run generate-catalog
+      
+    - name: Determine environment and backend URL
+      id: env
+      run: |
+        if [ "${{ github.ref }}" == "refs/heads/qa" ]; then
+          echo "ENVIRONMENT=test" >> $GITHUB_OUTPUT
+          echo "BACKEND_URL=http://136.111.8.28:8081" >> $GITHUB_OUTPUT
+          echo "FIREBASE_TARGET=qa" >> $GITHUB_OUTPUT
+        else
+          echo "ENVIRONMENT=prod" >> $GITHUB_OUTPUT
+          echo "BACKEND_URL=http://136.111.8.28:8081" >> $GITHUB_OUTPUT
+          echo "FIREBASE_TARGET=prod" >> $GITHUB_OUTPUT
+        fi
+      
+    - name: Build
+      run: |
+        if [ "${{ steps.env.outputs.ENVIRONMENT }}" == "test" ]; then
+          npm run build:test
+        else
+          npm run build:prod
+        fi
+      env:
+        VITE_ENVIRONMENT: ${{ steps.env.outputs.ENVIRONMENT }}
+        VITE_COMMERCE_API_URL: ${{ steps.env.outputs.BACKEND_URL }}
+        VITE_BACKEND_API_URL: ${{ steps.env.outputs.BACKEND_URL }}
+        VITE_DATA_SOURCE: backend
+        
+    - name: Deploy to Firebase Hosting
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+        target: ${{ steps.env.outputs.FIREBASE_TARGET }}
+        projectId: satvik-foods-475613
+

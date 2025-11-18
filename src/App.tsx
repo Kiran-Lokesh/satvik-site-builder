@@ -14,6 +14,7 @@ import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
+import AdminOrdersPage from "./pages/AdminOrders";
 import { getCurrentDataSource, getEnvironment } from "./lib/config";
 import { useEffect } from "react";
 
@@ -68,6 +69,7 @@ const App = () => {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order-success" element={<OrderSuccess />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
+              <Route path="/admin/orders" element={<AdminOrdersPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

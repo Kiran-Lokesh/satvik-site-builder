@@ -33,8 +33,13 @@ jobs:
     - name: Generate catalog
       run: npm run generate-catalog
       
-    - name: Build
-      run: npm run build
+    - name: Build for production
+      run: npm run build:prod
+      env:
+        VITE_ENVIRONMENT: prod
+        VITE_COMMERCE_API_URL: http://136.111.8.28:8081
+        VITE_BACKEND_API_URL: http://136.111.8.28:8081
+        VITE_DATA_SOURCE: backend
       
     - name: Setup Pages
       uses: actions/configure-pages@v4

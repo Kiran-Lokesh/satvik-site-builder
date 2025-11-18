@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { X, Plus, Minus, Trash2, ArrowRight, Loader2, ShoppingCart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ordersApiClient } from '@/lib/ordersApiClient';
 import { toast } from '@/hooks/use-toast';
 
 const Cart = () => {
@@ -40,37 +39,22 @@ const Cart = () => {
   const handleProceedToCheckout = async () => {
     console.log('🛒 Starting checkout...');
     setIsCheckingOut(true);
-    
+
     try {
-      const orderItems = items.map(item => ({
-        product_id: item.productId,
-        product_name: `${item.productName} - ${item.variantName}`,
-        quantity: item.quantity,
-        unit_price: parseFloat(item.price.replace('$', '').replace(/[^0-9.]/g, '')) || 0,
-      }));
-
-      console.log('📦 Creating order with items:', orderItems);
-      
-      const order = await ordersApiClient.createOrder({
-        user_id: 'guest_user_' + Date.now(),
-        items: orderItems,
-      });
-
-      console.log('✅ Order created:', order);
-      console.log('🔍 Order ID:', order.id);
+      if (items.length === 0) {
+        throw new Error('Your cart is empty');
+      }
 
       closeCart();
-      console.log('🚀 Navigating to:', `/checkout?orderId=${order.id}`);
-      navigate(`/checkout?orderId=${order.id}`);
-      
+      navigate('/checkout', { replace: false });
     } catch (error) {
-      console.error('❌ Checkout failed:', error);
+      console.error('❌ Checkout preparation failed:', error);
       setIsCheckingOut(false);
-      
+
       toast({
-        title: "Checkout Failed",
-        description: error instanceof Error ? error.message : "Failed to process checkout. Please try again.",
-        variant: "destructive",
+        title: 'Checkout Failed',
+        description: error instanceof Error ? error.message : 'Failed to start checkout. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -132,8 +116,8 @@ const Cart = () => {
               <div className="flex-1">
                 <h3 className="font-medium text-brandText">{item.productName}</h3>
                 <p className="text-sm text-gray-500">{item.variantName}</p>
-                {item.price && item.price !== '0' && (
-                  <p className="text-sm font-medium text-brand">{item.price}</p>
+                {item.priceLabel && item.priceLabel !== '0' && (
+                  <p className="text-sm font-medium text-brand">{item.priceLabel}</p>
                 )}
               </div>
               

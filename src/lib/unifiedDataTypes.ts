@@ -17,6 +17,7 @@ export interface UnifiedProductVariant {
   id: string;
   name: string;
   price: string;
+  unitPrice?: number;
   inStock: boolean;
   weight?: string;
   unit?: string;

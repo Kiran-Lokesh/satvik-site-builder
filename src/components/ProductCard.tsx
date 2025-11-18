@@ -51,6 +51,13 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
   // Check if single-variant product is in stock
   const isInStock = product.inStock !== false;
 
+  const parsePriceToNumber = (value?: string | number) => {
+    if (typeof value === 'number') return value;
+    if (!value) return 0;
+    const numeric = value.replace(/[^0-9.]/g, '');
+    return Number.parseFloat(numeric || '0');
+  };
+
   // Handle add to cart
   const handleAddToCart = async () => {
     if (hasVariants && !selectedVariant) {
@@ -67,13 +74,17 @@ const ProductCard = ({ product, onClick }: ProductCardProps) => {
       if (hasVariants) {
         const variant = availableVariants.find(v => v.id === selectedVariant);
         if (variant) {
-          addToCart(product, variant, quantity);
+          addToCart(product, { ...variant, unitPrice: parsePriceToNumber(variant.price) }, quantity);
         }
       } else {
         // Add product with simple price/variant structure
         const variant = product.variant || 'Standard';
         const price = product.price || '0';
-        addToCart(product, { id: 'default', name: variant, price: price }, quantity);
+        addToCart(
+          product,
+          { id: product.id, name: variant, price, unitPrice: parsePriceToNumber(price) },
+          quantity
+        );
       }
       
       // Show success animation

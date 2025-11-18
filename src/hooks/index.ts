@@ -12,6 +12,7 @@ export { useCategories } from './useCategories';
 export { useFeaturedProducts } from './useFeaturedProducts';
 export { useProduct } from './useProduct';
 export { useSearch } from './useSearch';
+export { useAuth } from './useAuth';
 
 // Comprehensive data hook
 export { useUnifiedData } from './useUnifiedData';

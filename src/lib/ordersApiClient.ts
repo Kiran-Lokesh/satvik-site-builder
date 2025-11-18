@@ -5,81 +5,120 @@
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8081';
 
-export interface OrderItem {
+type OrderItemResponse = {
+  id: string;
+  variant_id?: string;
   product_id: string;
   product_name: string;
   quantity: number;
   unit_price: number;
+};
+
+export interface CreateOrderItem {
+  variantId: string;
+  quantity: number;
+}
+
+export interface CreateOrderGuest {
+  name?: string;
+  email?: string;
+  whatsappNumber?: string;
+  createAccount?: boolean;
 }
 
 export interface CreateOrderRequest {
-  user_id: string;
-  items: OrderItem[];
+  items: CreateOrderItem[];
+  paymentMethod: string;
+  shippingAddress?: Record<string, unknown>;
+  guest?: CreateOrderGuest;
+}
+
+export interface CreateOrderResponse {
+  orderId: string;
+  orderNumber: string;
 }
 
 export interface Order {
   id: string;
-  user_id: string;
-  items: OrderItem[];
-  total_price: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  payment_intent_id?: string;
+  orderNumber: string;
+  userId?: string;
+  guestEmail?: string;
+  guestName?: string;
+  items: OrderItemResponse[];
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  totalPrice: number;
+  paymentMethod?: string;
+  paymentStatus: string;
+  fulfillmentStatus: string;
+  assignedToUserId?: string;
+  assignedToDisplayName?: string;
+  shippingAddress?: string;
+  paymentIntentId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export class OrdersApiClient {
   private baseUrl: string;
 
   constructor(baseUrl: string = BACKEND_API_URL) {
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl.replace(/\/$/, '');
   }
 
   private resolveUrl(path: string): string {
-    const normalizedBase = this.baseUrl.replace(/\/+$/, '');
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    return `${normalizedBase}${normalizedPath}`;
+    return `${this.baseUrl}${normalizedPath}`;
   }
 
-  async createOrder(orderData: CreateOrderRequest): Promise<Order> {
-    const url = this.resolveUrl('/api/orders');
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(orderData),
-    });
-
+  private async request<T>(input: RequestInfo, init: RequestInit): Promise<T> {
+    const response = await fetch(input, init);
     if (!response.ok) {
       let detail: string | undefined;
       try {
         const error = await response.json();
-        detail = error.detail;
+        detail = error.detail || error.message;
       } catch {
-        // ignore
+        // ignore parse error
       }
-      throw new Error(detail || `Failed to create order (${response.status})`);
+      throw new Error(detail || `Request failed (${response.status})`);
     }
-
     return response.json();
   }
 
-  async getOrder(orderId: string): Promise<Order> {
+  async createOrder(orderData: CreateOrderRequest, idToken?: string): Promise<CreateOrderResponse> {
+    const url = this.resolveUrl('/api/orders');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (idToken) {
+      headers.Authorization = `Bearer ${idToken}`;
+    }
+
+    return this.request<CreateOrderResponse>(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(orderData),
+    });
+  }
+
+  async getOrder(orderId: string, idToken?: string): Promise<Order> {
     if (!orderId) {
       throw new Error('Order ID is required');
     }
 
     const url = this.resolveUrl(`/api/orders/${orderId}`);
-
-    const response = await fetch(url, { cache: 'no-store' });
-
-    if (!response.ok) {
-      throw new Error(`Order not found (${response.status})`);
+    const headers: Record<string, string> = {};
+    if (idToken) {
+      headers.Authorization = `Bearer ${idToken}`;
     }
 
-    return response.json();
+    return this.request<Order>(url, {
+      method: 'GET',
+      headers,
+      cache: 'no-store',
+    });
   }
 }
 

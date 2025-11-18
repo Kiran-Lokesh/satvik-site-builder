@@ -77,11 +77,11 @@ const OrderSuccess = () => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-muted-foreground">Order ID:</p>
-                  <p className="font-mono font-semibold">{order.id}</p>
+                  <p className="font-mono font-semibold">{order.orderNumber}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Status:</p>
-                  <p className="font-semibold capitalize text-green-600">{order.status}</p>
+                  <p className="font-semibold capitalize text-green-600">{order.fulfillmentStatus.toLowerCase()}</p>
                 </div>
                 {paymentIntent && (
                   <div className="col-span-2">
@@ -105,7 +105,7 @@ const OrderSuccess = () => {
 
               <div className="border-t pt-4 flex justify-between items-center">
                 <span className="text-lg font-semibold">Total Paid:</span>
-                <span className="text-2xl font-bold text-brand">${order.total_price.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-brand">${order.totalPrice.toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>

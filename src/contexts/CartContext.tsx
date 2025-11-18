@@ -4,9 +4,11 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 export interface CartItem {
   productId: string;
   productName: string;
+  variantId?: string;
   variantName: string;
   quantity: number;
-  price?: string;
+  priceLabel?: string;
+  unitPrice: number;
 }
 
 interface CartState {
@@ -31,6 +33,16 @@ const initialState: CartState = {
   isOpen: false,
 };
 
+const parsePriceLabel = (value?: string): number => {
+  if (!value) return 0;
+  const sanitized = value.replace(/[^0-9.]/g, '');
+  return Number.parseFloat(sanitized || '0');
+};
+
+type StoredCartItem = Partial<CartItem> & {
+  price?: string;
+};
+
 const loadInitialState = (): CartState => {
   if (typeof window === 'undefined') {
     return initialState;
@@ -41,18 +53,30 @@ const loadInitialState = (): CartState => {
     if (!raw) {
       return initialState;
     }
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed.items)) {
-      return initialState;
-    }
+    const parsed = JSON.parse(raw) as { items?: StoredCartItem[] };
+    const storedItems = Array.isArray(parsed.items) ? parsed.items : [];
     return {
-      items: parsed.items.map((item: any) => ({
-        productId: item.productId,
-        productName: item.productName,
-        variantName: item.variantName,
-        quantity: Number(item.quantity) || 0,
-        price: item.price,
-      })).filter((item: CartItem) => item.quantity > 0),
+      items: storedItems
+        .map((item) => {
+          const productId = item.productId ?? '';
+          const variantName = item.variantName ?? 'Standard';
+          const quantity = typeof item.quantity === 'number' ? item.quantity : Number(item.quantity ?? 0);
+          const priceLabel = item.priceLabel ?? item.price ?? '$0.00';
+          const unitPrice = Number.isFinite(item.unitPrice)
+            ? Number(item.unitPrice)
+            : parsePriceLabel(priceLabel);
+
+          return {
+            productId,
+            productName: item.productName ?? 'Product',
+            variantId: item.variantId,
+            variantName,
+            quantity: Number.isFinite(quantity) ? quantity : 0,
+            priceLabel,
+            unitPrice,
+          } as CartItem;
+        })
+        .filter((item) => item.quantity > 0 && item.productId),
       isOpen: false,
     };
   } catch (error) {
@@ -158,17 +182,26 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [state, dispatch] = useReducer(cartReducer, initialState, loadInitialState);
 
   const addToCart = (product: any, variant: any, quantity: number = 1) => {
-    const resolvedPrice =
+    const priceLabel =
       (variant?.price && variant.price.trim() !== '' ? variant.price : undefined) ??
       (product?.price && product.price.trim() !== '' ? product.price : undefined) ??
       '$0.00';
 
+    const unitPrice =
+      typeof variant?.unitPrice === 'number'
+        ? variant.unitPrice
+        : typeof variant?.price === 'number'
+          ? variant.price
+          : parsePriceLabel(priceLabel);
+
     const cartItem: CartItem = {
       productId: product.id,
       productName: product.name,
+      variantId: variant?.id || undefined,
       variantName: variant.name,
       quantity,
-      price: resolvedPrice,
+      priceLabel,
+      unitPrice,
     };
     dispatch({ type: 'ADD_TO_CART', payload: cartItem });
   };
@@ -203,7 +236,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const getSubtotal = () => {
     return state.items.reduce((total, item) => {
-      const price = parseFloat(item.price?.replace('$', '') || '0');
+      const price = Number.isFinite(item.unitPrice) ? item.unitPrice : parsePriceLabel(item.priceLabel);
       return total + (price * item.quantity);
     }, 0);
   };

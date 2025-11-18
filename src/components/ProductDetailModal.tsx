@@ -149,16 +149,27 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
     setIsAddingToCart(true);
     
     try {
+      const parsePriceToNumber = (value?: string | number) => {
+        if (typeof value === 'number') return value;
+        if (!value) return 0;
+        const numeric = value.replace(/[^0-9.]/g, '');
+        return Number.parseFloat(numeric || '0');
+      };
+
       if (hasVariants) {
         const variant = availableVariants.find(v => v.id === selectedVariant);
         if (variant) {
-          addToCart(product, variant, quantity);
+          addToCart(product, { ...variant, unitPrice: parsePriceToNumber(variant.price) }, quantity);
         }
       } else {
         // Add product with simple price/variant structure
         const variant = product.variant || 'Standard';
         const price = product.price || '0';
-        addToCart(product, { id: 'default', name: variant, price: price }, quantity);
+        addToCart(
+          product,
+          { id: product.id, name: variant, price, unitPrice: parsePriceToNumber(price) },
+          quantity
+        );
       }
       
       // Show success animation

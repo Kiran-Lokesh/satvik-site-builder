@@ -16,6 +16,7 @@ const API_BASE_URL = import.meta.env.VITE_COMMERCE_API_URL || 'http://localhost:
 
 // Types for backend responses
 interface BackendVariantResponse {
+  id: string;
   name: string;
   price: number | null;
   inStock: boolean | null;
@@ -169,10 +170,11 @@ export function transformBackendProductToUnified(
     backendVariants.find((variant) => variant.price != null)?.price ??
     null;
 
-  const variants = backendVariants.map((variant, index) => ({
-    id: `${product.id}-variant-${index}`,
+  const variants = backendVariants.map((variant) => ({
+    id: variant.id,
     name: variant.name,
     price: variant.price != null ? `$${variant.price.toFixed(2)}` : '',
+    unitPrice: variant.price ?? 0,
     inStock: variant.inStock ?? true,
   }));
 
