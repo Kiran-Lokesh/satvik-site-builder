@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
-import { ClipboardList, Package, Shield } from 'lucide-react';
+import { ClipboardList, Package, Shield, Warehouse } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Header from './Header';
 
@@ -12,6 +12,11 @@ const AdminLayout: React.FC = () => {
       name: 'Order Management',
       href: '/admin/orders',
       icon: ClipboardList,
+    },
+    {
+      name: 'Warehouses',
+      href: '/admin/warehouses',
+      icon: Warehouse,
     },
     {
       name: 'Inventory Management',
@@ -29,7 +34,7 @@ const AdminLayout: React.FC = () => {
       <Header />
       <div className="flex flex-1">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 shadow-sm">
+        <aside className="w-72 bg-white border-r border-gray-200 shadow-sm">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <Shield className="h-6 w-6 text-brand" />
@@ -51,8 +56,8 @@ const AdminLayout: React.FC = () => {
                       : 'text-gray-700 hover:bg-gray-100 hover:text-brand'
                   )}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span>{item.name}</span>
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{item.name}</span>
                 </Link>
               );
             })}
@@ -60,7 +65,7 @@ const AdminLayout: React.FC = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 w-full max-w-full overflow-x-hidden">
           <Outlet />
         </main>
       </div>

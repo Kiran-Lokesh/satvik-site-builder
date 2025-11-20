@@ -17,6 +17,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
 import AdminOrdersPage from "./pages/AdminOrders";
 import InventoryManagement from "./pages/InventoryManagement";
+import WarehousesPage from "./pages/Warehouses";
 import AdminLayout from "./components/AdminLayout";
 import Profile from "./pages/Profile";
 import { getCurrentDataSource, getEnvironment } from "./lib/config";
@@ -91,6 +92,7 @@ const App = () => {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route path="orders" element={<AdminOrdersPage />} />
+                  <Route path="warehouses" element={<WarehousesPage />} />
                   <Route path="inventory" element={<InventoryManagement />} />
                 </Route>
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

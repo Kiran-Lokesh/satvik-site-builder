@@ -5,9 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ChevronDown } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Loader2, ClipboardList, ShieldAlert, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -103,12 +112,9 @@ const AdminOrdersPage: React.FC = () => {
     date: getTodayDateString() // Single date instead of from/to
   });
   const [admins, setAdmins] = useState<Array<{ id: string; displayName: string | null; email: string }>>([]);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [orderHistory, setOrderHistory] = useState<OrderHistoryEntry[]>([]);
-  const [detailLoading, setDetailLoading] = useState<boolean>(false);
-  const [assigning, setAssigning] = useState<boolean>(false);
-  const [updatingStatus, setUpdatingStatus] = useState<boolean>(false);
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [orderDetails, setOrderDetails] = useState<Map<string, { order: Order; history: OrderHistoryEntry[] }>>(new Map());
+  const [loadingDetails, setLoadingDetails] = useState<Set<string>>(new Set());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastLoadTime, setLastLoadTime] = useState<number>(0);
   const recentOrderIds = useRef<Set<string>>(new Set());
@@ -505,10 +511,18 @@ const AdminOrdersPage: React.FC = () => {
         }
       });
 
-      // If the selected order was updated, refresh it
-      if (selectedOrderId === order.id) {
-        setSelectedOrder(order);
-      }
+      // If the order details are cached, update them
+      setOrderDetails(prev => {
+        if (prev.has(order.id)) {
+          const next = new Map(prev);
+          const existing = next.get(order.id);
+          if (existing) {
+            next.set(order.id, { ...existing, order });
+          }
+          return next;
+        }
+        return prev;
+      });
     };
 
     try {
@@ -529,22 +543,22 @@ const AdminOrdersPage: React.FC = () => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isAuthorized, filters, pagination.page, currentUser, selectedOrderId]);
+  }, [user, isAuthorized, filters, pagination.page, currentUser]);
 
-  const openOrderDetail = async (orderId: string) => {
-    if (!user) return;
-    setSelectedOrderId(orderId);
-    setDetailLoading(true);
-
+  const loadOrderDetails = async (orderId: string) => {
+    if (!user || orderDetails.has(orderId)) return; // Already loaded
+    
+    setLoadingDetails(prev => new Set(prev).add(orderId));
     try {
       const token = await getToken();
       if (!token) {
         throw new Error('Unable to obtain authentication token');
       }
-      const orderDetail = await ordersApiClient.getOrder(orderId, token);
-      setSelectedOrder(orderDetail);
-      const history = await adminOrdersApiClient.getOrderHistory(orderId, token);
-      setOrderHistory(history);
+      const [orderDetail, history] = await Promise.all([
+        ordersApiClient.getOrder(orderId, token),
+        adminOrdersApiClient.getOrderHistory(orderId, token)
+      ]);
+      setOrderDetails(prev => new Map(prev).set(orderId, { order: orderDetail, history }));
     } catch (error) {
       console.error('Failed to load order detail', error);
       toast({
@@ -553,37 +567,24 @@ const AdminOrdersPage: React.FC = () => {
         variant: 'destructive',
       });
     } finally {
-      setDetailLoading(false);
+      setLoadingDetails(prev => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
+      });
     }
   };
 
-  const closeDetail = () => {
-    setSelectedOrderId(null);
-    setSelectedOrder(null);
-    setOrderHistory([]);
-  };
-
-  const handleAssignToMe = async () => {
-    if (!selectedOrderId || !currentUser) return;
-    setAssigning(true);
-    try {
-      const token = await getToken();
-      if (!token) throw new Error('Unable to obtain authentication token');
-      const updatedOrder = await adminOrdersApiClient.assignToMe(selectedOrderId, token);
-      setSelectedOrder(updatedOrder);
-      await loadOrders(pagination.page);
-      const history = await adminOrdersApiClient.getOrderHistory(selectedOrderId, token);
-      setOrderHistory(history);
-      toast({ title: 'Order assigned', description: 'You are now responsible for this order.' });
-    } catch (error) {
-      console.error('Failed to assign order', error);
-      toast({
-        title: 'Failed to assign order',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive',
+  const handleAccordionChange = (orderId: string, isOpen: boolean) => {
+    if (isOpen) {
+      setExpandedOrders(prev => new Set(prev).add(orderId));
+      loadOrderDetails(orderId);
+    } else {
+      setExpandedOrders(prev => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
       });
-    } finally {
-      setAssigning(false);
     }
   };
 
@@ -615,43 +616,161 @@ const AdminOrdersPage: React.FC = () => {
     setPagination((prev) => ({ ...prev, page: 0 }));
   };
 
-  const handleStatusChange = async (status: string) => {
-    if (!selectedOrderId) return;
-    if (status === 'CANCELLED') {
-      const confirmCancel = window.confirm('Are you sure you want to cancel this order?');
-      if (!confirmCancel) {
-        return;
+  const renderOrderDetails = (order: Order, history: OrderHistoryEntry[]) => {
+    const renderShippingAddress = () => {
+      if (!order?.shippingAddress) {
+        return <p className="text-sm text-muted-foreground">No shipping address provided.</p>;
       }
-    }
+      try {
+        const parsed = JSON.parse(order.shippingAddress) as Record<string, unknown>;
+        return (
+          <div className="text-sm text-muted-foreground space-y-1">
+            {Object.entries(parsed).map(([key, value]) => (
+              <div key={key}>
+                <span className="font-medium text-brandText capitalize mr-2">{key}:</span>
+                <span>{String(value)}</span>
+              </div>
+            ))}
+          </div>
+        );
+      } catch {
+        return <p className="text-sm text-muted-foreground">{order.shippingAddress}</p>;
+      }
+    };
 
-    setUpdatingStatus(true);
-    try {
-      const token = await getToken();
-      if (!token) throw new Error('Unable to obtain authentication token');
-      const updatedOrder = await adminOrdersApiClient.updateStatus(selectedOrderId, status, token);
-      setSelectedOrder(updatedOrder);
-      await loadOrders(pagination.page);
-      const history = await adminOrdersApiClient.getOrderHistory(selectedOrderId, token);
-      setOrderHistory(history);
-      toast({ title: 'Order updated', description: `Order marked as ${STATUS_LABELS[status] ?? status}.` });
-    } catch (error) {
-      console.error('Failed to update order status', error);
-      toast({
-        title: 'Failed to update order status',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive',
-      });
-    } finally {
-      setUpdatingStatus(false);
-    }
+    const renderHistory = () => {
+      const parsePayload = (payload: string | null) => {
+        if (!payload) return null;
+        try {
+          return JSON.parse(payload);
+        } catch {
+          return null;
+        }
+      };
+
+      if (history.length === 0) {
+        return <p className="text-sm text-muted-foreground">No history available.</p>;
+      }
+
+      return (
+      <div className="border rounded-lg overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="min-w-[100px]">Action</TableHead>
+              <TableHead className="min-w-[120px]">Previous Status</TableHead>
+              <TableHead className="min-w-[120px]">New Status</TableHead>
+              <TableHead className="min-w-[120px]">Actor</TableHead>
+              <TableHead className="min-w-[150px]">Date & Time</TableHead>
+            </TableRow>
+          </TableHeader>
+            <TableBody>
+              {history.map((entry) => {
+                const payload = parsePayload(entry.payload);
+                const previousStatus = payload?.previousStatus || payload?.previous_status;
+                const newStatus = payload?.newStatus || payload?.new_status;
+                
+                return (
+                  <TableRow key={entry.id} className="hover:bg-transparent">
+                    <TableCell className="font-medium">{entry.action}</TableCell>
+                    <TableCell>
+                      {previousStatus ? (
+                        <Badge variant="secondary" className="text-xs">
+                          {STATUS_LABELS[previousStatus] || previousStatus}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {newStatus ? (
+                        <Badge variant="secondary" className="text-xs">
+                          {STATUS_LABELS[newStatus] || newStatus}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {entry.actor ? (entry.actor.displayName || entry.actor.email || entry.actor.id) : '—'}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(entry.createdAt).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      );
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+          <div className="space-y-2">
+            <h3 className="font-semibold text-brandText">Order Info</h3>
+            <p className="text-sm text-muted-foreground">Order #: {order.orderNumber}</p>
+            <p className="text-sm text-muted-foreground">Created: {new Date(order.createdAt).toLocaleString()}</p>
+            <p className="text-sm text-muted-foreground">Payment Status: {order.paymentStatus}</p>
+            <p className="text-sm text-muted-foreground">Fulfillment Status: {STATUS_LABELS[order.fulfillmentStatus] ?? order.fulfillmentStatus}</p>
+            <p className="text-sm text-muted-foreground">
+              Assigned To: {order.assignedToDisplayName || order.assignedToUserId || 'Unassigned'}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-semibold text-brandText">Customer</h3>
+            <p className="text-sm text-muted-foreground">Name: {order.guestName || '—'}</p>
+            <p className="text-sm text-muted-foreground">Email: {order.guestEmail || '—'}</p>
+            <p className="text-sm text-muted-foreground">Total: ${order.totalPrice.toFixed(2)}</p>
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-3">
+          <h3 className="font-semibold text-brandText">Items</h3>
+          <div className="space-y-2">
+            {order.items.map((item) => (
+              <div key={item.id} className="flex justify-between text-sm">
+                <div>
+                  <p className="font-medium text-brandText">{item.product_name}</p>
+                  <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                </div>
+                <div className="font-medium text-brand">
+                  ${(item.unit_price * item.quantity).toFixed(2)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-3">
+          <h3 className="font-semibold text-brandText">Shipping</h3>
+          {renderShippingAddress()}
+        </div>
+
+        <Separator />
+
+        <div className="space-y-3">
+          <h3 className="font-semibold text-brandText">Order History</h3>
+          <div className="max-h-96 overflow-y-auto pr-2">
+            {renderHistory()}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const renderFilters = () => (
-    <Card>
+    <Card className="w-full max-w-full overflow-hidden">
       <CardHeader>
         <CardTitle>Filters</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
         <div className="space-y-2">
           <Label htmlFor="status-filter">Fulfillment Status</Label>
           <Select
@@ -661,7 +780,7 @@ const AdminOrdersPage: React.FC = () => {
               setPagination((prev) => ({ ...prev, page: 0 }));
             }}
           >
-            <SelectTrigger id="status-filter">
+            <SelectTrigger id="status-filter" className="w-full">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -684,7 +803,7 @@ const AdminOrdersPage: React.FC = () => {
               setPagination((prev) => ({ ...prev, page: 0 }));
             }}
           >
-            <SelectTrigger id="assigned-filter">
+            <SelectTrigger id="assigned-filter" className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -708,7 +827,7 @@ const AdminOrdersPage: React.FC = () => {
               setPagination((prev) => ({ ...prev, page: 0 }));
             }}
           >
-            <SelectTrigger id="order-type-filter">
+            <SelectTrigger id="order-type-filter" className="w-full">
               <SelectValue placeholder="All types" />
             </SelectTrigger>
             <SelectContent>
@@ -721,21 +840,22 @@ const AdminOrdersPage: React.FC = () => {
       </CardContent>
       
       {/* Date Selection with Navigation */}
-      <CardContent className="border-t pt-4">
-        <div className="flex flex-col items-center gap-4">
+      <CardContent className="border-t pt-4 w-full max-w-full overflow-hidden">
+        <div className="flex flex-col items-center gap-3 sm:gap-4 w-full">
           {/* Date Navigation Arrows and Today Button - Centered */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center w-full px-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateDate('prev')}
               title="Previous day"
+              className="h-8 px-2 sm:px-3 flex-shrink-0"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
             
-            <div className="flex items-center gap-2 px-4">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-1 sm:gap-2 flex-1 sm:flex-initial min-w-0 max-w-full px-1 sm:px-2">
+              <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground hidden sm:block flex-shrink-0" />
               <Input
                 type="date"
                 value={filters.date}
@@ -743,7 +863,7 @@ const AdminOrdersPage: React.FC = () => {
                   setFilters((prev) => ({ ...prev, date: e.target.value }));
                   setPagination((prev) => ({ ...prev, page: 0 }));
                 }}
-                className="w-auto"
+                className="w-full sm:w-auto min-w-[100px] sm:min-w-[140px] text-xs sm:text-sm h-8 sm:h-10 flex-shrink-0"
               />
             </div>
             
@@ -752,6 +872,7 @@ const AdminOrdersPage: React.FC = () => {
               size="sm"
               onClick={() => navigateDate('today')}
               title="Go to today"
+              className="hidden sm:inline-flex h-8 sm:h-10 flex-shrink-0"
             >
               Today
             </Button>
@@ -761,15 +882,16 @@ const AdminOrdersPage: React.FC = () => {
               size="sm"
               onClick={() => navigateDate('next')}
               title="Next day"
+              className="h-8 px-2 sm:px-3 flex-shrink-0"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
           
           {/* Date Display Text - Below */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-muted-foreground">Viewing orders for:</span>
-            <span className="text-sm font-semibold text-brandText">
+          <div className="flex items-center gap-2 flex-wrap justify-center text-center px-2 w-full">
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">Viewing orders for:</span>
+            <span className="text-xs sm:text-sm font-semibold text-brandText">
               {formatDateForDisplay(filters.date)}
             </span>
           </div>
@@ -779,112 +901,214 @@ const AdminOrdersPage: React.FC = () => {
   );
 
   const renderOrdersTable = () => (
-    <Card>
+    <Card className="w-full max-w-full overflow-hidden">
       <CardHeader>
-        <CardTitle>Orders</CardTitle>
+        <CardTitle className="text-2xl font-bold">Orders</CardTitle>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Order #</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Created</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Customer</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Total</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Assigned To</th>
-              <th className="px-4 py-2 text-right text-xs font-medium uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-medium text-brandText">{order.orderNumber}</td>
-                <td className="px-4 py-3 text-sm text-muted-foreground">
-                  {new Date(order.createdAt).toLocaleString()}
-                </td>
-                <td className="px-4 py-3 text-sm text-muted-foreground">
-                  <div className="flex flex-col">
-                    <span>{order.guestName || '—'}</span>
-                    <span className="text-xs text-gray-500">{order.guestEmail || '—'}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-sm font-semibold text-brand">${order.totalPrice.toFixed(2)}</td>
-                <td className="px-4 py-3 text-sm">
-                  <Badge variant="secondary">{STATUS_LABELS[order.fulfillmentStatus] ?? order.fulfillmentStatus}</Badge>
-                </td>
-                <td className="px-4 py-3 text-sm text-muted-foreground">
-                  <Select
-                    value={order.assignedToUserId || 'unassigned'}
-                    onValueChange={async (value) => {
-                      if (value === order.assignedToUserId) {
-                        return; // No change
-                      }
-                      try {
-                        const token = await getToken();
-                        if (!token) {
-                          throw new Error('Unable to obtain authentication token');
-                        }
-                        if (value === 'unassigned') {
-                          // Unassign order
-                          await adminOrdersApiClient.unassignOrder(order.id, token);
-                          await loadOrders(pagination.page);
-                          toast({
-                            title: 'Order unassigned',
-                            description: `Order ${order.orderNumber} has been unassigned`,
-                          });
-                        } else {
-                          // Assign to admin
-                          await adminOrdersApiClient.assignToAdmin(order.id, value, token);
-                          await loadOrders(pagination.page);
-                          toast({
-                            title: 'Order assigned',
-                            description: `Order ${order.orderNumber} has been assigned`,
-                          });
-                        }
-                      } catch (error) {
-                        console.error('Failed to update order assignment', error);
-                        toast({
-                          title: 'Failed to update assignment',
-                          description: (error as Error).message,
-                          variant: 'destructive',
-                        });
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="unassigned">Unassigned</SelectItem>
-                      {admins.map((admin) => (
-                        <SelectItem key={admin.id} value={admin.id}>
-                          {admin.displayName || admin.email}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <Button variant="outline" size="sm" onClick={() => openOrderDetail(order.id)}>
-                    View
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {orders.length === 0 && !loading && (
-          <div className="py-8 text-center text-muted-foreground">No orders found for the selected filters.</div>
+      <CardContent className="w-full max-w-full overflow-hidden p-0">
+        {loading ? (
+          <div className="flex items-center justify-center p-12">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            <div className="border rounded-lg overflow-x-auto w-full">
+              <Table className="w-full min-w-[600px] sm:min-w-[800px]">
+                <TableHeader className="sticky top-0 z-10 bg-background">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="min-w-[100px] sm:min-w-[120px]">Order #</TableHead>
+                    <TableHead className="min-w-[120px] sm:min-w-[150px]">Created</TableHead>
+                    <TableHead className="min-w-[120px] sm:min-w-[150px]">Customer</TableHead>
+                    <TableHead className="min-w-[80px] sm:min-w-[100px]">Total</TableHead>
+                    <TableHead className="min-w-[140px] sm:min-w-[180px]">Status</TableHead>
+                    <TableHead className="min-w-[140px] sm:min-w-[180px]">Assigned To</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {orders.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No orders found for the selected filters.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    orders.map((order) => {
+                      const isExpanded = expandedOrders.has(order.id);
+                      const details = orderDetails.get(order.id);
+                      const isLoadingDetail = loadingDetails.has(order.id);
+                      
+                      return (
+                        <React.Fragment key={order.id}>
+                          <TableRow className="hover:bg-transparent">
+                            <TableCell className="font-medium min-w-[100px] sm:min-w-[120px]">
+                              <div className="flex items-center gap-1 sm:gap-2">
+                                <ChevronDown
+                                  className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform cursor-pointer flex-shrink-0 ${
+                                    isExpanded ? 'rotate-180' : ''
+                                  }`}
+                                  onClick={() => handleAccordionChange(order.id, !isExpanded)}
+                                />
+                                <span className="truncate text-xs sm:text-sm">{order.orderNumber}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground min-w-[120px] sm:min-w-[150px]">
+                              <span className="text-xs">{new Date(order.createdAt).toLocaleDateString()}</span>
+                              <span className="text-xs block sm:hidden">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </TableCell>
+                            <TableCell className="min-w-[120px] sm:min-w-[150px]">
+                              <div className="flex flex-col">
+                                <span className="truncate text-xs sm:text-sm">{order.guestName || '—'}</span>
+                                <span className="text-xs text-muted-foreground truncate hidden sm:block">{order.guestEmail || '—'}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-semibold min-w-[80px] sm:min-w-[100px] text-xs sm:text-sm">${order.totalPrice.toFixed(2)}</TableCell>
+                            <TableCell className="min-w-[140px] sm:min-w-[180px]">
+                              <Select
+                                value={order.fulfillmentStatus}
+                                onValueChange={async (newStatus) => {
+                                  if (newStatus === order.fulfillmentStatus) {
+                                    return; // No change
+                                  }
+                                  if (newStatus === 'CANCELLED') {
+                                    const confirmCancel = window.confirm('Are you sure you want to cancel this order?');
+                                    if (!confirmCancel) {
+                                      return;
+                                    }
+                                  }
+                                  try {
+                                    const token = await getToken();
+                                    if (!token) {
+                                      throw new Error('Unable to obtain authentication token');
+                                    }
+                                    await adminOrdersApiClient.updateStatus(order.id, newStatus, token);
+                                    await loadOrders(pagination.page);
+                                    // Clear cached details to force refresh
+                                    setOrderDetails(prev => {
+                                      const next = new Map(prev);
+                                      next.delete(order.id);
+                                      return next;
+                                    });
+                                    toast({
+                                      title: 'Order updated',
+                                      description: `Order ${order.orderNumber} marked as ${STATUS_LABELS[newStatus] ?? newStatus}.`,
+                                    });
+                                  } catch (error) {
+                                    console.error('Failed to update order status', error);
+                                    toast({
+                                      title: 'Failed to update status',
+                                      description: (error as Error).message,
+                                      variant: 'destructive',
+                                    });
+                                  }
+                                }}
+                              >
+                                <SelectTrigger className="w-full min-w-[120px] sm:min-w-[150px] text-xs sm:text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {/* Show current status as disabled option */}
+                                  <SelectItem value={order.fulfillmentStatus} disabled>
+                                    {STATUS_LABELS[order.fulfillmentStatus] ?? order.fulfillmentStatus}
+                                  </SelectItem>
+                                  {/* Show available statuses to change to */}
+                                  {getAvailableStatuses(order.orderType, order.fulfillmentStatus).map((status) => (
+                                    <SelectItem key={status} value={status}>
+                                      {STATUS_LABELS[status] ?? status}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell className="min-w-[140px] sm:min-w-[180px]">
+                              <Select
+                                value={order.assignedToUserId || 'unassigned'}
+                                onValueChange={async (value) => {
+                                  if (value === order.assignedToUserId) {
+                                    return; // No change
+                                  }
+                                  try {
+                                    const token = await getToken();
+                                    if (!token) {
+                                      throw new Error('Unable to obtain authentication token');
+                                    }
+                                    if (value === 'unassigned') {
+                                      // Unassign order
+                                      await adminOrdersApiClient.unassignOrder(order.id, token);
+                                      await loadOrders(pagination.page);
+                                      toast({
+                                        title: 'Order unassigned',
+                                        description: `Order ${order.orderNumber} has been unassigned`,
+                                      });
+                                    } else {
+                                      // Assign to admin
+                                      await adminOrdersApiClient.assignToAdmin(order.id, value, token);
+                                      await loadOrders(pagination.page);
+                                      toast({
+                                        title: 'Order assigned',
+                                        description: `Order ${order.orderNumber} has been assigned`,
+                                      });
+                                    }
+                                    // Clear cached details to force refresh
+                                    setOrderDetails(prev => {
+                                      const next = new Map(prev);
+                                      next.delete(order.id);
+                                      return next;
+                                    });
+                                  } catch (error) {
+                                    console.error('Failed to update order assignment', error);
+                                    toast({
+                                      title: 'Failed to update assignment',
+                                      description: (error as Error).message,
+                                      variant: 'destructive',
+                                    });
+                                  }
+                                }}
+                              >
+                                <SelectTrigger className="w-full min-w-[120px] sm:min-w-[150px] text-xs sm:text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                                  {admins.map((admin) => (
+                                    <SelectItem key={admin.id} value={admin.id}>
+                                      {admin.displayName || admin.email}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                          </TableRow>
+                          {isExpanded && (
+                            <TableRow className="hover:bg-transparent">
+                              <TableCell colSpan={6} className="p-0">
+                                {isLoadingDetail ? (
+                                  <div className="flex items-center justify-center p-8">
+                                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                  </div>
+                                ) : details ? (
+                                  <div className="p-4 sm:p-6 space-y-6">
+                                    {renderOrderDetails(details.order, details.history)}
+                                  </div>
+                                ) : null}
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
   );
 
   const renderPagination = () => (
-    <div className="flex items-center justify-between">
-      <div className="text-sm text-muted-foreground">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="text-sm text-muted-foreground text-center sm:text-left">
         Page {pagination.page + 1} of {Math.max(pagination.totalPages, 1)} · {pagination.totalItems} orders
       </div>
       <div className="flex gap-2">
@@ -908,94 +1132,6 @@ const AdminOrdersPage: React.FC = () => {
     </div>
   );
 
-  const renderShippingAddress = () => {
-    if (!selectedOrder?.shippingAddress) {
-      return <p className="text-sm text-muted-foreground">No shipping address provided.</p>;
-    }
-    try {
-      const parsed = JSON.parse(selectedOrder.shippingAddress) as Record<string, unknown>;
-      return (
-        <div className="text-sm text-muted-foreground space-y-1">
-          {Object.entries(parsed).map(([key, value]) => (
-            <div key={key}>
-              <span className="font-medium text-brandText capitalize mr-2">{key}:</span>
-              <span>{String(value)}</span>
-            </div>
-          ))}
-        </div>
-      );
-    } catch {
-      return <p className="text-sm text-muted-foreground">{selectedOrder.shippingAddress}</p>;
-    }
-  };
-
-  const renderHistory = () => {
-    const parsePayload = (payload: string | null) => {
-      if (!payload) return null;
-      try {
-        return JSON.parse(payload);
-      } catch {
-        return null;
-      }
-    };
-
-    if (orderHistory.length === 0) {
-      return <p className="text-sm text-muted-foreground">No history available.</p>;
-    }
-
-    return (
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Action</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Previous Status</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700">New Status</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Actor</th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Date & Time</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {orderHistory.map((entry) => {
-              const payload = parsePayload(entry.payload);
-              const previousStatus = payload?.previousStatus || payload?.previous_status;
-              const newStatus = payload?.newStatus || payload?.new_status;
-              
-              return (
-                <tr key={entry.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium text-brandText">{entry.action}</td>
-                  <td className="px-4 py-3 text-sm">
-                    {previousStatus ? (
-                      <Badge variant="secondary" className="text-xs">
-                        {STATUS_LABELS[previousStatus] || previousStatus}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {newStatus ? (
-                      <Badge variant="secondary" className="text-xs">
-                        {STATUS_LABELS[newStatus] || newStatus}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">
-                    {entry.actor ? (entry.actor.displayName || entry.actor.email || entry.actor.id) : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">
-                    {new Date(entry.createdAt).toLocaleString()}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
 
   if (authLoading) {
     return (
@@ -1032,126 +1168,16 @@ const AdminOrdersPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center gap-2">
-        <ClipboardList className="h-6 w-6 text-brand" />
-        <h1 className="text-2xl font-bold text-brandText">Admin Orders Dashboard</h1>
-      </div>
+    <div className="space-y-6 w-full max-w-full overflow-x-hidden">
+      {errorMessage && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{errorMessage}</div>
+      )}
 
       {renderFilters()}
 
-      {loading ? (
-        <div className="py-20 flex justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-brand" />
-        </div>
-      ) : (
-        <>
-          {errorMessage && (
-            <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{errorMessage}</div>
-          )}
-          {renderOrdersTable()}
-          {renderPagination()}
-        </>
-      )}
+      {renderOrdersTable()}
 
-      <Dialog open={Boolean(selectedOrderId)} onOpenChange={(open) => !open && closeDetail()}>
-        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
-          </DialogHeader>
-
-          {detailLoading || !selectedOrder ? (
-            <div className="py-12 flex justify-center">
-              <Loader2 className="h-10 w-10 animate-spin text-brand" />
-            </div>
-          ) : (
-            <div className="space-y-6 overflow-y-auto pr-2 flex-1">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-brandText">Order Info</h3>
-                  <p className="text-sm text-muted-foreground">Order #: {selectedOrder.orderNumber}</p>
-                  <p className="text-sm text-muted-foreground">Created: {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">Payment Status: {selectedOrder.paymentStatus}</p>
-                  <p className="text-sm text-muted-foreground">Fulfillment Status: {STATUS_LABELS[selectedOrder.fulfillmentStatus] ?? selectedOrder.fulfillmentStatus}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Assigned To: {selectedOrder.assignedToDisplayName || selectedOrder.assignedToUserId || 'Unassigned'}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-brandText">Customer</h3>
-                  <p className="text-sm text-muted-foreground">Name: {selectedOrder.guestName || '—'}</p>
-                  <p className="text-sm text-muted-foreground">Email: {selectedOrder.guestEmail || '—'}</p>
-                  <p className="text-sm text-muted-foreground">Total: ${selectedOrder.totalPrice.toFixed(2)}</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-3">
-                <h3 className="font-semibold text-brandText">Items</h3>
-                <div className="space-y-2">
-                  {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <div>
-                        <p className="font-medium text-brandText">{item.product_name}</p>
-                        <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                      </div>
-                      <div className="font-medium text-brand">
-                        ${(item.unit_price * item.quantity).toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-3">
-                <h3 className="font-semibold text-brandText">Shipping</h3>
-                {renderShippingAddress()}
-              </div>
-
-              <Separator />
-
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleAssignToMe}
-                  disabled={assigning || (currentUser && selectedOrder.assignedToUserId === currentUser.id)}
-                >
-                  {assigning ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Assign to Me
-                </Button>
-
-                <Select
-                  onValueChange={handleStatusChange}
-                  disabled={updatingStatus}
-                >
-                  <SelectTrigger className="w-[220px]">
-                    <SelectValue placeholder="Update status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getAvailableStatuses(selectedOrder?.orderType, selectedOrder?.fulfillmentStatus).map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {STATUS_LABELS[status] ?? status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-3">
-                <h3 className="font-semibold text-brandText">Order History</h3>
-                <div className="max-h-96 overflow-y-auto pr-2">
-                  {renderHistory()}
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {!loading && orders.length > 0 && renderPagination()}
     </div>
   );
 };
