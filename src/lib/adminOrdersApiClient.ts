@@ -7,6 +7,7 @@ export interface AdminOrderFilters {
   size?: number;
   status?: string;
   assignedTo?: string;
+  orderType?: string;
   from?: string;
   to?: string;
 }
@@ -78,12 +79,43 @@ class AdminOrdersApiClient {
       size: filters.size,
       status: filters.status,
       assignedTo: filters.assignedTo,
+      orderType: filters.orderType,
       from: filters.from,
       to: filters.to,
     });
     const url = this.resolveUrl(`/api/admin/orders${query}`);
     return this.request(url, {
       method: 'GET',
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+  }
+
+  async getAllAdmins(idToken: string): Promise<Array<{ id: string; displayName: string | null; email: string }>> {
+    const url = this.resolveUrl(`/api/admin/orders/admins`);
+    return this.request(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+  }
+
+  async assignToAdmin(orderId: string, adminId: string, idToken: string): Promise<Order> {
+    const url = this.resolveUrl(`/api/admin/orders/${orderId}/assign/${adminId}`);
+    return this.request(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+  }
+
+  async unassignOrder(orderId: string, idToken: string): Promise<Order> {
+    const url = this.resolveUrl(`/api/admin/orders/${orderId}/unassign`);
+    return this.request(url, {
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${idToken}`,
       },

@@ -1,24 +1,28 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingCart, LogIn, LogOut, UserCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, ShoppingCart, LogIn, LogOut, UserCircle, User, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { getEnvironment } from '@/lib/config';
 import satvikLogo from '@/assets/satvik-logo.svg';
 import { useAuth } from '@/hooks/useAuth';
+import { usersApiClient, CurrentUserProfile } from '@/lib/usersApiClient';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<CurrentUserProfile | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { getTotalItems, toggleCart } = useCart();
   const totalItems = getTotalItems();
   const env = getEnvironment();
-  const { user, loading: authLoading, signInWithGoogle, logout } = useAuth();
+  const { user, loading: authLoading, signInWithGoogle, logout, getToken } = useAuth();
 
   // Environment-specific header classes
   const headerBgClass =
     env === 'local' ? 'bg-blue-200/80' :
-    env === 'test' ? 'bg-purple-300' :
+    env === 'test' ? 'bg-purple-300' : // Includes qa mode
     'bg-accent'; // prod - keep original golden color
 
   // Scroll to top function
@@ -39,6 +43,36 @@ const Header = () => {
   const isActive = (href: string) => {
     return location.pathname === href;
   };
+
+  // Fetch user profile to check admin role
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!user || authLoading) {
+        setUserProfile(null);
+        setIsAdmin(false);
+        return;
+      }
+
+      try {
+        const token = await getToken();
+        if (!token) {
+          setUserProfile(null);
+          setIsAdmin(false);
+          return;
+        }
+        const profile = await usersApiClient.getCurrentUser(token);
+        setUserProfile(profile);
+        const role = profile.role?.toUpperCase();
+        setIsAdmin(role === 'ADMIN' || role === 'SUPERADMIN');
+      } catch (error) {
+        console.error('Failed to load user profile:', error);
+        setUserProfile(null);
+        setIsAdmin(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user, authLoading, getToken]);
 
   return (
     <header className={`sticky top-0 z-50 ${headerBgClass} backdrop-blur-sm border-b border-brand/20 shadow-soft`}>
@@ -72,6 +106,19 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                to="/admin/orders"
+                className={`text-sm font-medium transition-colors hover:text-brand flex items-center gap-1 ${
+                  isActive('/admin/orders')
+                    ? 'text-brand font-semibold'
+                    : 'text-brandText'
+                }`}
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
           </nav>
 
           <div className="flex items-center space-x-2 md:space-x-3">
@@ -89,6 +136,19 @@ const Header = () => {
                 </span>
               )}
             </Button>
+
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/profile')}
+                className="p-2 hover:bg-brand/10"
+                aria-label="Profile"
+                title="View Profile"
+              >
+                <User className="h-5 w-5 text-brandText" />
+              </Button>
+            )}
 
             <Button
               variant="outline"
@@ -148,6 +208,34 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
+              {isAdmin && (
+                <Link
+                  to="/admin/orders"
+                  className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
+                    isActive('/admin/orders')
+                      ? 'bg-brand/10 text-brand'
+                      : 'text-brandText hover:text-brand hover:bg-brand/5'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    <span>Admin Dashboard</span>
+                  </div>
+                </Link>
+              )}
+              {user && (
+                <Link
+                  to="/profile"
+                  className="block px-3 py-2 text-base font-medium rounded-md transition-colors text-brandText hover:text-brand hover:bg-brand/5"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span>Profile</span>
+                  </div>
+                </Link>
+              )}
               <div className="px-3 py-2">
                 <Button
                   variant="outline"

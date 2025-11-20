@@ -163,8 +163,18 @@ const ProductDetailModal = ({ product, isOpen, onClose }: ProductDetailModalProp
         }
       } else {
         // Add product with simple price/variant structure
+        // For products without variants, use the product ID as the variant ID
+        // This should be a UUID when products come from the backend
         const variant = product.variant || 'Standard';
         const price = product.price || '0';
+        
+        // Check if product.id is a valid UUID format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(product.id)) {
+          console.error('Product ID is not a UUID:', product.id, 'Product:', product.name);
+          throw new Error(`Product "${product.name}" has an invalid ID format. Please refresh the page and try again.`);
+        }
+        
         addToCart(
           product,
           { id: product.id, name: variant, price, unitPrice: parsePriceToNumber(price) },

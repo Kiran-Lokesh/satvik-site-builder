@@ -38,7 +38,7 @@ const Footer = () => {
                 <div className="flex items-start space-x-3">
                   <Home className="h-4 w-4 flex-shrink-0 mt-0.5" />
                   <div className="text-sm flex-1">
-                    <div>210 Setonstone Ave SE</div>
+                    <div>210 Setonstone Landing SE</div>
                     <div>Calgary AB T3M 3R6</div>
                   </div>
                 </div>

@@ -65,10 +65,24 @@ export const switchDataSource = (source: DataSource): void => {
 
 // Environment configuration
 export const getEnvironment = (): Environment => {
+  // Check VITE_ENVIRONMENT variable first
   const envVar = import.meta.env.VITE_ENVIRONMENT as Environment;
   if (envVar && ['local', 'test', 'prod'].includes(envVar)) {
     return envVar;
   }
+  
+  // Check Vite mode (for --mode qa, --mode test, etc.)
+  const viteMode = import.meta.env.MODE;
+  if (viteMode === 'qa' || viteMode === 'test') {
+    return 'test';
+  }
+  if (viteMode === 'local' || viteMode === 'development') {
+    return 'local';
+  }
+  if (viteMode === 'prod' || viteMode === 'production') {
+    return 'prod';
+  }
+  
   // Default to prod for safety
   return 'prod';
 };

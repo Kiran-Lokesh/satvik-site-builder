@@ -2,24 +2,36 @@
  * Order Success Page
  * Shown after successful payment
  */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Package, ArrowRight } from 'lucide-react';
+import { CheckCircle, Package, ArrowRight, Loader2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { ordersApiClient, Order } from '@/lib/ordersApiClient';
+import { paymentsApiClient } from '@/lib/paymentsApiClient';
+import { useAuth } from '@/hooks/useAuth';
 
 const OrderSuccess = () => {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId');
-  const paymentIntent = searchParams.get('paymentIntent');
+  const paymentIntentId = searchParams.get('paymentIntent');
   
   const { clearCart } = useCart();
+  const { user, getToken } = useAuth();
   const clearedRef = useRef(false);
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const fetchedRef = useRef<string | null>(null);
+  const hasScrolledRef = useRef(false);
+
+  // Scroll to top immediately before paint (only once)
+  useLayoutEffect(() => {
+    if (!hasScrolledRef.current) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      hasScrolledRef.current = true;
+    }
+  }, []);
 
   useEffect(() => {
     // Clear cart once on initial mount
@@ -28,24 +40,77 @@ const OrderSuccess = () => {
       clearedRef.current = true;
     }
 
-    // Fetch order details if available
-    if (orderId) {
+    // If we have payment intent ID but no order ID, try to find/create order from payment intent
+    if (paymentIntentId && !orderId) {
+      const fetchOrderFromPayment = async () => {
+        try {
+          // Wait a bit for webhook to process (if in production)
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Try to get order by querying user orders (if logged in)
+          if (user) {
+            try {
+              const idToken = await getToken();
+              if (idToken) {
+                const userOrders = await ordersApiClient.getUserOrders(user.uid, idToken, 10);
+                // Find order with matching payment intent ID
+                const matchingOrder = userOrders.find(o => o.paymentIntentId === paymentIntentId);
+                if (matchingOrder) {
+                  setOrder(matchingOrder);
+                  setIsLoading(false);
+                  return;
+                }
+              }
+            } catch (err) {
+              console.warn('Failed to fetch user orders:', err);
+            }
+          }
+          
+          // If order not found, try to create it from payment intent (fallback for local dev)
+          try {
+            console.log('Order not found, attempting to create from payment intent...');
+            const createdOrder = await paymentsApiClient.createOrderFromPaymentIntent(paymentIntentId);
+            setOrder(createdOrder);
+            setIsLoading(false);
+            return;
+          } catch (createErr) {
+            console.error('Failed to create order from payment intent:', createErr);
+            // If creation fails, it might still be processing via webhook
+            // Show a message that order is being processed
+          }
+          
+          setIsLoading(false);
+        } catch (err) {
+          console.error('Failed to fetch order from payment intent:', err);
+          setIsLoading(false);
+        }
+      };
+      
+      fetchOrderFromPayment();
+    } else if (orderId) {
+      // Fetch order by ID
       if (fetchedRef.current === orderId) {
         setIsLoading(false);
         return;
       }
 
-      ordersApiClient.getOrder(orderId)
-        .then(result => {
+      const fetchOrder = async () => {
+        try {
+          const result = await ordersApiClient.getOrder(orderId);
           setOrder(result);
           fetchedRef.current = orderId;
-        })
-        .catch(console.error)
-        .finally(() => setIsLoading(false));
+        } catch (err) {
+          console.error('Failed to fetch order:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchOrder();
     } else {
       setIsLoading(false);
     }
-  }, [orderId, clearCart]);
+  }, [orderId, paymentIntentId, clearCart, user, getToken]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -65,7 +130,7 @@ const OrderSuccess = () => {
         </div>
 
         {/* Order Details */}
-        {order && (
+        {order ? (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -74,32 +139,31 @@ const OrderSuccess = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="text-sm">
                 <div>
                   <p className="text-muted-foreground">Order ID:</p>
                   <p className="font-mono font-semibold">{order.orderNumber}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Status:</p>
-                  <p className="font-semibold capitalize text-green-600">{order.fulfillmentStatus.toLowerCase()}</p>
-                </div>
-                {paymentIntent && (
-                  <div className="col-span-2">
-                    <p className="text-muted-foreground">Payment ID:</p>
-                    <p className="font-mono text-xs">{paymentIntent}</p>
-                  </div>
-                )}
               </div>
 
               <div className="border-t pt-4">
                 <p className="font-medium mb-2">Items Ordered:</p>
                 <div className="space-y-2">
-                  {order.items.map((item, index) => (
-                    <div key={index} className="flex justify-between text-sm">
-                      <span>{item.product_name} × {item.quantity}</span>
-                      <span className="font-medium">${(item.unit_price * item.quantity).toFixed(2)}</span>
-                    </div>
-                  ))}
+                  {order.items.map((item, index) => {
+                    // Display: Product Name (Variant Name) if variant exists, or just Product Name
+                    const productName = item.product_name || 'Unknown Product';
+                    const variantName = item.variant_name;
+                    const displayText = variantName 
+                      ? `${productName} (${variantName})`
+                      : productName;
+                    
+                    return (
+                      <div key={index} className="flex justify-between text-sm">
+                        <span>{displayText} × {item.quantity}</span>
+                        <span className="font-medium">${(item.unit_price * item.quantity).toFixed(2)}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -109,7 +173,27 @@ const OrderSuccess = () => {
               </div>
             </CardContent>
           </Card>
-        )}
+        ) : paymentIntentId ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5" />
+                Payment Successful
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Your payment has been processed successfully. Your order is being created and you will receive a confirmation shortly.
+              </p>
+              {isLoading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading order details...</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ) : null}
 
         {/* What's Next */}
         <Card>
@@ -119,7 +203,6 @@ const OrderSuccess = () => {
           <CardContent className="space-y-4">
             <div className="space-y-3 text-sm text-muted-foreground">
               <p>✅ Your payment has been processed successfully</p>
-              <p>📧 You will receive an order confirmation email shortly</p>
               <p>📦 We'll start preparing your order right away</p>
               <p>🚚 You'll receive tracking information once your order ships</p>
             </div>

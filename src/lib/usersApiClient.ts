@@ -5,6 +5,7 @@ export interface UpdateProfileRequest {
   displayName?: string;
   whatsappNumber?: string;
   role?: string;
+  defaultAddress?: string;
 }
 
 export interface CurrentUserProfile {
@@ -13,6 +14,8 @@ export interface CurrentUserProfile {
   email?: string;
   displayName?: string;
   role?: string;
+  whatsappNumber?: string;
+  defaultAddress?: string;
 }
 
 export class UsersApiClient {

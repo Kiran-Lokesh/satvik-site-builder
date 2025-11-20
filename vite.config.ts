@@ -20,6 +20,10 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Polyfill for Node.js 'global' variable in browser
+    global: 'globalThis',
+  },
   build: {
     // Optimize asset handling
     assetsInlineLimit: 4096, // Inline assets smaller than 4kb
@@ -51,6 +55,6 @@ export default defineConfig(({ mode }) => ({
   },
   // Optimize dependencies
   optimizeDeps: {
-    include: ['react', 'react-dom', 'lucide-react'],
+    include: ['react', 'react-dom', 'lucide-react', 'sockjs-client', '@stomp/stompjs'],
   },
 }));

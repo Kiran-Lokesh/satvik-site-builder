@@ -105,7 +105,7 @@ const Contact = () => {
     {
       icon: <Home className="h-6 w-6 text-brand-gold" />,
       title: "Locations",
-      details: "210 Setonstone Ave SE, Calgary AB T3M 3R6",
+      details: "210 Setonstone Landing SE, Calgary AB T3M 3R6",
       description: "187 Belmont Blvd SW, Calgary AB T2X 4W5"
     },
     {

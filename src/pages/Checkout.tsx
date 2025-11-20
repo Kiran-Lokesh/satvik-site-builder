@@ -55,7 +55,7 @@ const Checkout = () => {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [createAccountAfterCheckout, setCreateAccountAfterCheckout] = useState(false);
 
-  const [isLoading, setIsLoading] = useState<boolean>(Boolean(orderId));
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,21 +65,22 @@ const Checkout = () => {
 
   const pickupLocations = useMemo(() => ([
     { id: 'belmont', name: 'Belmont Location', address: '187 Belmont Blvd SW, Calgary AB T2X 4W5' },
-    { id: 'seton', name: 'Seton Location', address: '210 Setonstone Ave SE, Calgary AB T3M 3R6' },
+    { id: 'seton', name: 'Seton Location', address: '210 Setonstone Landing SE, Calgary AB T3M 3R6' },
   ]), []);
 
   const cartSubtotal = useMemo(() => (
     cartState.items.reduce((total, item) => total + (item.unitPrice * item.quantity), 0)
   ), [cartState.items]);
 
-  const subtotal = order ? order.subtotal : cartSubtotal;
+  const subtotal = cartSubtotal;
   const deliveryFee = deliveryMethod === 'delivery' && subtotal < 50 ? 3 : 0;
-  const finalTotal = order ? order.totalPrice : subtotal + deliveryFee;
+  const finalTotal = subtotal + deliveryFee;
 
   useEffect(() => {
     if (user) {
-      if (!contactName && user.displayName) {
-        setContactName(user.displayName);
+      if (!contactName) {
+        // Use displayName if available, otherwise use email, otherwise use "Customer"
+        setContactName(user.displayName || user.email?.split('@')[0] || 'Customer');
       }
       if (!contactEmail && user.email) {
         setContactEmail(user.email);
@@ -87,104 +88,60 @@ const Checkout = () => {
     }
   }, [user, contactName, contactEmail]);
 
+  // No longer loading existing orders - orders are created after payment succeeds
+  // Keep this for backward compatibility if orderId is in URL
   useEffect(() => {
     const existingOrderId = searchParams.get('orderId');
-    if (!existingOrderId || existingOrderId === fetchedOrderRef.current) {
-      setIsLoading(false);
-      return;
+    if (existingOrderId && existingOrderId !== fetchedOrderRef.current) {
+      // If orderId is in URL (backward compatibility), try to load it
+      // But this shouldn't happen in the new flow
+      let isMounted = true;
+      setIsLoading(true);
+
+      (async () => {
+        try {
+          const token = await getToken();
+          const fetchedOrder = await ordersApiClient.getOrder(existingOrderId, token ?? undefined);
+          if (!isMounted) return;
+          setOrder(fetchedOrder);
+          setOrderId(existingOrderId);
+          fetchedOrderRef.current = existingOrderId;
+
+          if (!user) {
+            if (fetchedOrder.guestName) setContactName(fetchedOrder.guestName);
+            if (fetchedOrder.guestEmail) setContactEmail(fetchedOrder.guestEmail);
+          }
+        } catch (err) {
+          console.error('Failed to load order', err);
+          // Don't set error - this is just for backward compatibility
+        } finally {
+          if (isMounted) setIsLoading(false);
+        }
+      })();
+
+      return () => {
+        isMounted = false;
+      };
     }
-
-    let isMounted = true;
-    setIsLoading(true);
-
-    (async () => {
-      try {
-        const token = await getToken();
-        const fetchedOrder = await ordersApiClient.getOrder(existingOrderId, token ?? undefined);
-        if (!isMounted) return;
-        setOrder(fetchedOrder);
-        setOrderId(existingOrderId);
-        fetchedOrderRef.current = existingOrderId;
-
-        if (!user) {
-          if (fetchedOrder.guestName) setContactName(fetchedOrder.guestName);
-          if (fetchedOrder.guestEmail) setContactEmail(fetchedOrder.guestEmail);
-        }
-      } catch (err) {
-        console.error('Failed to load order', err);
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to load order');
-        }
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
   }, [searchParams, getToken, user]);
 
-  useEffect(() => {
-    if (!order || !orderId) {
-      return;
-    }
-    if (paymentIntentRef.current === orderId) {
-      return;
-    }
-
-    let isMounted = true;
-    setIsLoading(true);
-
-    (async () => {
-      try {
-        const paymentIntent = await paymentsApiClient.createPaymentIntent(
-          orderId,
-          contactName || order.guestName,
-          contactEmail || order.guestEmail
-        );
-
-        if (!isMounted) return;
-
-        setClientSecret(paymentIntent.client_secret);
-        setPublishableKey(paymentIntent.publishable_key);
-
-        if (!stripePromise && paymentIntent.publishable_key) {
-          stripePromise = loadStripe(paymentIntent.publishable_key);
-        }
-
-        paymentIntentRef.current = orderId;
-      } catch (err) {
-        console.error('Failed to initialize payment intent', err);
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to initialize payment intent');
-        }
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [order, orderId, contactName, contactEmail]);
+  // Payment intent is now created when user clicks "Start Payment"
+  // No need to create it from existing order
 
   const pickupLocationsOptions = pickupLocations;
 
   const validateContactInfo = (): boolean => {
-    if (user) {
-      if (!contactEmail.trim()) {
-        toast({
-          title: 'Email Required',
-          description: 'Please provide an email so we can send order updates.',
-          variant: 'destructive',
-        });
-        return false;
-      }
-      return true;
+    // Both name and email are required for all users
+    if (!contactName.trim()) {
+      toast({
+        title: 'Name Required',
+        description: 'Please provide your name.',
+        variant: 'destructive',
+      });
+      return false;
     }
 
-    if (!contactName.trim()) {
+    if (!contactEmail.trim()) {
       toast({
         title: 'Name Required',
         description: 'Please provide your name to continue.',
@@ -294,11 +251,6 @@ const Checkout = () => {
   const handleStartPayment = async () => {
     setError(null);
 
-    if (order) {
-      // Order already exists, nothing to do.
-      return;
-    }
-
     if (!validateContactInfo() || !validateDeliveryInfo() || !validateOrderItems()) {
       return;
     }
@@ -306,35 +258,66 @@ const Checkout = () => {
     setIsProcessingOrder(true);
 
     try {
+      // Validate that all items have valid UUID variant IDs
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const invalidItems = cartState.items.filter(item => {
+        if (!item.variantId) return true;
+        return !uuidRegex.test(item.variantId);
+      });
+      
+      if (invalidItems.length > 0) {
+        const invalidNames = invalidItems.map(item => item.productName).join(', ');
+        const dataSource = localStorage.getItem('dataSource') || import.meta.env.VITE_DATA_SOURCE || 'backend';
+        setError(
+          `Some products have invalid IDs (${invalidNames}). ` +
+          `This usually happens when products are loaded from Sanity instead of the backend. ` +
+          `Current data source: ${dataSource}. ` +
+          `Please clear your cart, refresh the page, and try again.`
+        );
+        console.error('Invalid variant IDs found:', invalidItems);
+        console.error('Current data source:', dataSource);
+        console.error('To fix: Clear localStorage "dataSource" or set VITE_DATA_SOURCE=backend');
+        return;
+      }
+      
       const orderItems = cartState.items.map((item) => ({
         variantId: item.variantId!,
         quantity: item.quantity,
       }));
 
-      const guest = user ? undefined : {
+      // Always send contact information for delivery purposes
+      // Even logged-in users may want to use different contact info for delivery
+      const guest = {
         name: contactName,
         email: contactEmail,
         whatsappNumber,
-        createAccount: createAccountAfterCheckout,
+        createAccount: user ? false : createAccountAfterCheckout, // Only create account if not logged in
       };
 
-      const idToken = user ? await getToken() : null;
-
-      const createResponse = await ordersApiClient.createOrder({
+      // Create payment intent with order data (order not yet created in DB)
+      const paymentIntent = await paymentsApiClient.createPaymentIntentWithOrder({
         items: orderItems,
         paymentMethod: 'stripe',
+        orderType: deliveryMethod, // "pickup" or "delivery"
         shippingAddress: buildShippingAddress(),
         guest,
-      }, idToken ?? undefined);
+        customerName: contactName,
+        customerEmail: contactEmail,
+      });
 
-      setOrderId(createResponse.orderId);
-      setSearchParams({ orderId: createResponse.orderId });
+      setClientSecret(paymentIntent.client_secret);
+      setPublishableKey(paymentIntent.publishable_key);
 
-      const createdOrder = await ordersApiClient.getOrder(createResponse.orderId, idToken ?? undefined);
-      setOrder(createdOrder);
+      if (!stripePromise && paymentIntent.publishable_key) {
+        stripePromise = loadStripe(paymentIntent.publishable_key);
+      }
+
+      // Store payment intent ID for later use
+      paymentIntentRef.current = paymentIntent.payment_intent_id;
 
       if (user && whatsappNumber.trim()) {
         try {
+          const idToken = await getToken();
           if (idToken) {
             await usersApiClient.updateProfile({ whatsappNumber: whatsappNumber.trim() }, idToken);
           }
@@ -343,8 +326,8 @@ const Checkout = () => {
         }
       }
     } catch (err) {
-      console.error('Failed to create order', err);
-      setError(err instanceof Error ? err.message : 'Failed to create order. Please try again.');
+      console.error('Failed to create payment intent', err);
+      setError(err instanceof Error ? err.message : 'Failed to initialize payment. Please try again.');
     } finally {
       setIsProcessingOrder(false);
     }
@@ -366,9 +349,11 @@ const Checkout = () => {
     }
   };
 
-  const handlePaymentSuccess = (paymentIntentId: string) => {
-    if (!orderId) return;
-    navigate(`/order-success?orderId=${orderId}&paymentIntent=${paymentIntentId}`);
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+    // Order will be created by webhook after payment succeeds
+    // For local dev fallback, we can try to create it here, but webhook is preferred
+    // Navigate to success page - order will be created by webhook or we'll handle it on the success page
+    navigate(`/order-success?paymentIntent=${paymentIntentId}`);
   };
 
   const handleCancel = () => {
@@ -376,7 +361,7 @@ const Checkout = () => {
     setTimeout(() => openCart(), 100);
   };
 
-  if (isLoading && !order) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card className="max-w-2xl mx-auto">
@@ -389,7 +374,7 @@ const Checkout = () => {
     );
   }
 
-  if (!order && cartState.items.length === 0) {
+  if (cartState.items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card className="max-w-2xl mx-auto">
@@ -699,34 +684,22 @@ const Checkout = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {order ? (
-              order.items.map((item, index) => (
-                <div key={index} className="flex justify-between items-center py-2 border-b last:border-0">
-                  <div>
-                    <p className="font-medium">{item.product_name}</p>
-                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                  </div>
-                  <p className="font-semibold">${(item.unit_price * item.quantity).toFixed(2)}</p>
+            {cartState.items.map((item, index) => (
+              <div key={index} className="flex justify-between items-center py-2 border-b last:border-0">
+                <div>
+                  <p className="font-medium">{item.productName} {item.variantName ? `(${item.variantName})` : ''}</p>
+                  <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                 </div>
-              ))
-            ) : (
-              cartState.items.map((item, index) => (
-                <div key={index} className="flex justify-between items-center py-2 border-b last:border-0">
-                  <div>
-                    <p className="font-medium">{item.productName} - {item.variantName}</p>
-                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                  </div>
-                  <p className="font-semibold">${(item.unitPrice * item.quantity).toFixed(2)}</p>
-                </div>
-              ))
-            )}
+                <p className="font-semibold">${(item.unitPrice * item.quantity).toFixed(2)}</p>
+              </div>
+            ))}
 
             <div className="space-y-2 pt-2">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">Subtotal:</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
-              {deliveryFee > 0 && !order && (
+              {deliveryFee > 0 && (
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Delivery Fee:</span>
                   <span>${deliveryFee.toFixed(2)}</span>
@@ -740,7 +713,7 @@ const Checkout = () => {
           </CardContent>
         </Card>
 
-        {!order && (
+        {!clientSecret && (
           <Button
             className="w-full bg-brand hover:bg-brand-dark text-white"
             size="lg"
@@ -787,7 +760,7 @@ const Checkout = () => {
                   amount={finalTotal}
                   onSuccess={handlePaymentSuccess}
                   onCancel={handleCancel}
-                  onBeforeSubmit={() => Boolean(order)}
+                  onBeforeSubmit={() => true}
                   deliveryInfo={deliveryMethod === 'delivery' ? {
                     name: deliveryName || contactName,
                     email: deliveryEmail || contactEmail,
