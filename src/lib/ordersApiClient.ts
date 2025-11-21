@@ -62,6 +62,10 @@ export interface Order {
   fulfillmentStatus: string;
   assignedToUserId?: string;
   assignedToDisplayName?: string;
+  assignedWarehouseId?: string;
+  assignedWarehouseName?: string;
+  assignedAdminEmail?: string;
+  inventoryReduced?: boolean;
   shippingAddress?: string;
   paymentIntentId?: string;
   createdAt: string;

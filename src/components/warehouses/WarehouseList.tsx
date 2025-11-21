@@ -13,7 +13,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { warehousesApiClient, Warehouse } from '@/lib/warehousesApiClient';
+import { warehousesApiClient, Warehouse, Admin } from '@/lib/warehousesApiClient';
 import { WarehouseForm } from './WarehouseForm';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 
@@ -24,6 +24,7 @@ interface WarehouseListProps {
 export const WarehouseList: React.FC<WarehouseListProps> = ({ token }) => {
   const { toast } = useToast();
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [formOpen, setFormOpen] = useState(false);
@@ -35,6 +36,7 @@ export const WarehouseList: React.FC<WarehouseListProps> = ({ token }) => {
 
   useEffect(() => {
     loadWarehouses();
+    loadAdmins();
   }, []);
 
   const loadWarehouses = async () => {
@@ -51,6 +53,16 @@ export const WarehouseList: React.FC<WarehouseListProps> = ({ token }) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAdmins = async () => {
+    try {
+      const adminList = await warehousesApiClient.getAllAdmins(token);
+      setAdmins(adminList);
+    } catch (error: any) {
+      console.error('Failed to load admins', error);
+      // Don't show toast for this, just log it
     }
   };
 
@@ -115,8 +127,20 @@ export const WarehouseList: React.FC<WarehouseListProps> = ({ token }) => {
 
   const formatAdmins = (adminIds: string[]): string => {
     if (!adminIds || adminIds.length === 0) return 'None';
-    // For now, just show count. In a real app, you'd fetch admin names
-    return `${adminIds.length} admin(s)`;
+    
+    // Map admin IDs to admin names
+    const adminNames = adminIds
+      .map((id) => {
+        const admin = admins.find((a) => a.id === id);
+        return admin?.displayName || admin?.email || 'Unknown';
+      })
+      .filter((name) => name !== 'Unknown');
+    
+    if (adminNames.length === 0) {
+      return `${adminIds.length} admin(s)`;
+    }
+    
+    return adminNames.join(', ');
   };
 
   return (

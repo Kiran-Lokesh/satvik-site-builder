@@ -26,6 +26,46 @@ export interface AdjustQuantityRequest {
   deltaQuantity: number;
 }
 
+export type TransactionReason = 
+  | 'MANUAL_ADJUSTMENT'
+  | 'ORDER_DEDUCTION'
+  | 'TRANSFER'
+  | 'SPOILAGE'
+  | 'INITIAL_STOCK';
+
+export interface AdjustQuantityWithReasonRequest {
+  warehouseId: string;
+  productId: string;
+  deltaQuantity: number;
+  reason: TransactionReason;
+  performedBy: string;
+}
+
+export interface TransferInventoryRequest {
+  sourceWarehouseId: string;
+  destinationWarehouseId: string;
+  productId: string;
+  quantity: number;
+  performedBy: string;
+}
+
+export interface InventoryTransaction {
+  id: string;
+  warehouseId: string;
+  warehouseName: string;
+  productId: string;
+  productName: string;
+  quantityChange: number;
+  newQuantity: number;
+  reason: TransactionReason;
+  sourceWarehouseId?: string;
+  sourceWarehouseName?: string;
+  destinationWarehouseId?: string;
+  destinationWarehouseName?: string;
+  performedBy: string;
+  timestamp: string;
+}
+
 class InventoryApiClient {
   private baseUrl: string;
 
@@ -115,6 +155,98 @@ class InventoryApiClient {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
+    });
+  }
+
+  async adjustQuantityWithReason(
+    data: AdjustQuantityWithReasonRequest,
+    token: string
+  ): Promise<InventoryItem> {
+    return this.request<InventoryItem>(this.resolveUrl('/api/inventory/adjust'), {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async transferInventory(
+    data: TransferInventoryRequest,
+    token: string
+  ): Promise<void> {
+    const response = await fetch(this.resolveUrl('/api/inventory/transfer'), {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      let detail: string | undefined;
+      try {
+        const error = await response.json();
+        detail = error.detail || error.message || error.error;
+      } catch {
+        // ignore parse errors
+      }
+      const error = new Error(detail || `Request failed (${response.status})`);
+      // @ts-expect-error attach status for handling
+      error.status = response.status;
+      throw error;
+    }
+    
+    // Transfer endpoint returns 200 OK with no body, which is fine
+    return;
+  }
+
+  async getInventoryByWarehouseAndProducts(
+    token: string,
+    warehouseId: string,
+    productIds: string[]
+  ): Promise<InventoryItem[]> {
+    const productIdsParam = productIds.join(',');
+    const url = this.resolveUrl(`/api/inventory/by-warehouse-and-products?warehouseId=${warehouseId}&productIds=${productIdsParam}`);
+    return this.request<InventoryItem[]>(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  async getInventoryHistory(
+    token: string,
+    warehouseId?: string,
+    productId?: string,
+    fromDate?: string,
+    toDate?: string
+  ): Promise<InventoryTransaction[]> {
+    const params = new URLSearchParams();
+    if (warehouseId) {
+      params.append('warehouseId', warehouseId);
+    }
+    if (productId) {
+      params.append('productId', productId);
+    }
+    if (fromDate) {
+      params.append('fromDate', fromDate);
+    }
+    if (toDate) {
+      params.append('toDate', toDate);
+    }
+    const queryString = params.toString();
+    const url = this.resolveUrl(`/api/inventory/history${queryString ? `?${queryString}` : ''}`);
+    
+    return this.request<InventoryTransaction[]>(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
   }
 }

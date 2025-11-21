@@ -2,22 +2,28 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, History as HistoryIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { inventoryApiClient, InventoryItem } from '@/lib/inventoryApiClient';
 import { InventoryTable } from '@/components/inventory/InventoryTable';
 import { InventoryEditModal } from '@/components/inventory/InventoryEditModal';
+import { AdjustStockModal } from '@/components/inventory/AdjustStockModal';
+import { TransferInventoryModal } from '@/components/inventory/TransferInventoryModal';
 import { WarehouseFilterDropdown } from '@/components/inventory/WarehouseFilterDropdown';
 
 export const InventoryPage: React.FC = () => {
   const { user, getToken } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 50;
@@ -55,9 +61,14 @@ export const InventoryPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (item: InventoryItem) => {
+  const handleAdjust = (item: InventoryItem) => {
     setSelectedItem(item);
-    setModalOpen(true);
+    setAdjustModalOpen(true);
+  };
+
+  const handleTransfer = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setTransferModalOpen(true);
   };
 
   const handleAdd = () => {
@@ -68,6 +79,8 @@ export const InventoryPage: React.FC = () => {
   const handleModalSuccess = () => {
     loadInventory();
   };
+
+  const userEmail = user?.email || '';
 
   const paginatedItems = inventoryItems.slice(
     (currentPage - 1) * itemsPerPage,
@@ -81,10 +94,16 @@ export const InventoryPage: React.FC = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold">Inventory</CardTitle>
-            <Button onClick={handleAdd}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Inventory Item
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => navigate('/admin/inventory/history')}>
+                <HistoryIcon className="mr-2 h-4 w-4" />
+                View History
+              </Button>
+              <Button onClick={handleAdd}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Inventory Item
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -115,7 +134,8 @@ export const InventoryPage: React.FC = () => {
           {/* Table */}
           <InventoryTable
             items={paginatedItems}
-            onEdit={handleEdit}
+            onAdjust={handleAdjust}
+            onTransfer={handleTransfer}
             loading={loading}
           />
 
@@ -162,7 +182,31 @@ export const InventoryPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Edit Modal */}
+      {/* Modals */}
+      {user && selectedItem && (
+        <>
+          <AdjustStockModal
+            open={adjustModalOpen}
+            onOpenChange={setAdjustModalOpen}
+            onSuccess={handleModalSuccess}
+            inventoryItem={selectedItem}
+            performedBy={userEmail}
+            token=""
+            getToken={getToken}
+          />
+          <TransferInventoryModal
+            open={transferModalOpen}
+            onOpenChange={setTransferModalOpen}
+            onSuccess={handleModalSuccess}
+            inventoryItem={selectedItem}
+            performedBy={userEmail}
+            token=""
+            getToken={getToken}
+          />
+        </>
+      )}
+      
+      {/* Add Inventory Modal */}
       {user && (
         <InventoryEditModal
           open={modalOpen}
@@ -170,7 +214,7 @@ export const InventoryPage: React.FC = () => {
           onSuccess={handleModalSuccess}
           token=""
           getToken={getToken}
-          inventoryItem={selectedItem}
+          inventoryItem={null}
         />
       )}
     </div>

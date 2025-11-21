@@ -8,18 +8,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
 import { InventoryItem } from '@/lib/inventoryApiClient';
 
 interface InventoryTableProps {
   items: InventoryItem[];
-  onEdit: (item: InventoryItem) => void;
+  onAdjust?: (item: InventoryItem) => void;
+  onTransfer?: (item: InventoryItem) => void;
   loading?: boolean;
 }
 
 export const InventoryTable: React.FC<InventoryTableProps> = ({
   items,
-  onEdit,
+  onAdjust,
+  onTransfer,
   loading,
 }) => {
   if (loading) {
@@ -54,20 +55,32 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
           {items.map((item) => (
             <TableRow key={item.id} className="hover:bg-transparent">
               <TableCell className="font-medium">{item.productName}</TableCell>
-              <TableCell>{item.warehouseName}</TableCell>
+              <TableCell>{item.warehouseCode || item.warehouseName || '—'}</TableCell>
               <TableCell>{item.quantity}</TableCell>
               <TableCell>
                 {item.costPrice ? `$${item.costPrice.toFixed(2)}` : '—'}
               </TableCell>
               <TableCell className="text-right">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onEdit(item)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Quantity
-                </Button>
+                <div className="flex justify-end gap-2">
+                  {onAdjust && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onAdjust(item)}
+                    >
+                      Adjust
+                    </Button>
+                  )}
+                  {onTransfer && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onTransfer(item)}
+                    >
+                      Transfer
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}

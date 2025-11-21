@@ -17,6 +17,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
 import AdminOrdersPage from "./pages/AdminOrders";
 import InventoryManagement from "./pages/InventoryManagement";
+import { InventoryHistoryPage } from "./pages/InventoryHistory";
 import WarehousesPage from "./pages/Warehouses";
 import AdminLayout from "./components/AdminLayout";
 import Profile from "./pages/Profile";
@@ -94,6 +95,7 @@ const App = () => {
                   <Route path="orders" element={<AdminOrdersPage />} />
                   <Route path="warehouses" element={<WarehousesPage />} />
                   <Route path="inventory" element={<InventoryManagement />} />
+                  <Route path="inventory/history" element={<InventoryHistoryPage />} />
                 </Route>
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

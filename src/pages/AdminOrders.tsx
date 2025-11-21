@@ -24,6 +24,8 @@ import { adminOrdersApiClient, AdminOrderFilters, OrderHistoryEntry } from '@/li
 import { ordersApiClient, Order } from '@/lib/ordersApiClient';
 import { usersApiClient, CurrentUserProfile } from '@/lib/usersApiClient';
 import { websocketClient } from '@/lib/websocketClient';
+import { inventoryApiClient, InventoryItem } from '@/lib/inventoryApiClient';
+import { ConfirmProcessingModal } from '@/components/orders/ConfirmProcessingModal';
 
 const STATUS_OPTIONS = [
   'PENDING_PAYMENT',
@@ -99,10 +101,13 @@ const AdminOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [pagination, setPagination] = useState({ page: 0, size: 50, totalPages: 0, totalItems: 0 });
   
-  // Initialize with today's date by default
+  // Initialize with today's date by default (in local timezone)
   const getTodayDateString = () => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
   
   const [filters, setFilters] = useState({ 
@@ -118,6 +123,9 @@ const AdminOrdersPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastLoadTime, setLastLoadTime] = useState<number>(0);
   const recentOrderIds = useRef<Set<string>>(new Set());
+  const [confirmProcessingModal, setConfirmProcessingModal] = useState<{ open: boolean; order: Order | null }>({ open: false, order: null });
+  const [processingOrder, setProcessingOrder] = useState<string | null>(null);
+  const [orderInventory, setOrderInventory] = useState<Map<string, InventoryItem[]>>(new Map());
 
   const statusOptions = useMemo(() => STATUS_OPTIONS, []);
 
@@ -559,6 +567,11 @@ const AdminOrdersPage: React.FC = () => {
         adminOrdersApiClient.getOrderHistory(orderId, token)
       ]);
       setOrderDetails(prev => new Map(prev).set(orderId, { order: orderDetail, history }));
+      
+      // Load inventory availability if order is assigned to a warehouse
+      if (orderDetail.assignedWarehouseId && orderDetail.items.length > 0) {
+        loadOrderInventory(orderDetail, token);
+      }
     } catch (error) {
       console.error('Failed to load order detail', error);
       toast({
@@ -575,6 +588,25 @@ const AdminOrdersPage: React.FC = () => {
     }
   };
 
+  const loadOrderInventory = async (order: Order, token: string) => {
+    if (!order.assignedWarehouseId) return;
+    
+    try {
+      const productIds = order.items.map(item => item.product_id).filter(Boolean);
+      if (productIds.length === 0) return;
+      
+      const inventory = await inventoryApiClient.getInventoryByWarehouseAndProducts(
+        token,
+        order.assignedWarehouseId,
+        productIds
+      );
+      setOrderInventory(prev => new Map(prev).set(order.id, inventory));
+    } catch (error) {
+      console.error('Failed to load order inventory', error);
+      // Don't show toast for inventory loading errors - it's not critical
+    }
+  };
+
   const handleAccordionChange = (orderId: string, isOpen: boolean) => {
     if (isOpen) {
       setExpandedOrders(prev => new Set(prev).add(orderId));
@@ -588,26 +620,112 @@ const AdminOrdersPage: React.FC = () => {
     }
   };
 
+  const handleStatusUpdate = async (order: Order, newStatus: string) => {
+    try {
+      setProcessingOrder(order.id);
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Unable to obtain authentication token');
+      }
+      await adminOrdersApiClient.updateStatus(order.id, newStatus, token);
+      await loadOrders(pagination.page);
+      // Clear cached details to force refresh
+      setOrderDetails(prev => {
+        const next = new Map(prev);
+        next.delete(order.id);
+        return next;
+      });
+      toast({
+        title: 'Order updated',
+        description: `Order ${order.orderNumber} marked as ${STATUS_LABELS[newStatus] ?? newStatus}.`,
+      });
+    } catch (error) {
+      console.error('Failed to update order status', error);
+      const errorMessage = (error as Error).message;
+      toast({
+        title: 'Failed to update status',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setProcessingOrder(null);
+    }
+  };
+
+  const handleConfirmProcessing = async () => {
+    const order = confirmProcessingModal.order;
+    if (!order) return;
+    
+    setConfirmProcessingModal({ open: false, order: null });
+    await handleStatusUpdate(order, 'PAID');
+  };
+
+  const handleAssignToMe = async (order: Order) => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Unable to obtain authentication token');
+      }
+      await adminOrdersApiClient.assignToMe(order.id, token);
+      await loadOrders(pagination.page);
+      // Clear cached details to force refresh
+      setOrderDetails(prev => {
+        const next = new Map(prev);
+        next.delete(order.id);
+        return next;
+      });
+      toast({
+        title: 'Order assigned',
+        description: `Order ${order.orderNumber} has been assigned to you.`,
+      });
+    } catch (error) {
+      console.error('Failed to assign order', error);
+      const errorMessage = (error as Error).message;
+      toast({
+        title: 'Failed to assign order',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Date navigation functions
   const formatDateForDisplay = (dateString: string) => {
     if (!dateString) return 'No date';
-    const date = new Date(dateString + 'T00:00:00');
+    // Parse as local date (not UTC) for display purposes
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const isToday = (dateString: string): boolean => {
+    if (!dateString) return false;
+    const today = getTodayDateString();
+    return dateString === today;
   };
 
   const navigateDate = (direction: 'prev' | 'next' | 'today') => {
     const currentDate = filters.date || getTodayDateString();
-    const date = new Date(currentDate + 'T00:00:00');
     let newDateString: string;
     
     if (direction === 'today') {
       newDateString = getTodayDateString();
-    } else if (direction === 'prev') {
-      date.setDate(date.getDate() - 1);
-      newDateString = date.toISOString().split('T')[0];
     } else {
-      date.setDate(date.getDate() + 1);
-      newDateString = date.toISOString().split('T')[0];
+      // Parse as local date for navigation
+      const [year, month, day] = currentDate.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      
+      if (direction === 'prev') {
+        date.setDate(date.getDate() - 1);
+      } else {
+        date.setDate(date.getDate() + 1);
+      }
+      
+      // Format back as YYYY-MM-DD
+      const newYear = date.getFullYear();
+      const newMonth = String(date.getMonth() + 1).padStart(2, '0');
+      const newDay = String(date.getDate()).padStart(2, '0');
+      newDateString = `${newYear}-${newMonth}-${newDay}`;
     }
     
     // Update filters - the useEffect will automatically reload orders
@@ -706,6 +824,11 @@ const AdminOrdersPage: React.FC = () => {
       );
     };
 
+    const inventory = orderInventory.get(order.id) || [];
+    const getInventoryForProduct = (productId: string) => {
+      return inventory.find(inv => inv.productId === productId);
+    };
+
     return (
       <div className="space-y-6">
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -718,6 +841,31 @@ const AdminOrdersPage: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Assigned To: {order.assignedToDisplayName || order.assignedToUserId || 'Unassigned'}
             </p>
+            {order.assignedWarehouseName && (
+              <p className="text-sm text-muted-foreground">
+                Assigned Warehouse: <span className="font-semibold">{order.assignedWarehouseName}</span>
+              </p>
+            )}
+            {order.inventoryReduced !== undefined && (
+              <p className="text-sm">
+                Inventory Status:{' '}
+                {order.inventoryReduced ? (
+                  <Badge variant="default" className="bg-green-500">Deducted</Badge>
+                ) : (
+                  <Badge variant="secondary">Not Deducted</Badge>
+                )}
+              </p>
+            )}
+            {!order.assignedToUserId && currentUser && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleAssignToMe(order)}
+                className="mt-2"
+              >
+                Assign to Me
+              </Button>
+            )}
           </div>
           <div className="space-y-2">
             <h3 className="font-semibold text-brandText">Customer</h3>
@@ -730,19 +878,43 @@ const AdminOrdersPage: React.FC = () => {
         <Separator />
 
         <div className="space-y-3">
-          <h3 className="font-semibold text-brandText">Items</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-brandText">Items</h3>
+            {order.assignedWarehouseId && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => navigate(`/admin/inventory/history?warehouseId=${order.assignedWarehouseId}`)}
+              >
+                View Inventory History
+              </Button>
+            )}
+          </div>
           <div className="space-y-2">
-            {order.items.map((item) => (
-              <div key={item.id} className="flex justify-between text-sm">
-                <div>
-                  <p className="font-medium text-brandText">{item.product_name}</p>
-                  <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+            {order.items.map((item) => {
+              const itemInventory = getInventoryForProduct(item.product_id);
+              const hasEnoughInventory = itemInventory ? itemInventory.quantity >= item.quantity : null;
+              
+              return (
+                <div key={item.id} className="flex justify-between text-sm border rounded p-2">
+                  <div className="flex-1">
+                    <p className="font-medium text-brandText">{item.product_name}</p>
+                    <p className="text-xs text-muted-foreground">Required: {item.quantity}</p>
+                    {order.assignedWarehouseId && itemInventory && (
+                      <p className={`text-xs ${hasEnoughInventory ? 'text-green-600' : 'text-red-600'}`}>
+                        Available: {itemInventory.quantity} {hasEnoughInventory ? '✓' : '✗'}
+                      </p>
+                    )}
+                    {order.assignedWarehouseId && !itemInventory && (
+                      <p className="text-xs text-yellow-600">Product not found in warehouse</p>
+                    )}
+                  </div>
+                  <div className="font-medium text-brand">
+                    ${(item.unit_price * item.quantity).toFixed(2)}
+                  </div>
                 </div>
-                <div className="font-medium text-brand">
-                  ${(item.unit_price * item.quantity).toFixed(2)}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -868,11 +1040,11 @@ const AdminOrdersPage: React.FC = () => {
             </div>
             
             <Button
-              variant="outline"
+              variant={isToday(filters.date) ? "default" : "outline"}
               size="sm"
               onClick={() => navigateDate('today')}
               title="Go to today"
-              className="hidden sm:inline-flex h-8 sm:h-10 flex-shrink-0"
+              className={`hidden sm:inline-flex h-8 sm:h-10 flex-shrink-0 ${isToday(filters.date) ? 'bg-primary text-primary-foreground' : ''}`}
             >
               Today
             </Button>
@@ -891,8 +1063,13 @@ const AdminOrdersPage: React.FC = () => {
           {/* Date Display Text - Below */}
           <div className="flex items-center gap-2 flex-wrap justify-center text-center px-2 w-full">
             <span className="text-xs sm:text-sm font-medium text-muted-foreground">Viewing orders for:</span>
-            <span className="text-xs sm:text-sm font-semibold text-brandText">
+            <span className={`text-xs sm:text-sm font-semibold ${isToday(filters.date) ? 'text-primary' : 'text-brandText'}`}>
               {formatDateForDisplay(filters.date)}
+              {isToday(filters.date) && (
+                <span className="ml-2 px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                  Today
+                </span>
+              )}
             </span>
           </div>
         </div>
@@ -975,31 +1152,12 @@ const AdminOrdersPage: React.FC = () => {
                                       return;
                                     }
                                   }
-                                  try {
-                                    const token = await getToken();
-                                    if (!token) {
-                                      throw new Error('Unable to obtain authentication token');
-                                    }
-                                    await adminOrdersApiClient.updateStatus(order.id, newStatus, token);
-                                    await loadOrders(pagination.page);
-                                    // Clear cached details to force refresh
-                                    setOrderDetails(prev => {
-                                      const next = new Map(prev);
-                                      next.delete(order.id);
-                                      return next;
-                                    });
-                                    toast({
-                                      title: 'Order updated',
-                                      description: `Order ${order.orderNumber} marked as ${STATUS_LABELS[newStatus] ?? newStatus}.`,
-                                    });
-                                  } catch (error) {
-                                    console.error('Failed to update order status', error);
-                                    toast({
-                                      title: 'Failed to update status',
-                                      description: (error as Error).message,
-                                      variant: 'destructive',
-                                    });
+                                  // Show confirmation modal when changing to PAID
+                                  if (newStatus === 'PAID') {
+                                    setConfirmProcessingModal({ open: true, order });
+                                    return;
                                   }
+                                  await handleStatusUpdate(order, newStatus);
                                 }}
                               >
                                 <SelectTrigger className="w-full min-w-[120px] sm:min-w-[150px] text-xs sm:text-sm">
@@ -1178,6 +1336,18 @@ const AdminOrdersPage: React.FC = () => {
       {renderOrdersTable()}
 
       {!loading && orders.length > 0 && renderPagination()}
+
+      {/* Confirmation Modal for Processing Order */}
+      {confirmProcessingModal.order && (
+        <ConfirmProcessingModal
+          open={confirmProcessingModal.open}
+          onOpenChange={(open) => setConfirmProcessingModal({ open, order: open ? confirmProcessingModal.order : null })}
+          onConfirm={handleConfirmProcessing}
+          orderNumber={confirmProcessingModal.order.orderNumber}
+          warehouseName={confirmProcessingModal.order.assignedWarehouseName}
+          loading={processingOrder === confirmProcessingModal.order.id}
+        />
+      )}
     </div>
   );
 };
