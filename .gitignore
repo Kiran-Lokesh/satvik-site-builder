@@ -22,4 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files - exclude all except .env.example
 .env
+.env.*
+!.env.example
