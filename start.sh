@@ -20,8 +20,11 @@ if [ -z "$(ls -A dist)" ]; then
 fi
 
 echo "✅ dist directory found with $(ls -1 dist | wc -l) files"
+echo "📂 Contents of dist:"
+ls -la dist/ | head -20
+echo ""
 echo "🚀 Starting serve on port ${PORT:-10000}..."
 
-# Start serve
+# Start serve with single-page app mode
 exec serve -s dist -l ${PORT:-10000}
 

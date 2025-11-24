@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: starter
     buildCommand: NODE_ENV=development npm ci && VITE_ENVIRONMENT=test npm run build
-    startCommand: npm start
+    startCommand: bash start.sh
     envVars:
       - key: VITE_FIREBASE_API_KEY
         sync: false
