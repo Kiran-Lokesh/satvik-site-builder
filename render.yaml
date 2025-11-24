@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: static
     name: satvik-foods-frontend-qa
     env: node
     region: oregon
