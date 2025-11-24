@@ -13,7 +13,7 @@
     "build:local": "VITE_ENVIRONMENT=local vite build",
     "build:test": "VITE_ENVIRONMENT=test VITE_COMMERCE_API_URL=http://136.111.8.28:8081 VITE_BACKEND_API_URL=http://136.111.8.28:8081 vite build",
     "build:prod": "VITE_ENVIRONMENT=prod VITE_COMMERCE_API_URL=http://136.111.8.28:8081 VITE_BACKEND_API_URL=http://136.111.8.28:8081 vite build",
-    "start": "serve -s dist -l $PORT",
+    "start": "bash start.sh",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run generate-catalog && npm run build && touch dist/.nojekyll && cp CNAME dist/",
