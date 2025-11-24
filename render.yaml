@@ -4,7 +4,7 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: npm ci && VITE_ENVIRONMENT=test npm run build
+    buildCommand: NODE_ENV=development npm ci && VITE_ENVIRONMENT=test npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_FIREBASE_API_KEY
