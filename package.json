@@ -13,6 +13,7 @@
     "build:local": "VITE_ENVIRONMENT=local vite build",
     "build:test": "VITE_ENVIRONMENT=test VITE_COMMERCE_API_URL=http://136.111.8.28:8081 VITE_BACKEND_API_URL=http://136.111.8.28:8081 vite build",
     "build:prod": "VITE_ENVIRONMENT=prod VITE_COMMERCE_API_URL=http://136.111.8.28:8081 VITE_BACKEND_API_URL=http://136.111.8.28:8081 vite build",
+    "start": "serve -s dist -l $PORT",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run generate-catalog && npm run build && touch dist/.nojekyll && cp CNAME dist/",
@@ -78,7 +79,8 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.9",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "serve": "^14.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
