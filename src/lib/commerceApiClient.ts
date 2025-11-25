@@ -12,7 +12,9 @@ import type {
 } from './unifiedDataTypes';
 
 // Configuration
-const API_BASE_URL = import.meta.env.VITE_COMMERCE_API_URL || 'http://localhost:8080';
+// Use VITE_COMMERCE_API_URL if set, otherwise fall back to VITE_BACKEND_API_URL
+// This allows using a single backend service for both commerce and orders
+const API_BASE_URL = import.meta.env.VITE_COMMERCE_API_URL || import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8080';
 
 // Types for backend responses
 interface BackendVariantResponse {
