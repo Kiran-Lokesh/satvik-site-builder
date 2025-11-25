@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: starter
     buildCommand: NODE_ENV=development npm ci && VITE_ENVIRONMENT=test npm run build && ls -la dist/ && echo "Build verification: dist directory has $(ls -1 dist | wc -l) files"
-    startCommand: bash start.sh
+    startCommand: bash serve-with-logs.sh
     envVars:
       - key: VITE_FIREBASE_API_KEY
         sync: false
