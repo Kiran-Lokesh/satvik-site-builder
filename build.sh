@@ -22,6 +22,22 @@ echo ""
 echo "✅ Dependencies installed"
 echo ""
 
+echo "🔧 Step 1.5: Fixing rollup native module for Linux..."
+# Fix rollup native module issue - install Linux-specific module
+npm install @rollup/rollup-linux-x64-gnu --save-optional --force || {
+  echo "⚠️  Could not install rollup native module, trying rebuild..."
+  npm rebuild rollup --force || echo "⚠️  Rollup rebuild also failed, continuing..."
+}
+echo ""
+
+echo "🔧 Step 1.5: Rebuilding rollup native modules..."
+# Fix rollup native module issue on Linux
+npm rebuild rollup --force || {
+  echo "⚠️  Rollup rebuild failed, trying to install rollup native module..."
+  npm install @rollup/rollup-linux-x64-gnu --save-optional || echo "⚠️  Could not install rollup native module, continuing anyway..."
+}
+echo ""
+
 echo "🔨 Step 2: Building application..."
 echo "Environment variables check:"
 echo "  VITE_ENVIRONMENT=${VITE_ENVIRONMENT:-❌ NOT SET}"
