@@ -1,17 +1,21 @@
 #!/bin/bash
-set -e
+# Don't use set -e initially so we can capture errors
+set +e
 
 echo "=========================================="
-echo "🔨 BUILD SCRIPT"
+echo "🔨 BUILD SCRIPT STARTING"
 echo "=========================================="
 echo "📁 Current directory: $(pwd)"
+echo "📅 Time: $(date)"
 echo ""
 
 echo "📦 Step 1: Installing dependencies..."
-NODE_ENV=development npm ci || {
-  echo "❌ npm ci failed!"
+NODE_ENV=development npm ci
+NPM_CI_EXIT=$?
+if [ $NPM_CI_EXIT -ne 0 ]; then
+  echo "❌ npm ci failed with exit code $NPM_CI_EXIT!"
   exit 1
-}
+fi
 
 echo ""
 echo "✅ Dependencies installed"
@@ -31,16 +35,26 @@ if [ -z "$VITE_FIREBASE_API_KEY" ]; then
 fi
 
 echo "Running: VITE_ENVIRONMENT=test npm run build"
-VITE_ENVIRONMENT=test npm run build 2>&1 || {
+echo "----------------------------------------"
+VITE_ENVIRONMENT=test npm run build 2>&1
+BUILD_EXIT=$?
+echo "----------------------------------------"
+echo "Build command exited with code: $BUILD_EXIT"
+echo ""
+
+if [ $BUILD_EXIT -ne 0 ]; then
   echo ""
-  echo "❌ BUILD FAILED!"
-  echo "Check the error messages above for details."
+  echo "❌ BUILD FAILED with exit code $BUILD_EXIT!"
+  echo ""
   echo "Common issues:"
   echo "  - Missing VITE_FIREBASE_* environment variables"
   echo "  - TypeScript compilation errors"
   echo "  - Missing dependencies"
+  echo "  - Build errors in source code"
+  echo ""
+  echo "Check the error messages above for details."
   exit 1
-}
+fi
 
 echo ""
 echo "✅ Build command completed"
