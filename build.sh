@@ -10,8 +10,9 @@ echo "📅 Time: $(date)"
 echo ""
 
 echo "📦 Step 1: Installing dependencies..."
-# Use npm install instead of npm ci to handle lock file mismatches
-NODE_ENV=development npm install
+# Use npm install with --include=optional to ensure native modules are installed
+# This is critical for Linux builds when package-lock.json was generated on macOS
+NODE_ENV=development npm install --include=optional
 NPM_INSTALL_EXIT=$?
 if [ $NPM_INSTALL_EXIT -ne 0 ]; then
   echo "❌ npm install failed with exit code $NPM_INSTALL_EXIT!"
@@ -22,11 +23,10 @@ echo ""
 echo "✅ Dependencies installed"
 echo ""
 
-echo "🔧 Step 1.5: Fixing rollup native module for Linux..."
-# Fix rollup native module issue - install Linux-specific module
-npm install @rollup/rollup-linux-x64-gnu --save-optional --force || {
-  echo "⚠️  Could not install rollup native module, trying rebuild..."
-  npm rebuild rollup --force || echo "⚠️  Rollup rebuild also failed, continuing..."
+echo "🔧 Step 1.5: Installing Linux native modules..."
+# Explicitly install Linux native modules that might be missing
+npm install @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 --save-optional --force || {
+  echo "⚠️  Some native modules failed to install, but continuing..."
 }
 echo ""
 
