@@ -6,6 +6,7 @@ services:
     plan: starter
     buildCommand: bash build.sh
     startCommand: bash serve-with-logs.sh
+    healthCheckPath: /health.json
     envVars:
       - key: VITE_FIREBASE_API_KEY
         sync: false
