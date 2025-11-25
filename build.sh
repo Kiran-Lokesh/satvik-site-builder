@@ -10,10 +10,11 @@ echo "📅 Time: $(date)"
 echo ""
 
 echo "📦 Step 1: Installing dependencies..."
-NODE_ENV=development npm ci
-NPM_CI_EXIT=$?
-if [ $NPM_CI_EXIT -ne 0 ]; then
-  echo "❌ npm ci failed with exit code $NPM_CI_EXIT!"
+# Use npm install instead of npm ci to handle lock file mismatches
+NODE_ENV=development npm install
+NPM_INSTALL_EXIT=$?
+if [ $NPM_INSTALL_EXIT -ne 0 ]; then
+  echo "❌ npm install failed with exit code $NPM_INSTALL_EXIT!"
   exit 1
 fi
 
