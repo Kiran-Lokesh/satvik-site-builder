@@ -140,13 +140,13 @@ All colors MUST be HSL.
 
 /* Environment-specific background colors */
 body.env-local {
-  background-color: hsl(210 50% 95%) !important;
+  background-color: hsl(210 50% 95%) !important; /* Blue hue for local */
 }
 
 body.env-test {
-  background-color: hsl(45 50% 95%) !important;
+  background-color: hsl(280 30% 95%) !important; /* Purple hue for test/QA */
 }
 
 body.env-prod {
-  background-color: hsl(48 56% 98%) !important;
+  background-color: hsl(48 56% 98%) !important; /* Cream for production */
 }
