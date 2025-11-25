@@ -25,8 +25,11 @@ echo ""
 
 echo "🔧 Step 1.5: Installing Linux native modules..."
 # Explicitly install Linux native modules that might be missing
-npm install @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 --save-optional --force || {
-  echo "⚠️  Some native modules failed to install, but continuing..."
+# These are required when package-lock.json was generated on macOS
+npm install @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 @swc/core-linux-x64-gnu --save-optional --force || {
+  echo "⚠️  Some native modules failed to install, trying alternative approach..."
+  # Try installing @swc/core fresh to get the right native binding
+  npm rebuild @swc/core --force || echo "⚠️  @swc/core rebuild failed, continuing..."
 }
 echo ""
 
