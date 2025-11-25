@@ -1,0 +1,80 @@
+#!/bin/bash
+set -e
+
+echo "=========================================="
+echo "🔨 BUILD SCRIPT"
+echo "=========================================="
+echo "📁 Current directory: $(pwd)"
+echo ""
+
+echo "📦 Step 1: Installing dependencies..."
+NODE_ENV=development npm ci || {
+  echo "❌ npm ci failed!"
+  exit 1
+}
+
+echo ""
+echo "✅ Dependencies installed"
+echo ""
+
+echo "🔨 Step 2: Building application..."
+echo "Environment variables check:"
+echo "  VITE_ENVIRONMENT=${VITE_ENVIRONMENT:-❌ NOT SET}"
+echo "  VITE_BACKEND_API_URL=${VITE_BACKEND_API_URL:-❌ NOT SET}"
+echo "  VITE_FIREBASE_API_KEY=${VITE_FIREBASE_API_KEY:+✅ SET}${VITE_FIREBASE_API_KEY:-❌ NOT SET}"
+echo "  VITE_FIREBASE_AUTH_DOMAIN=${VITE_FIREBASE_AUTH_DOMAIN:+✅ SET}${VITE_FIREBASE_AUTH_DOMAIN:-❌ NOT SET}"
+echo "  VITE_FIREBASE_PROJECT_ID=${VITE_FIREBASE_PROJECT_ID:+✅ SET}${VITE_FIREBASE_PROJECT_ID:-❌ NOT SET}"
+echo ""
+
+if [ -z "$VITE_FIREBASE_API_KEY" ]; then
+  echo "⚠️  WARNING: VITE_FIREBASE_API_KEY is not set. Build may fail."
+fi
+
+echo "Running: VITE_ENVIRONMENT=test npm run build"
+VITE_ENVIRONMENT=test npm run build 2>&1 || {
+  echo ""
+  echo "❌ BUILD FAILED!"
+  echo "Check the error messages above for details."
+  echo "Common issues:"
+  echo "  - Missing VITE_FIREBASE_* environment variables"
+  echo "  - TypeScript compilation errors"
+  echo "  - Missing dependencies"
+  exit 1
+}
+
+echo ""
+echo "✅ Build command completed"
+echo ""
+
+echo "🔍 Step 3: Verifying build output..."
+if [ ! -d "dist" ]; then
+  echo "❌ ERROR: dist directory not created!"
+  echo "📂 Current directory contents:"
+  ls -la
+  echo ""
+  echo "💡 Build may have failed silently. Check for errors above."
+  exit 1
+fi
+
+echo "✅ dist directory exists"
+echo ""
+
+FILE_COUNT=$(ls -1 dist | wc -l)
+echo "📊 Files in dist: $FILE_COUNT"
+echo ""
+
+echo "📂 Contents of dist:"
+ls -la dist/ | head -20
+echo ""
+
+if [ ! -f "dist/index.html" ]; then
+  echo "❌ ERROR: index.html not found in dist!"
+  echo "📂 All files in dist:"
+  find dist -type f | head -20
+  exit 1
+fi
+
+echo "✅ index.html found"
+echo "✅ Build verification complete!"
+echo "=========================================="
+
