@@ -42,7 +42,7 @@ const OrderConfirmation = () => {
   // Validate form whenever customer details change
   React.useEffect(() => {
     const hasName = customerName.trim().length > 0;
-    const hasAddress = customerAddress.trim().length > 0;
+    const hasAddress = deliveryMethod === 'delivery' ? customerAddress.trim().length > 0 : true;
     const hasPickupLocation = deliveryMethod === 'pickup' ? pickupLocation.trim().length > 0 : true;
     
     setIsFormValid(hasName && hasAddress && hasPickupLocation);
@@ -222,15 +222,16 @@ const OrderConfirmation = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="customerAddress" className="text-sm font-medium">
-                  Delivery Address *
+                  Delivery Address {deliveryMethod === 'delivery' ? '*' : ''}
                 </Label>
                 <Input
                   id="customerAddress"
                   type="text"
-                  placeholder="Enter your delivery address"
+                  placeholder={deliveryMethod === 'delivery' ? "Enter your delivery address" : "Enter your delivery address (optional for pickup)"}
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
                   className="w-full"
+                  required={deliveryMethod === 'delivery'}
                 />
               </div>
             </div>
@@ -363,8 +364,10 @@ const OrderConfirmation = () => {
             {!isFormValid && (
               <p className="text-sm text-red-500 text-center">
                 {deliveryMethod === 'pickup' && !pickupLocation.trim() 
-                  ? 'Please fill in your name, address, and select a pickup location to proceed.'
-                  : 'Please fill in your name and address to proceed with the order.'
+                  ? 'Please fill in your name and select a pickup location to proceed.'
+                  : deliveryMethod === 'delivery' && !customerAddress.trim()
+                  ? 'Please fill in your name and delivery address to proceed with the order.'
+                  : 'Please fill in your name to proceed with the order.'
                 }
               </p>
             )}
