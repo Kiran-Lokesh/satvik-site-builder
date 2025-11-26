@@ -32,7 +32,7 @@ const OrderConfirmation = () => {
   // Pickup locations
   const pickupLocations = [
     { id: 'belmont', name: 'Belmont Location', address: '187 Belmont Blvd SW, Calgary AB T2X 4W5' },
-    { id: 'seton', name: 'Seton Location', address: '210 Setonstone Ave SE, Calgary AB T3M 3R6' }
+    { id: 'seton', name: 'Seton Location', address: '210 Setonstone Landing SE, Calgary AB T3M 3R6' }
   ];
 
   // Calculate delivery fee

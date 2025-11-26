@@ -38,7 +38,7 @@ const Footer = () => {
                 <div className="flex items-start space-x-3">
                   <Home className="h-4 w-4 flex-shrink-0 mt-0.5" />
                   <div className="text-sm flex-1">
-                    <div>210 Setonstone Ave SE</div>
+                    <div>210 Setonstone Landing SE</div>
                     <div>Calgary AB T3M 3R6</div>
                   </div>
                 </div>
@@ -115,7 +115,7 @@ const Footer = () => {
             </p>
             <div className="flex flex-col space-y-2">
               <a
-                href="https://chat.whatsapp.com/YOUR_GROUP_LINK_HERE"
+                href="https://chat.whatsapp.com/JUHd8HgJ9r2Hz7wJi6YD4M"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-primary hover:bg-primary/90 text-primary-foreground shadow-warm rounded-md transition-colors"
