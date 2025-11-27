@@ -182,16 +182,34 @@ const AdminOrdersPage: React.FC = () => {
 
       const assignedTo = filters.assigned === 'me' && currentUser ? currentUser.id : 
                         filters.assigned !== 'all' ? filters.assigned : undefined;
-      // Use the same date for both from and to to show orders for a single day
+      
+      // Convert date string (YYYY-MM-DD) to UTC ISO strings for API
+      // Parse as local date, then convert to UTC
       const dateFilter = filters.date || getTodayDateString();
+      let fromDateISO: string | undefined;
+      let toDateISO: string | undefined;
+      
+      if (dateFilter) {
+        // Parse date string as local date (not UTC)
+        const [year, month, day] = dateFilter.split('-').map(Number);
+        
+        // Create Date objects for start and end of day in LOCAL timezone
+        const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
+        const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+        
+        // Convert to UTC ISO strings for API
+        fromDateISO = startOfDay.toISOString();
+        toDateISO = endOfDay.toISOString();
+      }
+      
       const response = await adminOrdersApiClient.getOrders({
         page,
         size: pagination.size,
         status: filters.status === 'all' ? undefined : filters.status,
         assignedTo,
         orderType: filters.orderType === 'all' ? undefined : filters.orderType,
-        from: dateFilter,
-        to: dateFilter,
+        from: fromDateISO,
+        to: toDateISO,
       }, token);
 
       // Use API response as source of truth - it has the most up-to-date data

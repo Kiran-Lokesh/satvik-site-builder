@@ -47,9 +47,22 @@ export const InventoryHistoryPage: React.FC = () => {
     setLoading(true);
     try {
       // Convert single date to date range (start and end of day) in UTC
-      // Use 'Z' suffix to ensure UTC timezone
-      const fromDateISO = date ? new Date(date + 'T00:00:00Z').toISOString() : undefined;
-      const toDateISO = date ? new Date(date + 'T23:59:59Z').toISOString() : undefined;
+      // Parse date string (YYYY-MM-DD) as local date, then convert to UTC
+      let fromDateISO: string | undefined;
+      let toDateISO: string | undefined;
+      
+      if (date) {
+        // Parse date string as local date (not UTC)
+        const [year, month, day] = date.split('-').map(Number);
+        
+        // Create Date objects for start and end of day in LOCAL timezone
+        const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
+        const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+        
+        // Convert to UTC ISO strings for API
+        fromDateISO = startOfDay.toISOString();
+        toDateISO = endOfDay.toISOString();
+      }
 
       const data = await inventoryApiClient.getInventoryHistory(
         token,
