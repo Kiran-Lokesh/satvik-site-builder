@@ -52,8 +52,16 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.id} className="hover:bg-transparent">
+          {items.map((item) => {
+            // Ensure a stable, non-null key for each row
+            const rowKey =
+              item.id ||
+              `${item.warehouseId || 'wh'}-${item.productId || 'prod'}-${
+                item.warehouseCode || item.warehouseName || 'unknown'
+              }`;
+
+            return (
+            <TableRow key={rowKey} className="hover:bg-transparent">
               <TableCell className="font-medium">{item.productName}</TableCell>
               <TableCell>{item.warehouseCode || item.warehouseName || '—'}</TableCell>
               <TableCell>{item.quantity}</TableCell>
@@ -83,7 +91,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                 </div>
               </TableCell>
             </TableRow>
-          ))}
+          )})}
         </TableBody>
       </Table>
     </div>

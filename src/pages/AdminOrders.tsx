@@ -109,6 +109,16 @@ const AdminOrdersPage: React.FC = () => {
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
+
+  // Convert UTC ISO string to local date string (YYYY-MM-DD)
+  // This ensures dates are compared in local timezone, not UTC
+  const getLocalDateString = (utcIsoString: string): string => {
+    const date = new Date(utcIsoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
   
   const [filters, setFilters] = useState({ 
     status: 'all', 
@@ -183,23 +193,17 @@ const AdminOrdersPage: React.FC = () => {
       const assignedTo = filters.assigned === 'me' && currentUser ? currentUser.id : 
                         filters.assigned !== 'all' ? filters.assigned : undefined;
       
-      // Convert date string (YYYY-MM-DD) to UTC ISO strings for API
-      // Parse as local date, then convert to UTC
+      // Backend expects date strings in YYYY-MM-DD format and interprets them
+      // in the business local timezone (America/Edmonton)
       const dateFilter = filters.date || getTodayDateString();
-      let fromDateISO: string | undefined;
-      let toDateISO: string | undefined;
+      let fromDate: string | undefined;
+      let toDate: string | undefined;
       
       if (dateFilter) {
-        // Parse date string as local date (not UTC)
-        const [year, month, day] = dateFilter.split('-').map(Number);
-        
-        // Create Date objects for start and end of day in LOCAL timezone
-        const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
-        const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
-        
-        // Convert to UTC ISO strings for API
-        fromDateISO = startOfDay.toISOString();
-        toDateISO = endOfDay.toISOString();
+        // Send the date string as-is for both from/to so backend can build
+        // the correct local-day Instant range
+        fromDate = dateFilter;
+        toDate = dateFilter;
       }
       
       const response = await adminOrdersApiClient.getOrders({
@@ -208,8 +212,8 @@ const AdminOrdersPage: React.FC = () => {
         status: filters.status === 'all' ? undefined : filters.status,
         assignedTo,
         orderType: filters.orderType === 'all' ? undefined : filters.orderType,
-        from: fromDateISO,
-        to: toDateISO,
+        from: fromDate,
+        to: toDate,
       }, token);
 
       // Use API response as source of truth - it has the most up-to-date data
@@ -386,8 +390,9 @@ const AdminOrdersPage: React.FC = () => {
           }
           
           // Check date filter - only show orders from the selected date
+          // Convert UTC timestamp to local date for comparison
           if (filters.date) {
-            const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+            const orderDate = getLocalDateString(order.createdAt);
             if (orderDate !== filters.date) {
               console.log('❌ Order does not match date filter:', orderDate, 'vs', filters.date);
               return false;
@@ -503,7 +508,8 @@ const AdminOrdersPage: React.FC = () => {
             return false;
           }
           if (filters.date) {
-            const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+            // Convert UTC timestamp to local date for comparison
+            const orderDate = getLocalDateString(order.createdAt);
             if (orderDate !== filters.date) {
               return false;
             }
